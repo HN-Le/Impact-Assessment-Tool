@@ -24,6 +24,7 @@ class Application(tk.Tk):
         self.minsize(width=800, height=600)
         self.maxsize(width=1920, height=1080)
 
+
     def setup_menu(self):
         self.menuBar = Menu(master=self)
         self.filemenu = Menu(self.menuBar, tearoff=0)
@@ -53,8 +54,15 @@ class Application(tk.Tk):
 
         notebook.pack(expand=1, fill="both")
 
+
+
+
+
+
     # Exit GUI cleanly
     def _quit(self):
         self.quit()
         self.destroy()
         exit()
+
+

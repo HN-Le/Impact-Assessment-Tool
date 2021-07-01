@@ -9,4 +9,9 @@ class FieldTypes:
     integer = 6
     boolean = 7
 
+class Size:
+    label_frame_width = 600
+    label_frame_height = 150
 
+    button_width = 9
+    button_height = 1
