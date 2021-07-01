@@ -2,34 +2,29 @@ import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
 from tkinter import Menu
-from . import views as v
+from . import views as views
 from . import models as m
+from . import widgets as w
+
 
 class Application(tk.Tk):
     """Application root window"""
 
     def __init__(self):
         tk.Tk.__init__(self)
-        self.createWidgets()
+        self.setup_menu()
+        self.setup_screen()
         self.config(menu=self.menuBar)
 
         self.title("IA Tool")
         # start in fullscreen
-        self.state('zoomed')
+        #self.state('zoomed')
 
         # set min and max screen size
         self.minsize(width=800, height=600)
         self.maxsize(width=1920, height=1080)
 
-        ttk.Label(
-            self,
-            text="IA Tool",
-            font=("TkDefaultFont", 16)
-        ).grid(row=0)
-
-
-
-    def createWidgets(self):
+    def setup_menu(self):
         self.menuBar = Menu(master=self)
         self.filemenu = Menu(self.menuBar, tearoff=0)
         self.filemenu.add_command(label="New", command='')
@@ -48,16 +43,18 @@ class Application(tk.Tk):
         self.help_menu.add_command(label="About")
         self.menuBar.add_cascade(label="Help", menu=self.help_menu)
 
-        self.project_definition = v.ProjectDefinition(self)
-        self.project_definition.grid(row=1, padx=10)
+    def setup_screen(self):
+        notebook = ttk.Notebook(self)
 
-        self.tabs = v.Tabs(self)
-        self.tabs.grid()
+        notebook.add(views.ProjectPurposeScreen(), text='1- Project purpose')
+        notebook.add(views.DataCollectionScreen(), text='2- Data collection')
+        notebook.add(views.DataAnalysisScreen(), text='3- Data analysis')
+        notebook.add(views.ImpactAssessmentScreen(), text='3- Data analysis')
 
+        notebook.pack(expand=1, fill="both")
 
     # Exit GUI cleanly
     def _quit(self):
         self.quit()
         self.destroy()
         exit()
-

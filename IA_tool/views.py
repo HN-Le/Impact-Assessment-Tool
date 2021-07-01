@@ -7,107 +7,65 @@ from tkinter import filedialog
 from . import widgets as w
 
 
-class ProjectDefinition(tk.Frame):
-    def __init__(self, parent, *args):
-        super().__init__(parent, *args)
+class ProjectPurposeScreen(tk.Frame):
 
-        # Build
-        project_goals = tk.LabelFrame(self, text="Project Goals")
-        goal_model = tk.LabelFrame(self, text="Goal Model")
-        methode_fragments = tk.LabelFrame(self, text="Methode Fragments")
+    def __init__(self):
+        tk.Frame.__init__(self)
 
-        project_goals.grid(row=0, column=0, sticky=(tk.W + tk.E))
-        goal_model.grid(row=1, column=0, sticky=(tk.W + tk.E))
-        methode_fragments.grid(row=2, column=0, sticky=(tk.W + tk.E))
+        frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals", width=600, height=200)
+        frame_project_goals.grid_propagate(0)
+        frame_project_goals.grid(padx=(10,0),
+                                 sticky='nsew')
 
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure(2, weight=1)
-        self.grid_columnconfigure(3, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
+        label_project_goals = tk.Label(frame_project_goals,
+                         text='Identify project goals')
 
+        label_project_goals.grid(row=0, column=0,
+                   padx=(20, 0),
+                   sticky='nsew')
 
-class Tabs(tk.Frame):
+        button_upload = tk.Button(frame_project_goals, text='Upload', command='')
+        button_upload.grid(row=1, column=0,
+                           padx=(10, 0),
+                           pady=5,
+                           sticky='ew')
 
-    def __init__(self, parent, *args):
-        super().__init__(parent, *args)
+        button_show = tk.Button(frame_project_goals, text='Show', command='')
+        button_show.grid(row=2, column=0,
+                         padx=(10, 0),
+                         pady=2,
+                         sticky='ew')
 
-        names = ['1 - Project Definition', '2 - Data Collection', '3 - Data Analysis', '4 - Impact Evaluation']
-        self.nb = self.create_notebook(names)
+        label_file_path = tk.Label(frame_project_goals,
+                         text='- FILEPATH -')
 
-    def create_notebook(self, names):
-        nb = MyNotebook(self, names)
-        nb.pack()
-
-        def add_label(parent, text, row, column):
-            label = tk.Label(parent, text=text)
-            label.grid(row=row, column=column, sticky=tk.N, pady=10)
-            return label
-
-        # Add some labels to each tab
-        tab = nb.tabs['1 - Project Definition']
-        for i in range(3):
-            add_label(tab, 'test' + str(i), i, 0)
-
-        tab = nb.tabs['2 - Data Collection']
-        for i in range(3):
-            add_label(tab, 'goodie' + str(i), 0, i)
-
-        tab = nb.tabs['3 - Data Analysis']
-        for i in range(3):
-            add_label(tab, 'mana' + str(i), i, i)
-
-        return nb
+        label_file_path.grid(row=1, column=1,
+                   padx=(20, 0),
+                   sticky='nsew')
+        
 
 
-class MyNotebook(ttk.Notebook):
 
-    # A customised Notebook that remembers its tabs in a dictionary
-    def __init__(self, master, names):
-        super().__init__(master, width=(master.winfo_screenwidth()-150), height=(master.winfo_screenheight()-150))
-        print("WIDTH:  ", master.winfo_screenwidth())
-        print("HEIGHT:  ", master.winfo_screenheight())
+class DataCollectionScreen(tk.Frame):
 
-        # Create tabs & save them by name in a dictionary
-        self.tabs = {}
-        for name in names:
-            self.tabs[name] = tab = ttk.Frame(self)
-            self.add(tab, text=name)
+    def __init__(self):
+        tk.Frame.__init__(self)
+        tk.Label(self, text='Data collection content').pack()
 
 
-class MenuCreation(tk.Tk):
-    """The input form for our widgets"""
+class DataAnalysisScreen(tk.Frame):
 
-    def __init__(self, parent, *args):
-        super().__init__(parent, *args)
+    def __init__(self):
+        tk.Frame.__init__(self)
+        frame_project_goals = ttk.LabelFrame(self, text="Test")
+        frame_project_goals.pack(fill="both", expand="yes")
 
-    def create_menu(self):
-        # create menu bar
-        menu_bar = Menu(self)
-        self.config(menu=menu_bar)
+        label = tk.Label(frame_project_goals, text='Data analysis content')
+        label.pack()
 
-        # menu item: file
-        file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="New")
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self._quit)
-        menu_bar.add_cascade(label="File", menu=file_menu)
 
-        # menu item: data
-        data_menu = Menu(menu_bar, tearoff=0)
-        data_menu.add_command(label="Tables")
-        data_menu.add_command(label="Graph")
-        menu_bar.add_cascade(label="Data", menu=data_menu)
+class ImpactAssessmentScreen(tk.Frame):
 
-        # menu item: help
-        help_menu = Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="About")
-        menu_bar.add_cascade(label="Help", menu=help_menu)
-
-    # Exit GUI cleanly
-    def _quit(self):
-        self.quit()
-        self.destroy()
-        exit()
+    def __init__(self):
+        tk.Frame.__init__(self)
+        tk.Label(self, text='Impact assessment content').pack()

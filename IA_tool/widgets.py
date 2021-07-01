@@ -1,10 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from . import views as v
 
-class LabelInput(tk.Frame):
-    """A widget containing a label and input together."""
+class containerBlock(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
-
-
