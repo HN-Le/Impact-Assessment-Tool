@@ -28,12 +28,12 @@ class ProjectPurposeScreen(tk.Frame):
 
         self.project_pdf = w.PDFViewer(self)
 
-
         button_upload_1 = tk.Button(frame_project_goals,
                                     text='Upload',
                                     width=c.Size.button_width, height=c.Size.button_height,
                                     command= lambda: [self.project_pdf.get_file_path(), tk.Label(frame_project_goals,
-                                                text=self.project_pdf.file_path).grid(row=1, column=1, sticky='nsew')])
+                                                text=self.project_pdf.get_file_name()).grid(row=1, column=1, sticky='nsew')])
+
 
         button_upload_1.grid(row=1, column=0,
                              padx=(10, 0), pady=5,
@@ -114,6 +114,9 @@ class ProjectPurposeScreen(tk.Frame):
                            pady=2,
                            sticky='w')
 
+    # def make_new_object(self):
+    #     object = w.PDFViewer(self)
+    #     return object
 
 class DataCollectionScreen(tk.Frame):
 
