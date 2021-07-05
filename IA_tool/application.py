@@ -55,10 +55,6 @@ class Application(tk.Tk):
         notebook.pack(expand=1, fill="both")
 
 
-
-
-
-
     # Exit GUI cleanly
     def _quit(self):
         self.quit()
