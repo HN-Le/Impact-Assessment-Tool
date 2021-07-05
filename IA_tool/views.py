@@ -6,7 +6,8 @@ from tkinter import Menu
 from tkinter import filedialog
 from . import widgets as w
 from . import constants as c
-
+from tkPDFViewer import tkPDFViewer as pdf
+import webbrowser
 
 class ProjectPurposeScreen(tk.Frame):
 
@@ -45,12 +46,11 @@ class ProjectPurposeScreen(tk.Frame):
         button_upload_1.grid(row=1, column=0,
                              padx=(10, 0), pady=5,
                              sticky='w')
-
-
+        # place show button
         button_show_1 = tk.Button(frame_project_goals,
                                   text='Show',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command= self.project_pdf.show_project_goals)
+                                  command=self.project_pdf.show_project_goals)
 
         button_show_1.grid(row=2, column=0,
                          padx=(10, 0),
