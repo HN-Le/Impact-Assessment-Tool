@@ -39,6 +39,10 @@ class MethodFragmentSelection(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.mandatory_list = {'General project': True,
+                               'General national': True,
+                               'Demographic': True,
+                               'General regional': True}
         self.checkbox_list = {}
 
         global selection_window
@@ -71,7 +75,7 @@ class MethodFragmentSelection(tk.Frame):
             dataframe = dataframe_object.dataframe
 
             # remove dataframe from function ?
-            self.make_checkboxes(dataframe,  frame_method_fragments)
+            self.make_checkboxes(dataframe, frame_method_fragments)
 
             # generate button
             button_generate = tk.Button(frame_method_fragments,
@@ -93,11 +97,8 @@ class MethodFragmentSelection(tk.Frame):
         # tk.Checkbutton(frame_project_goals, text="male", variable=checkbox_1).grid(row=0, sticky='w')
 
     def make_checkboxes(self, dataframe, frame):
+
         self.unique_values = dataframe.category.unique()
-
-
-
-
         counter = 0
 
         self.checkbox = dict()
@@ -107,6 +108,11 @@ class MethodFragmentSelection(tk.Frame):
             self.checkbox[item] = tk.Checkbutton(frame, text=item, onvalue=True, offvalue =False)
             self.checkbox[item].var = tk.BooleanVar()
             self.checkbox[item]['variable'] = self.checkbox[item].var
+
+            if self.checkbox[item]['text'] in self.mandatory_list:
+                self.checkbox[item]['variable'] = True
+                self.checkbox[item].select()
+                self.checkbox[item].config(state='disabled')
 
             if counter < 15:
                 # print('Unique item: ', item)
@@ -123,8 +129,12 @@ class MethodFragmentSelection(tk.Frame):
 
     def selected_method_fragments(self, checkbox_state, checkbox_name):
 
+
         self.append_value(self.checkbox_list, checkbox_name, checkbox_state)
 
+        # set mandatory fragments as always true
+        for item in self.mandatory_list:
+            self.append_value(self.checkbox_list, item, True)
 
 
 
@@ -143,6 +153,7 @@ class MethodFragmentSelection(tk.Frame):
             # As key is not in dict,
             # so, add key-value pair
             dict_object[key] = value
+
 
 
     def send_category_object(self, key, value):
@@ -305,8 +316,6 @@ class MethodFragmentSelection(tk.Frame):
 
         scrollbar_v_student_list.config(command=student_list.yview)
         scrollbar_h_student_list.config(command=student_list.xview)
-
-
 
         # hide select method fragment screen to show questions
         self.hide_window()
