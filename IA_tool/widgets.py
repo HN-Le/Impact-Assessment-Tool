@@ -11,6 +11,7 @@ import pandas as pd
 from . import constants as c
 from varname import nameof
 from . import models as m
+from tkinter import font
 
 
 class PDFViewer(tk.Frame):
@@ -161,49 +162,74 @@ class MethodFragmentSelection(tk.Frame):
                                               padx=(20, 0),
                                               pady=(10, 0),
                                               sticky='w')
-        scrollbar_provider_list = tk.Scrollbar(self.frame)
-        project_provider_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_provider_list.set, width=c.Size.listbox_width, height=c.Size.listbox_height)
+        scrollbar_h_provider_list = tk.Scrollbar(self.frame)
+        scrollbar_v_provider_list = tk.Scrollbar(self.frame)
+        project_provider_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_provider_list.set, xscrollcommand=scrollbar_h_provider_list.set,
+                                           width=c.Size.listbox_width, height=c.Size.listbox_height)
 
-        scrollbar_provider_list.grid(row=5, column=1, sticky='ns')
+        scrollbar_v_provider_list.grid(row=5, column=1, sticky='ns')
+        scrollbar_h_provider_list.grid(row=6, column=0, sticky='we')
+
 
         for line in self.checkbox_list:
 
             values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'project_provider')
+            metrics = values[1].values
+            types = values[2].values
 
-            for item in values:
-                project_provider_list.insert(tk.END, '  ' + item)
+            for index, item in enumerate(values[0]):
+
+                project_provider_list.insert(tk.END, ' ' + item)
+                project_provider_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
+                project_provider_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
 
         project_provider_list.grid(row=5, column=0,
                     padx=(10, 0),
                     pady=2,
                     sticky='nswe')
-        scrollbar_provider_list.config(command=project_provider_list.yview)
+
+        scrollbar_v_provider_list.config(command=project_provider_list.yview)
+        scrollbar_h_provider_list.config(command=project_provider_list.xview)
+
 
         # ---------------------------------------------------------------------------
         label_survey_questions_community = tk.Label(self.frame,
                                           text='Generated questions for COMMUNITY SCHOOL LEADER: ')
 
-        label_survey_questions_community.grid(row=6, column=0,
+        label_survey_questions_community.grid(row=7, column=0,
                                     padx=(20, 0),
                                     pady=(10, 0),
                                     sticky='w')
-        scrollbar_community_list = tk.Scrollbar(self.frame)
-        community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_community_list.set, width=c.Size.listbox_width, height=c.Size.listbox_height)
 
-        scrollbar_community_list.grid(row=7, column=1, sticky='ns')
+        scrollbar_v_community_list = tk.Scrollbar(self.frame)
+        scrollbar_h_community_list = tk.Scrollbar(self.frame)
+
+        community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_community_list.set, xscrollcommand=scrollbar_h_community_list.set,
+                                    width=c.Size.listbox_width, height=c.Size.listbox_height)
+
+        scrollbar_v_community_list.grid(row=8, column=1, sticky='ns')
+        scrollbar_h_community_list.grid(row=9, column=0, sticky='we')
 
         for line in self.checkbox_list:
 
             values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'community_school_leader')
-            for item in values:
-                community_list.insert(tk.END, '  ' + item)
+            metrics = values[1].values
+            types = values[2].values
 
-        community_list.grid(row=7, column=0,
+
+            for index, item in enumerate(values[0]):
+                community_list.insert(tk.END, ' ' + item)
+                community_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
+                community_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
+
+        community_list.grid(row=8, column=0,
                                    padx=(10, 0),
                                    pady=2,
                                    sticky='nswe')
-        scrollbar_community_list.config(command=community_list.yview)
-        # ---------------------------------------------------------------------------
+        scrollbar_v_community_list.config(command=community_list.yview)
+        scrollbar_h_community_list.config(command=community_list.xview)
+
+        # # ---------------------------------------------------------------------------
 
         label_survey_questions_teacher = tk.Label(self.frame,
                                                     text='Generated questions for TEACHER: ')
@@ -212,49 +238,73 @@ class MethodFragmentSelection(tk.Frame):
                                               padx=(20, 0),
                                               pady=(10, 0),
                                               sticky='w')
-        scrollbar_teacher_list = tk.Scrollbar(self.frame)
-        teacher_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_teacher_list.set, width=c.Size.listbox_width, height=c.Size.listbox_height)
 
-        scrollbar_teacher_list.grid(row=5, column=3, sticky='ns')
+        scrollbar_v_teacher_list = tk.Scrollbar(self.frame)
+        scrollbar_h_teacher_list = tk.Scrollbar(self.frame)
+
+        teacher_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_teacher_list.set, xscrollcommand=scrollbar_h_teacher_list.set,
+                                  width=c.Size.listbox_width, height=c.Size.listbox_height)
+
+        scrollbar_v_teacher_list.grid(row=5, column=3, sticky='ns')
+        scrollbar_h_teacher_list.grid(row=6, column=2, sticky='we')
 
         for line in self.checkbox_list:
 
             values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'teacher')
-            for item in values:
-                teacher_list.insert(tk.END, '  ' + item)
+            metrics = values[1].values
+            types = values[2].values
+
+            for index, item in enumerate(values[0]):
+                teacher_list.insert(tk.END, ' ' + item)
+                teacher_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
+                teacher_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
 
         teacher_list.grid(row=5, column=2,
                             padx=(10, 0),
                             pady=2,
                             sticky='nswe')
-        scrollbar_teacher_list.config(command=teacher_list.yview)
+        scrollbar_v_teacher_list.config(command=teacher_list.yview)
+        scrollbar_h_teacher_list.config(command=teacher_list.xview)
 
-        # ---------------------------------------------------------------------------
+        # # ---------------------------------------------------------------------------
 
         label_survey_questions_student = tk.Label(self.frame,
                                                   text='Generated questions for STUDENT: ')
 
-        label_survey_questions_student.grid(row=6, column=2,
+        label_survey_questions_student.grid(row=8, column=2,
                                             padx=(20, 0),
                                             pady=(10, 0),
                                             sticky='w')
-        scrollbar_student_list = tk.Scrollbar(self.frame)
-        student_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_student_list.set, width=c.Size.listbox_width,
+
+        scrollbar_v_student_list = tk.Scrollbar(self.frame)
+        scrollbar_h_student_list = tk.Scrollbar(self.frame)
+
+
+        student_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_student_list.set, xscrollcommand=scrollbar_h_student_list.set,
+                                  width=c.Size.listbox_width,
                                   height=c.Size.listbox_height)
 
-        scrollbar_student_list.grid(row=7, column=3, sticky='ns')
+        scrollbar_v_student_list.grid(row=8, column=3, sticky='ns')
+        scrollbar_h_student_list.grid(row=9, column=2, sticky='we')
 
         for line in self.checkbox_list:
 
             values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'student')
-            for item in values:
-                student_list.insert(tk.END, '  ' + item)
+            metrics = values[1].values
+            types = values[2].values
 
-        student_list.grid(row=7, column=2,
+            for index, item in enumerate(values[0]):
+                student_list.insert(tk.END, ' ' + item)
+                student_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
+                student_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
+
+        student_list.grid(row=8, column=2,
                           padx=(10, 0),
                           pady=2,
                           sticky='nswe')
-        scrollbar_student_list.config(command=student_list.yview)
+
+        scrollbar_v_student_list.config(command=student_list.yview)
+        scrollbar_h_student_list.config(command=student_list.xview)
 
 
 

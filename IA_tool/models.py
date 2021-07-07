@@ -14,12 +14,16 @@ class surveyModel:
 
         # print('Checked item: ',item)
 
-        test_values = df.loc[(df['category'] == item) & (df['target'] == target)]
-        test_value_question = test_values['survey_input'].tolist()
+        relevant_categories = df.loc[(df['category'] == item) & (df['target'] == target)]
+        relevant_survey_inputs = relevant_categories['survey_input']
+        relevant_metrics = relevant_categories['metric']
+        relevant_type = relevant_categories['type']
 
-        # print('Test Values: ',test_values)
+        list_items = [relevant_survey_inputs, relevant_metrics, relevant_type]
 
-        return test_value_question
+        return list_items
+
+
 
 
 
