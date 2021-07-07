@@ -131,20 +131,12 @@ class ProjectPurposeScreen(tk.Frame):
                            pady=2,
                            sticky='w')
 
-        label_generated_survey_questions = tk.Label(frame_select_method_fragments,
-                                                    text='Generated survey questions: ')
 
-        label_generated_survey_questions.grid(row=4, column=0,
-                                              padx=(20, 0),
-                                              pady=(10, 0),
-                                              sticky='w')
 
         self.sendFrame(frame_select_method_fragments)
 
     def sendFrame(self, frame):
-        print('SENDFRAME: ',type(frame))
         self.method_fragment.retrieve_frame(frame)
-
 
     def getProjectPdfPath(self):
         self.project_pdf_file_path = filedialog.askopenfilename()
