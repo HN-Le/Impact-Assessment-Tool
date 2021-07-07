@@ -42,7 +42,6 @@ class MethodFragmentSelection(tk.Frame):
         global selection_window
         self.selection_window = None
 
-        self.active_scrollbar = None
 
 
     def show_selection_screen(self):
@@ -157,36 +156,18 @@ class MethodFragmentSelection(tk.Frame):
     def generate_questions(self):
 
         scrollbar = tk.Scrollbar(self.frame)
+        mylist = tk.Listbox(self.frame, yscrollcommand=scrollbar.set, width=50)
 
-        if self.active_scrollbar is None:
+        scrollbar.grid(row=5, column=6, sticky='ns')
 
-            print("First scrollbar")
-            scrollbar.grid(column=6, sticky='ns')
+        for line in self.checkbox_list:
+            mylist.insert(tk.END, line)
 
-            mylist = tk.Listbox(self.frame, yscrollcommand=scrollbar.set, width=50)
-
-            for line in self.checkbox_list:
-                mylist.insert(tk.END, line)
-
-            mylist.grid(row=6, column=0,
-                        padx=(10, 0),
-                        pady=2,
-                        sticky='nswe')
-            scrollbar.config(command=mylist.yview)
-
-            self.active_scrollbar = True
-
-        else:
-
-            mylist = tk.Listbox(self.frame, yscrollcommand=scrollbar.set, width=50)
-
-            for line in self.checkbox_list:
-                mylist.insert(tk.END, line)
-
-            mylist.grid(row=6, column=0,
-                        padx=(10, 0),
-                        pady=2,
-                        sticky='nswe')
+        mylist.grid(row=5, column=0,
+                    padx=(10, 0),
+                    pady=2,
+                    sticky='nswe')
+        scrollbar.config(command=mylist.yview)
 
         print(self.checkbox_list)
 

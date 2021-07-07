@@ -136,38 +136,10 @@ class ProjectPurposeScreen(tk.Frame):
 
         label_generated_survey_questions.grid(row=4, column=0,
                                               padx=(20, 0),
+                                              pady=(10, 0),
                                               sticky='w')
-        # show button
-        button_show = tk.Button(frame_select_method_fragments,
-                                text='Show',
-                                width=c.Size.button_width, height=c.Size.button_height,
-                                command='')
-
-        button_show.grid(row=5, column=0,
-                         padx=(10, 0),
-                         pady=2,
-                         sticky='w')
-
 
         self.sendFrame(frame_select_method_fragments)
-        # scrollbar = tk.Scrollbar(frame_select_method_fragments)
-        # scrollbar.grid(column=6,
-        #                  sticky='ns')
-        #
-        # mylist = tk.Listbox(frame_select_method_fragments, yscrollcommand=scrollbar.set, width=50)
-        #
-        # for line in self.method_fragment.checkbox_list:
-        #     mylist.insert(tk.END, line)
-        #     print("work?")
-        #
-        # # for line in range(100):
-        # #     mylist.insert(tk.END, "This is question " + str(line))
-        #
-        # mylist.grid(row=6, column=0,
-        #                  padx=(10, 0),
-        #                  pady=2,
-        #                  sticky='nswe')
-        # scrollbar.config(command=mylist.yview)
 
     def sendFrame(self, frame):
         print('SENDFRAME: ',type(frame))
