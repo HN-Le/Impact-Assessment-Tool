@@ -15,3 +15,6 @@ class Size:
 
     button_width = 9
     button_height = 1
+
+    listbox_width = 70
+    listbox_height = 10

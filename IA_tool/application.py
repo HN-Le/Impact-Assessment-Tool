@@ -18,7 +18,7 @@ class Application(tk.Tk):
 
         self.title("IA Tool")
         # start in fullscreen
-        #self.state('zoomed')
+        self.state('zoomed')
 
         # set min and max screen size
         self.minsize(width=800, height=600)

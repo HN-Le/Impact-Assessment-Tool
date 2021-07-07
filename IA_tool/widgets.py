@@ -162,9 +162,9 @@ class MethodFragmentSelection(tk.Frame):
                                               pady=(10, 0),
                                               sticky='w')
         scrollbar_provider_list = tk.Scrollbar(self.frame)
-        project_provider_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_provider_list.set, width=50)
+        project_provider_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_provider_list.set, width=c.Size.listbox_width, height=c.Size.listbox_height)
 
-        scrollbar_provider_list.grid(row=5, column=6, sticky='ns')
+        scrollbar_provider_list.grid(row=5, column=1, sticky='ns')
 
         for line in self.checkbox_list:
 
@@ -188,14 +188,13 @@ class MethodFragmentSelection(tk.Frame):
                                     pady=(10, 0),
                                     sticky='w')
         scrollbar_community_list = tk.Scrollbar(self.frame)
-        community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_community_list.set, width=50)
+        community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_community_list.set, width=c.Size.listbox_width, height=c.Size.listbox_height)
 
-        scrollbar_community_list.grid(row=7, column=6, sticky='ns')
+        scrollbar_community_list.grid(row=7, column=1, sticky='ns')
 
         for line in self.checkbox_list:
 
             values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'community_school_leader')
-
             for item in values:
                 community_list.insert(tk.END, '  ' + item)
 
@@ -204,6 +203,59 @@ class MethodFragmentSelection(tk.Frame):
                                    pady=2,
                                    sticky='nswe')
         scrollbar_community_list.config(command=community_list.yview)
+        # ---------------------------------------------------------------------------
+
+        label_survey_questions_teacher = tk.Label(self.frame,
+                                                    text='Generated questions for TEACHER: ')
+
+        label_survey_questions_teacher.grid(row=4, column=2,
+                                              padx=(20, 0),
+                                              pady=(10, 0),
+                                              sticky='w')
+        scrollbar_teacher_list = tk.Scrollbar(self.frame)
+        teacher_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_teacher_list.set, width=c.Size.listbox_width, height=c.Size.listbox_height)
+
+        scrollbar_teacher_list.grid(row=5, column=3, sticky='ns')
+
+        for line in self.checkbox_list:
+
+            values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'teacher')
+            for item in values:
+                teacher_list.insert(tk.END, '  ' + item)
+
+        teacher_list.grid(row=5, column=2,
+                            padx=(10, 0),
+                            pady=2,
+                            sticky='nswe')
+        scrollbar_teacher_list.config(command=teacher_list.yview)
+
+        # ---------------------------------------------------------------------------
+
+        label_survey_questions_student = tk.Label(self.frame,
+                                                  text='Generated questions for STUDENT: ')
+
+        label_survey_questions_student.grid(row=6, column=2,
+                                            padx=(20, 0),
+                                            pady=(10, 0),
+                                            sticky='w')
+        scrollbar_student_list = tk.Scrollbar(self.frame)
+        student_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_student_list.set, width=c.Size.listbox_width,
+                                  height=c.Size.listbox_height)
+
+        scrollbar_student_list.grid(row=7, column=3, sticky='ns')
+
+        for line in self.checkbox_list:
+
+            values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'student')
+            for item in values:
+                student_list.insert(tk.END, '  ' + item)
+
+        student_list.grid(row=7, column=2,
+                          padx=(10, 0),
+                          pady=2,
+                          sticky='nswe')
+        scrollbar_student_list.config(command=student_list.yview)
+
 
 
         # hide select method fragment screen to show questions

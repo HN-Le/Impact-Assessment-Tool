@@ -105,7 +105,7 @@ class ProjectPurposeScreen(tk.Frame):
         # -------------------------------------------------------------------------------------------
 
         frame_select_method_fragments = ttk.LabelFrame(self, text="1.3 Method Fragments",
-                                          width=c.Size.label_frame_width, height=600)
+                                          width=1200, height=600)
         frame_select_method_fragments.grid_propagate(0)
         frame_select_method_fragments.grid(padx=(10, 0),
                               sticky='nsew')
@@ -137,6 +137,7 @@ class ProjectPurposeScreen(tk.Frame):
 
     def sendFrame(self, frame):
         self.method_fragment.retrieve_frame(frame)
+
 
     def getProjectPdfPath(self):
         self.project_pdf_file_path = filedialog.askopenfilename()
