@@ -42,6 +42,8 @@ class MethodFragmentSelection(tk.Frame):
         global selection_window
         self.selection_window = None
 
+        self.active_scrollbar = None
+
 
     def show_selection_screen(self):
 
@@ -80,7 +82,7 @@ class MethodFragmentSelection(tk.Frame):
             button_generate = tk.Button(frame_method_fragments,
                                         text='Generate',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=self.close_screen)
+                                        command=self.generate_questions)
 
             button_generate.grid(row=18, column=0,
                                  padx=(10, 0),
@@ -125,7 +127,7 @@ class MethodFragmentSelection(tk.Frame):
     def selected_method_fragments(self, checkbox_state, checkbox_name):
 
         self.append_value(self.checkbox_list, checkbox_name, checkbox_state)
-        print(self.checkbox_list)
+
 
 
 
@@ -152,23 +154,43 @@ class MethodFragmentSelection(tk.Frame):
 
         self.selected_method_fragments(self.value, self.key)
 
-    def close_screen(self):
+    def generate_questions(self):
 
         scrollbar = tk.Scrollbar(self.frame)
 
-        scrollbar.grid(column=6, sticky='ns')
+        if self.active_scrollbar is None:
 
-        mylist = tk.Listbox(self.frame, yscrollcommand=scrollbar.set, width=50)
+            print("First scrollbar")
+            scrollbar.grid(column=6, sticky='ns')
 
-        for line in self.checkbox_list:
-            mylist.insert(tk.END, line)
+            mylist = tk.Listbox(self.frame, yscrollcommand=scrollbar.set, width=50)
 
-        mylist.grid(row=6, column=0,
-                    padx=(10, 0),
-                    pady=2,
-                    sticky='nswe')
-        scrollbar.config(command=mylist.yview)
+            for line in self.checkbox_list:
+                mylist.insert(tk.END, line)
 
+            mylist.grid(row=6, column=0,
+                        padx=(10, 0),
+                        pady=2,
+                        sticky='nswe')
+            scrollbar.config(command=mylist.yview)
+
+            self.active_scrollbar = True
+
+        else:
+
+            mylist = tk.Listbox(self.frame, yscrollcommand=scrollbar.set, width=50)
+
+            for line in self.checkbox_list:
+                mylist.insert(tk.END, line)
+
+            mylist.grid(row=6, column=0,
+                        padx=(10, 0),
+                        pady=2,
+                        sticky='nswe')
+
+        print(self.checkbox_list)
+
+        # hide select method fragment screen to show questions
         self.hide_window()
 
     def retrieve_frame(self, frame):
@@ -176,3 +198,4 @@ class MethodFragmentSelection(tk.Frame):
 
     def hide_window(self):
         self.selection_window.withdraw()
+
