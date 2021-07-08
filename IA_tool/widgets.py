@@ -43,7 +43,16 @@ class MethodFragmentSelection(tk.Frame):
                                'General national': True,
                                'Demographic': True,
                                'General regional': True}
+
+        self.chose_target_list = {'Student': 'student',
+                             'Community School Leader': 'community_school_leader',
+                             'Teacher': 'teacher',
+                             'Project Provider': 'project_provider',
+                             }
+
         self.checkbox_list = {}
+        self.input_combobox = {}
+
 
         global selection_window
         self.selection_window = None
@@ -141,15 +150,13 @@ class MethodFragmentSelection(tk.Frame):
             self.checkbox[item]['command'] = lambda w=self.checkbox[item]: self.send_category_object(w['text'], w.var.get())
 
 
-    def selected_method_fragments(self, checkbox_state, checkbox_name):
-
-
-        self.append_value(self.checkbox_list, checkbox_name, checkbox_state)
-
         # set mandatory fragments as always true
         for item in self.mandatory_list:
             self.append_value(self.checkbox_list, item, True)
 
+    def selected_method_fragments(self, checkbox_state, checkbox_name):
+
+        self.append_value(self.checkbox_list, checkbox_name, checkbox_state)
 
 
     def append_value(self, dict_object, key, value):
@@ -178,158 +185,28 @@ class MethodFragmentSelection(tk.Frame):
 
     def generate_questions(self):
 
-        dataframe = m.surveyModel()
+        self.create_list('project_provider')
 
-        label_survey_questions_provider = tk.Label(self.frame,
-                                                    text='Generated questions for PROJECT PROVIDER: ')
+        combobox_target = ttk.Combobox(
+            self.frame,
+            values=["Project Provider",
+                    "Community School Leader",
+                    "Teacher",
+                    "Student"
+                    ])
 
-        label_survey_questions_provider.grid(row=4, column=0,
-                                              padx=(20, 0),
-                                              pady=(10, 0),
-                                              sticky='w')
-        scrollbar_h_provider_list = tk.Scrollbar(self.frame)
-        scrollbar_v_provider_list = tk.Scrollbar(self.frame)
-        project_provider_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_provider_list.set, xscrollcommand=scrollbar_h_provider_list.set,
-                                           width=c.Size.listbox_width, height=c.Size.listbox_height)
-
-        scrollbar_v_provider_list.grid(row=5, column=1, sticky='ns')
-        scrollbar_h_provider_list.grid(row=6, column=0, sticky='we')
+        combobox_target.current(0)
+        # -----------------------
 
 
-        for line in self.checkbox_list:
-
-            values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'project_provider')
-            metrics = values[1].values
-            types = values[2].values
-
-            for index, item in enumerate(values[0]):
-
-                project_provider_list.insert(tk.END, ' ' + item)
-                project_provider_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
-                project_provider_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
-
-        project_provider_list.grid(row=5, column=0,
-                    padx=(10, 0),
-                    pady=2,
-                    sticky='nswe')
-
-        scrollbar_v_provider_list.config(command=project_provider_list.yview)
-        scrollbar_h_provider_list.config(command=project_provider_list.xview)
 
 
-        # ---------------------------------------------------------------------------
-        label_survey_questions_community = tk.Label(self.frame,
-                                          text='Generated questions for COMMUNITY SCHOOL LEADER: ')
+        combobox_target.grid(row=5, column=0, padx=(20, 0), pady=2,
+                             sticky='w')
 
-        label_survey_questions_community.grid(row=7, column=0,
-                                    padx=(20, 0),
-                                    pady=(10, 0),
-                                    sticky='w')
-
-        scrollbar_v_community_list = tk.Scrollbar(self.frame)
-        scrollbar_h_community_list = tk.Scrollbar(self.frame)
-
-        community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_community_list.set, xscrollcommand=scrollbar_h_community_list.set,
-                                    width=c.Size.listbox_width, height=c.Size.listbox_height)
-
-        scrollbar_v_community_list.grid(row=8, column=1, sticky='ns')
-        scrollbar_h_community_list.grid(row=9, column=0, sticky='we')
-
-        for line in self.checkbox_list:
-
-            values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'community_school_leader')
-            metrics = values[1].values
-            types = values[2].values
-
-
-            for index, item in enumerate(values[0]):
-                community_list.insert(tk.END, ' ' + item)
-                community_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
-                community_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
-
-        community_list.grid(row=8, column=0,
-                                   padx=(10, 0),
-                                   pady=2,
-                                   sticky='nswe')
-        scrollbar_v_community_list.config(command=community_list.yview)
-        scrollbar_h_community_list.config(command=community_list.xview)
+        combobox_target.bind("<<ComboboxSelected>>", self.get_target)
 
         # # ---------------------------------------------------------------------------
-
-        label_survey_questions_teacher = tk.Label(self.frame,
-                                                    text='Generated questions for TEACHER: ')
-
-        label_survey_questions_teacher.grid(row=4, column=2,
-                                              padx=(20, 0),
-                                              pady=(10, 0),
-                                              sticky='w')
-
-        scrollbar_v_teacher_list = tk.Scrollbar(self.frame)
-        scrollbar_h_teacher_list = tk.Scrollbar(self.frame)
-
-        teacher_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_teacher_list.set, xscrollcommand=scrollbar_h_teacher_list.set,
-                                  width=c.Size.listbox_width, height=c.Size.listbox_height)
-
-        scrollbar_v_teacher_list.grid(row=5, column=3, sticky='ns')
-        scrollbar_h_teacher_list.grid(row=6, column=2, sticky='we')
-
-        for line in self.checkbox_list:
-
-            values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'teacher')
-            metrics = values[1].values
-            types = values[2].values
-
-            for index, item in enumerate(values[0]):
-                teacher_list.insert(tk.END, ' ' + item)
-                teacher_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
-                teacher_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
-
-        teacher_list.grid(row=5, column=2,
-                            padx=(10, 0),
-                            pady=2,
-                            sticky='nswe')
-        scrollbar_v_teacher_list.config(command=teacher_list.yview)
-        scrollbar_h_teacher_list.config(command=teacher_list.xview)
-
-        # # ---------------------------------------------------------------------------
-
-        label_survey_questions_student = tk.Label(self.frame,
-                                                  text='Generated questions for STUDENT: ')
-
-        label_survey_questions_student.grid(row=7, column=2,
-                                            padx=(20, 0),
-                                            pady=(10, 0),
-                                            sticky='w')
-
-        scrollbar_v_student_list = tk.Scrollbar(self.frame)
-        scrollbar_h_student_list = tk.Scrollbar(self.frame)
-
-
-        student_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_student_list.set, xscrollcommand=scrollbar_h_student_list.set,
-                                  width=c.Size.listbox_width,
-                                  height=c.Size.listbox_height)
-
-        scrollbar_v_student_list.grid(row=8, column=3, sticky='ns')
-        scrollbar_h_student_list.grid(row=9, column=2, sticky='we')
-
-        for line in self.checkbox_list:
-
-            values = dataframe.show_relevant_fragments(dataframe.dataframe, line, 'student')
-            metrics = values[1].values
-            types = values[2].values
-
-            for index, item in enumerate(values[0]):
-                student_list.insert(tk.END, ' ' + item)
-                student_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
-                student_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
-
-        student_list.grid(row=8, column=2,
-                          padx=(10, 0),
-                          pady=2,
-                          sticky='nswe')
-
-        scrollbar_v_student_list.config(command=student_list.yview)
-        scrollbar_h_student_list.config(command=student_list.xview)
 
         # hide select method fragment screen to show questions
         self.hide_window()
@@ -404,6 +281,51 @@ class MethodFragmentSelection(tk.Frame):
         print('COMBOBOX 2: ', combobox_2.get())
         print('TEXT BOX: ', text.get())
 
+    def get_target(self, event=None):
+        self.input_combobox = event.widget.get()
+
+        target_key = self.chose_target_list[self.input_combobox]
 
 
+        self.create_list(target_key)
 
+    def create_list(self, target_key):
+
+        self.dataframe = m.surveyModel()
+
+        label_survey_questions_community = tk.Label(self.frame,
+                                                    text='Generated questions for: ')
+
+        label_survey_questions_community.grid(row=4, column=0,
+                                              padx=(20, 0),
+                                              pady=(10, 0),
+                                              sticky='w')
+
+        scrollbar_v_community_list = tk.Scrollbar(self.frame)
+        scrollbar_h_community_list = tk.Scrollbar(self.frame)
+
+        self.community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_community_list.set,
+                                         xscrollcommand=scrollbar_h_community_list.set,
+                                         width=140, height=20)
+
+        scrollbar_v_community_list.grid(row=6, column=1, sticky='ns')
+        scrollbar_h_community_list.grid(row=7, column=0, sticky='we')
+
+        self.community_list.grid(row=6, column=0,
+                                 padx=(10, 0),
+                                 pady=2,
+                                 sticky='nswe')
+
+        scrollbar_v_community_list.config(command=self.community_list.yview)
+        scrollbar_h_community_list.config(command=self.community_list.xview)
+
+        for line in self.checkbox_list:
+            values = self.dataframe.show_relevant_fragments(self.dataframe.dataframe, line, target_key)
+            metrics = values[1].values
+            types = values[2].values
+
+            for index, item in enumerate(values[0]):
+                self.community_list.insert(tk.END, ' ' + item)
+                self.community_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
+                self.community_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
+                self.community_list.insert(tk.END, '\n')
