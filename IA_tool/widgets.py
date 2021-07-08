@@ -60,16 +60,25 @@ class MethodFragmentSelection(tk.Frame):
             width =  self.selection_window.winfo_screenwidth()
             height =  self.selection_window.winfo_screenheight()
 
+
             # root.geometry(f'{width/2}x{height/2}')
-            self.selection_window.geometry('%sx%s' % (int(width / 2.5), int(height / 1.2)))
+            self.selection_window.geometry('%sx%s' % (int(width-100), int(height)))
 
             self.selection_window.protocol("WM_DELETE_WINDOW", self.hide_window)
 
             frame_method_fragments= ttk.LabelFrame( self.selection_window, text="1.3 - Select method fragments",
-                                                 width=600, height=600)
+                                                 width=1200, height=400)
             frame_method_fragments.grid_propagate(0)
             frame_method_fragments.grid(padx=(10, 0),
                                      sticky='nsew')
+
+            frame_add_metric = ttk.LabelFrame(self.selection_window, text="Add additional metrics",
+                                                    width=1200, height=400)
+            frame_add_metric.grid_propagate(0)
+            frame_add_metric.grid(padx=(10, 0),
+                                        sticky='nsew')
+
+            self.add_metric(frame_add_metric)
 
             dataframe_object = m.surveyModel()
             dataframe = dataframe_object.dataframe
@@ -99,6 +108,9 @@ class MethodFragmentSelection(tk.Frame):
     def make_checkboxes(self, dataframe, frame):
 
         self.unique_values = dataframe.category.unique()
+
+        amount_values = len(self.unique_values)
+
         counter = 0
 
         self.checkbox = dict()
@@ -114,15 +126,17 @@ class MethodFragmentSelection(tk.Frame):
                 self.checkbox[item].select()
                 self.checkbox[item].config(state='disabled')
 
-            if counter < 15:
+            if counter < int(amount_values/3):
                 # print('Unique item: ', item)
                 counter += 1
                 self.checkbox[item].grid(row=counter, sticky='w')
 
-
+            elif counter < int(amount_values/3 * 2):
+                counter += 1
+                self.checkbox[item].grid(row=counter - int(amount_values/3), column=1 , sticky='w')
             else:
                 counter += 1
-                self.checkbox[item].grid(row=(counter - 15), column=1, sticky='w')
+                self.checkbox[item].grid(row=(counter - int(amount_values/3 * 2)), column=2, sticky='w')
 
             self.checkbox[item]['command'] = lambda w=self.checkbox[item]: self.send_category_object(w['text'], w.var.get())
 
@@ -282,7 +296,7 @@ class MethodFragmentSelection(tk.Frame):
         label_survey_questions_student = tk.Label(self.frame,
                                                   text='Generated questions for STUDENT: ')
 
-        label_survey_questions_student.grid(row=8, column=2,
+        label_survey_questions_student.grid(row=7, column=2,
                                             padx=(20, 0),
                                             pady=(10, 0),
                                             sticky='w')
@@ -325,6 +339,70 @@ class MethodFragmentSelection(tk.Frame):
 
     def hide_window(self):
         self.selection_window.withdraw()
+
+    def add_metric(self, frame):
+
+        label_metric = tk.Label(frame, text='Metric')
+
+        label_metric.grid(row=2, column=0,
+
+                                            pady=(10, 0),
+                                            sticky='w')
+
+        user_metric = tk.StringVar()
+        user_metric_input = ttk.Entry(frame, width = 15, textvariable=user_metric)
+        user_metric_input.grid(row=3, column=0, padx=2)
+
+        label_fragment = tk.Label(frame, text='Method fragment')
+        label_fragment.grid(row=2, column=1,
+
+                          pady=(10, 0),
+                          sticky='w')
+
+        combobox = ttk.Combobox(
+            frame,
+            values=["Option 1", "Option 2", "Option 3"])
+        combobox.grid(row=3, column=1, padx=2)
+
+        label_type= tk.Label(frame, text='Data type')
+        label_type.grid(row=2, column=2,
+                          pady=(10, 0),
+                          sticky='w')
+
+        combobox_2 = ttk.Combobox(
+            frame,
+            values=["Option 1", "Option 2", "Option 3"])
+        combobox_2.grid(row=3, column=2, padx=2)
+
+
+        button_add = tk.Button(frame,
+                                    text='Add',
+                                    width=c.Size.button_width, height=c.Size.button_height,
+                                    command= lambda: [self.add_button(combobox, combobox_2, user_metric)])
+
+        button_add.grid(row=3, column=3,
+                             padx=(10, 0),
+                             sticky='w')
+
+        button_remove = tk.Button(frame,
+                               text='Remove',
+                               width=c.Size.button_width, height=c.Size.button_height,
+                               command='')
+
+        button_remove.grid(row=3, column=4,
+                        padx=(10, 0),
+                        sticky='w')
+
+
+    def add_button(self, combobox, combobox_2, text):
+        combobox.current()
+        combobox_2.current()
+
+        combobox.get()
+        combobox_2.get()
+        print('COMBOBOX 1: ', combobox.get())
+        print('COMBOBOX 2: ', combobox_2.get())
+        print('TEXT BOX: ', text.get())
 
 
 
