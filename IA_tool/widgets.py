@@ -32,7 +32,9 @@ class PDFViewer(tk.Frame):
         self.file_path = filename
 
     def get_file_name(self):
-        return self.file_path.split("/")[-1]
+
+        shown_text = "Filename: " + self.file_path.split("/")[-1]
+        return shown_text
 
 class MethodFragmentSelection(tk.Frame):
 
@@ -57,23 +59,22 @@ class MethodFragmentSelection(tk.Frame):
         global selection_window
         self.selection_window = None
 
-
-
+        global info_window
+        self.info_window = None
 
     def show_selection_screen(self):
 
         if not self.selection_window:
+
             self.selection_window = tk.Toplevel()
             self.selection_window.wm_title('Select Method Fragments')
 
             width =  self.selection_window.winfo_screenwidth()
             height =  self.selection_window.winfo_screenheight()
 
-
-            # root.geometry(f'{width/2}x{height/2}')
             self.selection_window.geometry('%sx%s' % (int(width-100), int(height)))
 
-            self.selection_window.protocol("WM_DELETE_WINDOW", self.hide_window)
+            self.selection_window.protocol("WM_DELETE_WINDOW", lambda arg='method_fragment': self.hide_window(arg))
 
             frame_method_fragments= ttk.LabelFrame( self.selection_window, text="1.3 - Select method fragments",
                                                  width=1200, height=400)
@@ -110,6 +111,29 @@ class MethodFragmentSelection(tk.Frame):
             self.selection_window.deiconify()
 
 
+    def show_info_screen(self):
+
+        if not self.info_window:
+            self.info_window = tk.Toplevel()
+            self.info_window.wm_title('Summary')
+
+            width = self.info_window.winfo_screenwidth()
+            height = self.info_window.winfo_screenheight()
+
+            self.info_window.geometry('%sx%s' % (int(width-100), int(height)))
+
+            self.info_window.protocol("WM_DELETE_WINDOW", lambda arg='summary': self.hide_window(arg))
+
+            self.make_summary_tabs()
+
+            self.make_questions()
+
+            # go to metric tab
+            self.notebook_summary.select(1)
+
+
+        else:
+            self.info_window.deiconify()
 
         # checkbox_1 = tk.BooleanVar()
         # tk.Checkbutton(frame_project_goals, text="male", variable=checkbox_1).grid(row=0, sticky='w')
@@ -184,38 +208,18 @@ class MethodFragmentSelection(tk.Frame):
         self.selected_method_fragments(self.value, self.key)
 
     def generate_questions(self):
-
-        self.create_list('project_provider')
-
-        combobox_target = ttk.Combobox(
-            self.frame,
-            values=["Project Provider",
-                    "Community School Leader",
-                    "Teacher",
-                    "Student"
-                    ])
-
-        combobox_target.current(0)
-        # -----------------------
-
-
-
-
-        combobox_target.grid(row=5, column=0, padx=(20, 0), pady=2,
-                             sticky='w')
-
-        combobox_target.bind("<<ComboboxSelected>>", self.get_target)
-
-        # # ---------------------------------------------------------------------------
-
         # hide select method fragment screen to show questions
-        self.hide_window()
+        self.hide_window('method_fragment')
 
     def retrieve_frame(self, frame):
         self.frame = frame
 
-    def hide_window(self):
-        self.selection_window.withdraw()
+    def hide_window(self, window):
+
+        if window == "method_fragment":
+            self.selection_window.withdraw()
+        elif window == "summary":
+            self.info_window.withdraw()
 
     def add_metric(self, frame):
 
@@ -293,7 +297,7 @@ class MethodFragmentSelection(tk.Frame):
 
         self.dataframe = m.surveyModel()
 
-        label_survey_questions_community = tk.Label(self.frame,
+        label_survey_questions_community = tk.Label(self.frame_questions,
                                                     text='Generated questions for: ')
 
         label_survey_questions_community.grid(row=4, column=0,
@@ -301,12 +305,12 @@ class MethodFragmentSelection(tk.Frame):
                                               pady=(10, 0),
                                               sticky='w')
 
-        scrollbar_v_community_list = tk.Scrollbar(self.frame)
-        scrollbar_h_community_list = tk.Scrollbar(self.frame)
+        scrollbar_v_community_list = tk.Scrollbar(self.frame_questions)
+        scrollbar_h_community_list = tk.Scrollbar(self.frame_questions)
 
-        self.community_list = tk.Listbox(self.frame, yscrollcommand=scrollbar_v_community_list.set,
+        self.community_list = tk.Listbox(self.frame_questions, yscrollcommand=scrollbar_v_community_list.set,
                                          xscrollcommand=scrollbar_h_community_list.set,
-                                         width=140, height=20)
+                                         width=140, height=15)
 
         scrollbar_v_community_list.grid(row=6, column=1, sticky='ns')
         scrollbar_h_community_list.grid(row=7, column=0, sticky='we')
@@ -329,3 +333,49 @@ class MethodFragmentSelection(tk.Frame):
                 self.community_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
                 self.community_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
                 self.community_list.insert(tk.END, '\n')
+
+        button_download_all = tk.Button(self.frame_questions,
+                               text='Download all questions',
+                               height=c.Size.button_height,
+                               command='')
+
+        button_download_all.grid(row=9, column=0,
+                        padx=(10, 0),
+                        sticky='w')
+
+    def make_summary_tabs(self):
+        self.notebook_summary = ttk.Notebook(self.info_window)
+
+        self.frame_metrics = ttk.Frame(self.info_window, width=1200, height=400)
+        self.frame_metrics .grid_propagate(0)
+        self.frame_metrics .grid(padx=(10, 0),
+                                    sticky='nsew')
+
+        self.frame_questions = ttk.Frame(self.info_window, width=1200, height=400)
+        self.frame_questions.grid_propagate(0)
+        self.frame_questions.grid(padx=(10, 0),
+                                    sticky='nsew')
+
+        self.notebook_summary.add(self.frame_metrics , text='Metrics')
+        self.notebook_summary.add( self.frame_questions, text='Survey Questions')
+
+        self.notebook_summary.pack(expand=1, fill="both")
+
+    def make_questions(self):
+        self.create_list('project_provider')
+
+        combobox_target = ttk.Combobox(
+            self.frame_questions,
+            values=["Project Provider",
+                    "Community School Leader",
+                    "Teacher",
+                    "Student"
+                    ])
+
+        combobox_target.current(0)
+        # -----------------------
+
+        combobox_target.grid(row=5, column=0, padx=(20, 0), pady=2,
+                             sticky='w')
+
+        combobox_target.bind("<<ComboboxSelected>>", self.get_target)

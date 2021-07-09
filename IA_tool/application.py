@@ -56,7 +56,7 @@ class Application(tk.Tk):
         notebook.add(views.DataAnalysisScreen(), text='3- Data analysis')
         notebook.add(views.ImpactAssessmentScreen(), text='3- Data analysis')
 
-        notebook.pack(expand=1, fill="both")
+        notebook.grid(row=1, column=1, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
 
 
     # Exit GUI cleanly
