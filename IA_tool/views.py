@@ -143,6 +143,60 @@ class ProjectPurposeScreen(tk.Frame):
                              pady=2,
                              sticky='w')
 
+        label_add_definition = tk.Label(frame_select_method_fragments,
+                                                   text='Add metric definition & set targets')
+
+        label_add_definition.grid(row=4, column=0, columnspan=100,
+                                             padx=(20, 0), pady=(20, 0),
+                                             sticky='w')
+
+        button_upload_5 = tk.Button(frame_select_method_fragments,
+                                    text='Add',
+                                    width=c.Size.button_width, height=c.Size.button_height,
+                                    command='')
+
+        button_upload_5.grid(row=5, column=0,
+                             padx=(10, 0),
+                             pady=2,
+                             sticky='w')
+
+        button_upload_6 = tk.Button(frame_select_method_fragments,
+                                    text='Show',
+                                    width=c.Size.button_width, height=c.Size.button_height,
+                                    command='')
+
+        button_upload_6.grid(row=5, column=1,
+                             padx=(10, 0),
+                             pady=2,
+                             sticky='w')
+
+        # label_set_metric_target = tk.Label(frame_select_method_fragments,
+        #                                 text='Set metric target')
+        #
+        # label_set_metric_target.grid(row=6, column=0, columnspan=2,
+        #                           padx=(20, 0), pady=(20, 0),
+        #                           sticky='w')
+        #
+        # button_upload_7 = tk.Button(frame_select_method_fragments,
+        #                             text='Add',
+        #                             width=c.Size.button_width, height=c.Size.button_height,
+        #                             command='')
+        #
+        # button_upload_7.grid(row=7, column=0,
+        #                      padx=(10, 0),
+        #                      pady=2,
+        #                      sticky='w')
+        #
+        # button_upload_8 = tk.Button(frame_select_method_fragments,
+        #                             text='Show',
+        #                             width=c.Size.button_width, height=c.Size.button_height,
+        #                             command='')
+        #
+        # button_upload_8.grid(row=7, column=1,
+        #                      padx=(10, 0),
+        #                      pady=2,
+        #                      sticky='w')
+
         self.sendFrame(frame_select_method_fragments)
 
     def sendFrame(self, frame):
@@ -152,18 +206,177 @@ class ProjectPurposeScreen(tk.Frame):
     def getProjectPdfPath(self):
         self.project_pdf_file_path = filedialog.askopenfilename()
 
-    def showProjectPdf(self):
-        webbrowser.open("D:/x - Onedrive/OneDrive - Universiteit Utrecht/OneDrive/Uni/3-Master/3-Thesis/test_pdf.pdf")
-
-    # def make_new_object(self):
-    #     object = w.PDFViewer(self)
-    #     return object
-
 class DataCollectionScreen(tk.Frame):
 
     def __init__(self):
         tk.Frame.__init__(self)
-        tk.Label(self, text='Data collection content').pack()
+        frame_sampling = ttk.LabelFrame(self, text="2.1 Sampling strategy",
+                                                       width=1200, height=150)
+        frame_sampling.grid_propagate(0)
+        frame_sampling.grid(padx=(10, 0),
+                                           sticky='nsew')
+
+        label_sampling = tk.Label(frame_sampling,
+                                                   text='Determine sampling strategy')
+
+        label_sampling.grid(row=1, column=0, columnspan=100,
+                                             padx=(20, 0),
+                                             sticky='w')
+
+        # make object
+        self.project_pdf = w.PDFViewer(self)
+
+        # convert to string var and set init text
+        self.text_sampling_pdf = tk.StringVar()
+        self.text_sampling_pdf.set("")
+
+        # create label and place in gui
+        self.project_label = tk.Label(frame_sampling,
+                                      textvariable=self.text_sampling_pdf).grid(row=3, column=0, sticky='w',
+                                                                               padx=(20, 0), columnspan=150)
+
+        # create button with actions
+        button_upload_1 = tk.Button(frame_sampling,
+                                    text='Select',
+                                    width=c.Size.button_width, height=c.Size.button_height,
+                                    command=lambda: [self.project_pdf.get_file_path(),
+                                                     self.text_sampling_pdf.set(self.project_pdf.get_file_name())])
+
+        # place upload button
+        button_upload_1.grid(row=2, column=0,
+                             padx=(10, 0), pady=5,
+                             sticky='w')
+        # place show button
+        button_show_1 = tk.Button(frame_sampling,
+                                  text='Show',
+                                  width=c.Size.button_width, height=c.Size.button_height,
+                                  command=self.project_pdf.show_project_goals)
+
+        button_show_1.grid(row=2, column=1,
+                           padx=(10, 0), pady=5,
+                           sticky='w')
+
+        # ------------------------------------------
+        frame_data_collection = ttk.LabelFrame(self, text="2.2 Data collection",
+                                        width=1200, height=700)
+        frame_data_collection.grid_propagate(0)
+        frame_data_collection.grid(padx=(10, 0),
+                            sticky='nsew')
+
+        label_data_collection = tk.Label(frame_data_collection,
+                                  text='mWater Guide')
+
+        label_data_collection.grid(row=1, column=0, columnspan=100,
+                            padx=(20, 0),
+                            sticky='w')
+
+        button_show_2 = tk.Button(frame_data_collection,
+                                  text='Show',
+                                  width=c.Size.button_width, height=c.Size.button_height,
+                                  command='')
+
+        button_show_2.grid(row=2, column=0,
+                           padx=(10, 0), pady=(5, 10),
+                           sticky='w')
+
+        # header
+        label_date = tk.Label(frame_data_collection,
+                                         text='Date')
+
+        label_date.grid(row=3, column=0, columnspan=4,
+                                   padx=(20, 0), pady=(10),
+                                   sticky='w')
+
+        label_time_period_header = tk.Label(frame_data_collection,
+                              text='Time period')
+
+        label_time_period_header.grid(row=3, column=5, columnspan=4,
+                        padx=(20, 0),
+                        sticky='w')
+
+        # row 1
+        user_date_1 = tk.StringVar()
+        user_date_1_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_1)
+        user_date_1_input.grid(row=4, column=0, padx=(20, 0), pady=25, sticky='nswe')
+
+        label_time_period_1 = tk.Label(frame_data_collection,
+                                     text='Start of project')
+
+        label_time_period_1.grid(row=4, column=5, columnspan=4,
+                               padx=(20, 0),
+                               sticky='w')
+
+        button_upload_1 = tk.Button(frame_data_collection,
+                                  text='Upload',
+                                  width=10, height=1,
+                                  command='')
+
+        button_upload_1.grid(row=4, column=11,
+                           padx=(100, 0),
+                           sticky='w')
+
+        # row 2
+        user_date_2 = tk.StringVar()
+        user_date_2_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_2)
+        user_date_2_input.grid(row=5, column=0, padx=(20, 0), sticky='nswe')
+
+        label_time_period_2 = tk.Label(frame_data_collection,
+                                       text='Halfway point of project')
+
+        label_time_period_2.grid(row=5, column=5, columnspan=4,
+                                 padx=(20, 0),
+                                 sticky='w')
+
+        button_upload_2 = tk.Button(frame_data_collection,
+                                    text='Upload',
+                                    width=10, height=1,
+                                    command='')
+
+        button_upload_2.grid(row=5, column=11,
+                             padx=(100, 0),
+                             sticky='w')
+        # row 3
+        user_date_3 = tk.StringVar()
+        user_date_3_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_2)
+        user_date_3_input.grid(row=6, column=0, padx=(20, 0), pady=25, sticky='nswe')
+
+        label_time_period_3 = tk.Label(frame_data_collection,
+                                       text='End of project')
+
+        label_time_period_3.grid(row=6, column=5, columnspan=4,
+                                 padx=(20, 0),
+                                 sticky='w')
+
+        button_upload_3 = tk.Button(frame_data_collection,
+                                    text='Upload',
+                                    width=10, height=1,
+                                    command='')
+
+        button_upload_3.grid(row=6, column=11,
+                             padx=(100, 0),
+                             sticky='w')
+
+        # row 4
+        user_date_4 = tk.StringVar()
+        user_date_4_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_4)
+        user_date_4_input.grid(row=7, column=0, padx=(20, 0), sticky='nswe')
+
+        label_time_period_4 = tk.Label(frame_data_collection,
+                                       text='Year after end of project')
+
+        label_time_period_4.grid(row=7, column=5, columnspan=4,
+                                 padx=(20, 0),
+                                 sticky='w')
+
+        button_upload_4 = tk.Button(frame_data_collection,
+                                    text='Upload',
+                                    width=10, height=1,
+                                    command='')
+
+        button_upload_4.grid(row=7, column=11,
+                             padx=(100, 0),
+                             sticky='w')
+
 
 
 class DataAnalysisScreen(tk.Frame):

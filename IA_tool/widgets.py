@@ -133,6 +133,7 @@ class MethodFragmentSelection(tk.Frame):
 
 
         else:
+            self.notebook_summary.select(1)
             self.info_window.deiconify()
 
         # checkbox_1 = tk.BooleanVar()
