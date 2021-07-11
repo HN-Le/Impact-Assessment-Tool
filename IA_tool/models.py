@@ -7,7 +7,10 @@ class surveyModel:
 
     def __init__(self):
         # HARDCODED, CHANGE LATER!
-        self.raw_data = pd.read_excel("C:/Users/Tiny/ IA-Tool-V1/data/method_fragments/master_list.xlsx")
+        dirname = os.getcwd()
+        filename = os.path.join(dirname, 'data', 'method_fragments', 'master_list.xlsx')
+
+        self.raw_data = pd.read_excel(filename)
         self.dataframe = pd.DataFrame(self.raw_data)
 
     def show_relevant_fragments(self, df, item, target):

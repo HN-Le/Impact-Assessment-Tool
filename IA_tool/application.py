@@ -5,7 +5,9 @@ from tkinter import Menu
 from . import views as views
 from . import models as m
 from . import widgets as w
-
+import os
+from pathlib import Path
+import pandas as pd
 
 class Application(tk.Tk):
     """Application root window"""
@@ -28,6 +30,10 @@ class Application(tk.Tk):
         height = self.winfo_screenheight()
 
         # self.geometry("{}x{}".format(width, height))
+
+
+
+
 
     def setup_menu(self):
         self.menuBar = Menu(master=self)
