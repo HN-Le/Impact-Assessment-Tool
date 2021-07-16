@@ -149,6 +149,10 @@ class MethodFragmentSelection(tk.Frame):
 
         self.checkbox = dict()
 
+
+        data_types = dataframe.type.unique()
+        print(data_types)
+
         for item in self.unique_values:
 
             self.checkbox[item] = tk.Checkbutton(frame, text=item, onvalue=True, offvalue =False)

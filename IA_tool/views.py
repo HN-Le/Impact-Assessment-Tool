@@ -214,6 +214,8 @@ class DataCollectionScreen(tk.Frame):
         global start_project_window
         self.start_project_window = None
 
+        self.data_collection_window = self
+
         # --------- 2.1 Sampling strategy frame
         frame_sampling = ttk.LabelFrame(self, text="2.1 Sampling strategy",
                                                        width=1200, height=150)
@@ -302,7 +304,7 @@ class DataCollectionScreen(tk.Frame):
         # row 1
         user_date_1 = tk.StringVar()
         user_date_1_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_1)
-        user_date_1_input.grid(row=4, column=0, padx=(20, 0), pady=25, sticky='nswe')
+        user_date_1_input.grid(row=4, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_1 = tk.Label(frame_data_collection,
                                      text='Start of project')
@@ -323,7 +325,7 @@ class DataCollectionScreen(tk.Frame):
         # row 2
         user_date_2 = tk.StringVar()
         user_date_2_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_2)
-        user_date_2_input.grid(row=5, column=0, padx=(20, 0), sticky='nswe')
+        user_date_2_input.grid(row=5, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_2 = tk.Label(frame_data_collection,
                                        text='Halfway point of project')
@@ -343,7 +345,7 @@ class DataCollectionScreen(tk.Frame):
         # row 3
         user_date_3 = tk.StringVar()
         user_date_3_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_3)
-        user_date_3_input.grid(row=6, column=0, padx=(20, 0), pady=25, sticky='nswe')
+        user_date_3_input.grid(row=6, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_3 = tk.Label(frame_data_collection,
                                        text='End of project')
@@ -364,7 +366,7 @@ class DataCollectionScreen(tk.Frame):
         # row 4
         user_date_4 = tk.StringVar()
         user_date_4_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_4)
-        user_date_4_input.grid(row=7, column=0, padx=(20, 0), sticky='nswe')
+        user_date_4_input.grid(row=7, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_4 = tk.Label(frame_data_collection,
                                        text='Year after end of project')
@@ -387,7 +389,7 @@ class DataCollectionScreen(tk.Frame):
         if not self.start_project_window:
 
             self.start_project_window = tk.Toplevel()
-            self.start_project_window.wm_title('Select Method Fragments')
+            self.start_project_window.wm_title('Load data')
 
             width =  self.start_project_window.winfo_screenwidth()
             height =  self.start_project_window.winfo_screenheight()
@@ -396,8 +398,10 @@ class DataCollectionScreen(tk.Frame):
 
             self.start_project_window.protocol("WM_DELETE_WINDOW", lambda arg='start_project': self.hide_window(arg))
 
+
+
             frame_project_start= ttk.LabelFrame( self.start_project_window, text="2.2 Data collection",
-                                                 width=1200, height=400)
+                                                 width=1200, height=600)
             frame_project_start.grid_propagate(0)
             frame_project_start.grid(padx=(10, 0),
                                      sticky='nsew')
@@ -410,7 +414,7 @@ class DataCollectionScreen(tk.Frame):
                                      sticky='w')
 
             label_project_provider = tk.Label(frame_project_start,
-                                            text='Project provider data')
+                                            text='Project provider data (CSV file only)')
 
             label_project_provider.grid(row=2, column=0, columnspan=4,
                                       padx=(20, 0),
@@ -433,7 +437,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [self.project_start.get_file_path(),
-                                                         self.text_project_provider.set(self.project_start.get_file_name())])
+                                                         self.text_project_provider.set(self.project_start.get_file_name()), self.focus_window(self.start_project_window)])
 
             # place upload button
             button_upload_1.grid(row=3, column=0,
@@ -443,21 +447,21 @@ class DataCollectionScreen(tk.Frame):
             button_show_1 = tk.Button(frame_project_start,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=self.project_start.show_project_goals)
+                                      command='')
 
             button_show_1.grid(row=3, column=1,
                                padx=(10, 0), pady=5,
                                sticky='w')
 
 
-            # --------------
+            # --------- 2.2 community leader
 
             self.community_leader = w.PDFViewer(self)
 
             label_community_leader = tk.Label(frame_project_start,
-                                              text='Community leader data')
+                                              text='Community leader data (CSV file only)')
 
-            label_community_leader.grid(row=5, column=0, columnspan=4,
+            label_community_leader.grid(row=5, column=0, columnspan=4, pady=5,
                                         padx=(20, 0),
                                         sticky='w')
 
@@ -467,8 +471,10 @@ class DataCollectionScreen(tk.Frame):
 
             # create label and place in gui
             self.community_label = tk.Label(frame_project_start,
-                                          textvariable=self.text_community_leader).grid(row=7, column=0, sticky='w', pady=(0,20),
-                                                                                     padx=(20, 0), columnspan=150)
+                                          textvariable=self.text_community_leader).grid(row=7, column=0, sticky='w',
+                                                                                        pady=(0, 20),
+                                                                                        padx=(20, 0),
+                                                                                        columnspan=150)
 
             # create button with actions
             button_upload_2 = tk.Button(frame_project_start,
@@ -486,13 +492,100 @@ class DataCollectionScreen(tk.Frame):
             button_show_2 = tk.Button(frame_project_start,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=self.community_leader.show_project_goals)
+                                      command='')
 
             button_show_2.grid(row=6, column=1,
                                padx=(10, 0), pady=5,
                                sticky='w')
 
+            # --------- 2.2 teacher
 
+            self.teacher = w.PDFViewer(self)
+
+            label_teacher = tk.Label(frame_project_start,
+                                              text='Teacher data (CSV file only)')
+
+            label_teacher.grid(row=8, column=0, columnspan=4,
+                                        padx=(20, 0),
+                                        sticky='w')
+
+            # convert to string var and set init text
+            self.text_teacher= tk.StringVar()
+            self.text_teacher.set("")
+
+            # create label and place in gui
+            self.teacher_label = tk.Label(frame_project_start,
+                                            textvariable=self.text_teacher).grid(row=10, column=0, sticky='w',
+                                                                                          pady=(0, 20),
+                                                                                          padx=(20, 0), columnspan=150)
+
+            # create button with actions
+            button_upload_3 = tk.Button(frame_project_start,
+                                        text='Select',
+                                        width=c.Size.button_width, height=c.Size.button_height,
+                                        command=lambda: [self.teacher.get_file_path(),
+                                                         self.text_teacher.set(
+                                                             self.teacher.get_file_name())])
+
+            # place upload button
+            button_upload_3.grid(row=9, column=0,
+                                 padx=(10, 0), pady=5,
+                                 sticky='w')
+            # place show button
+            button_show_3 = tk.Button(frame_project_start,
+                                      text='Show',
+                                      width=c.Size.button_width, height=c.Size.button_height,
+                                      command='')
+
+            button_show_3.grid(row=9, column=1,
+                               padx=(10, 0), pady=5,
+                               sticky='w')
+
+            # --------- 2.2 student
+
+            self.student = w.PDFViewer(self)
+
+            label_student= tk.Label(frame_project_start,
+                                     text='Student data (CSV file only)')
+
+            label_student.grid(row=11, column=0, columnspan=4,
+                               padx=(20, 0),
+                               sticky='w')
+
+            # convert to string var and set init text
+            self.text_student = tk.StringVar()
+            self.text_student.set("")
+
+            # create label and place in gui
+            self.student_label = tk.Label(frame_project_start,
+                                          textvariable=self.text_student).grid(row=13, column=0, sticky='w',
+                                                                               pady=(0, 20),
+                                                                               padx=(20, 0), columnspan=150)
+
+            # create button with actions
+            button_upload_4 = tk.Button(frame_project_start,
+                                        text='Select',
+                                        width=c.Size.button_width, height=c.Size.button_height,
+                                        command=lambda: [self.student.get_file_path(),
+                                                         self.text_student.set(
+                                                             self.student.get_file_name())])
+
+            # place upload button
+            button_upload_4.grid(row=12, column=0,
+                                 padx=(10, 0), pady=5,
+                                 sticky='w')
+            # place show button
+            button_show_4 = tk.Button(frame_project_start,
+                                      text='Show',
+                                      width=c.Size.button_width, height=c.Size.button_height,
+                                      command='')
+
+            button_show_4.grid(row=12, column=1,
+                               padx=(10, 0), pady=5,
+                               sticky='w')
+
+            # https://stackoverflow.com/questions/31926991/force-set-tkinter-window-to-always-have-focus/31927283#31927283
+            # self.start_project_window.attributes("-topmost", True)
 
 
         else:
@@ -502,6 +595,11 @@ class DataCollectionScreen(tk.Frame):
 
         if window == "start_project":
             self.start_project_window.withdraw()
+
+    def focus_window(self, window):
+
+
+        print('worked?')
 
 
 class DataAnalysisScreen(tk.Frame):

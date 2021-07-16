@@ -32,9 +32,6 @@ class Application(tk.Tk):
         # self.geometry("{}x{}".format(width, height))
 
 
-
-
-
     def setup_menu(self):
         self.menuBar = Menu(master=self)
         self.filemenu = Menu(self.menuBar, tearoff=0)
@@ -60,7 +57,7 @@ class Application(tk.Tk):
         notebook.add(views.ProjectPurposeScreen(), text='1- Project purpose')
         notebook.add(views.DataCollectionScreen(), text='2- Data collection')
         notebook.add(views.DataAnalysisScreen(), text='3- Data analysis')
-        notebook.add(views.ImpactAssessmentScreen(), text='3- Data analysis')
+        notebook.add(views.ImpactAssessmentScreen(), text='4- Evaluation')
 
         notebook.grid(row=1, column=1, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
 
