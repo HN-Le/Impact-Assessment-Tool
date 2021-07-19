@@ -9,6 +9,8 @@ from . import constants as c
 from tkPDFViewer import tkPDFViewer as pdf
 import webbrowser
 
+from data.sql import create_db as database
+
 class ProjectPurposeScreen(tk.Frame):
 
     def __init__(self):

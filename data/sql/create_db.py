@@ -27,14 +27,14 @@ def create_table(conn, create_table_sql):
 
 def main ():
     dirname = os.getcwd()
-    name_db = 'test_database.db'
+    name_db = 'project.db'
     database = os.path.join(dirname, name_db)
 
     conn = create_connection(database)
 
     define_sql_table(conn)
 
-    load_in_fragments(conn)
+    load_in_stock_data(conn)
 
     conn.close()
 
@@ -112,8 +112,6 @@ def define_sql_table(conn):
         # create task table
         create_table(conn, sql_create_metric_value_table)
 
-
-
     else:
         print("Error! cannot create the database connection.")
 
@@ -125,20 +123,23 @@ def create_metric(conn, metric):
     sql = """ INSERT INTO metric(metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name ) 
             VALUES (?,?,?,?,?,?,?,?) """
 
-    cur.execute(sql, metric)
-    conn.commit()
+    # check whether it is already present in database
+    metric_name = metric[0]
+    metric_target = metric[7]
+    method_frag_id = metric[1]
 
-    # # check whether it is already present in database
-    # cur.execute("SELECT * FROM metric WHERE metric_name = ?", (metric[0],))
-    # entry = cur.fetchone()
-    #
-    # if entry is None:
-    #     cur.execute(sql, metric)
-    #     conn.commit()
-    #     print('New metric added')
-    #
-    # else:
-    #     print('Metric found')
+    test_sql = "SELECT * FROM metric WHERE metric_name = ? AND target_name = ? AND method_fragment_id = ?"
+    cur.execute(test_sql, (str(metric_name), str(metric_target), str(method_frag_id)))
+
+    entry = cur.fetchone()
+
+    if entry is None:
+        cur.execute(sql, metric)
+        conn.commit()
+        print('New metric added')
+
+    else:
+        print('Metric found')
 
     return cur.lastrowid
 
@@ -163,7 +164,7 @@ def create_method_fragment(conn, method_fragment):
 
     return cur.lastrowid
 
-def load_in_fragments(conn):
+def load_in_stock_data(conn):
     dirname = os.path.normpath(os.getcwd() + os.sep + os.pardir)
     filename = os.path.join(dirname, 'method_fragments', 'master_list.xlsx')
 
@@ -199,12 +200,9 @@ def load_in_fragments(conn):
         method_fragment_id = int(method_fragment_id[0][0])
 
         row = (metric_name, method_fragment_id, metric_definition,
-                    metric_question, metric_value_type, multiple_answers, answer_options, target_name)
+               metric_question, metric_value_type, multiple_answers, answer_options, target_name)
 
         create_metric(conn, row)
-
-
-
 
 if __name__ == '__main__':
     main()
