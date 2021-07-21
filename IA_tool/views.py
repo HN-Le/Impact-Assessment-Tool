@@ -16,6 +16,7 @@ class ProjectPurposeScreen(tk.Frame):
     def __init__(self):
         tk.Frame.__init__(self)
 
+
         frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals",
                                              width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_project_goals.grid_propagate(0)
@@ -123,6 +124,7 @@ class ProjectPurposeScreen(tk.Frame):
 
         self.method_fragment = w.MethodFragmentSelection(self)
 
+
         # checkboxes and method fragments
 
         button_upload_3 = tk.Button(frame_select_method_fragments,
@@ -207,6 +209,11 @@ class ProjectPurposeScreen(tk.Frame):
 
     def getProjectPdfPath(self):
         self.project_pdf_file_path = filedialog.askopenfilename()
+
+    def send_data_object(self, data):
+        self.data_object = data
+        self.method_fragment.get_data_object(self.data_object)
+
 
 class DataCollectionScreen(tk.Frame):
 
@@ -597,12 +604,6 @@ class DataCollectionScreen(tk.Frame):
 
         if window == "start_project":
             self.start_project_window.withdraw()
-
-    def focus_window(self, window):
-
-
-        print('worked?')
-
 
 class DataAnalysisScreen(tk.Frame):
 

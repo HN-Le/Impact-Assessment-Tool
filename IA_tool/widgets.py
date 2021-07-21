@@ -83,12 +83,18 @@ class MethodFragmentSelection(tk.Frame):
                                      sticky='nsew')
 
             frame_add_metric = ttk.LabelFrame(self.selection_window, text="Add additional metrics",
-                                                    width=1200, height=400)
-            frame_add_metric.grid_propagate(0)
-            frame_add_metric.grid(padx=(10, 0),
-                                        sticky='nsew')
+                                              width=1200, height=400)
 
-            self.add_metric(frame_add_metric)
+            def show_add_metric_frame():
+
+                frame_add_metric.grid_propagate(0)
+                frame_add_metric.grid(padx=(10, 0),
+                                            sticky='nsew')
+
+
+            # make add_metric section
+            # self.add_metric(frame_add_metric)
+
 
             dataframe_object = m.surveyModel()
             dataframe = dataframe_object.dataframe
@@ -97,12 +103,15 @@ class MethodFragmentSelection(tk.Frame):
             self.make_checkboxes(dataframe, frame_method_fragments)
 
             # generate button
-            button_generate = tk.Button(frame_method_fragments,
-                                        text='Generate',
+            button_confirm = tk.Button(frame_method_fragments,
+                                        text='Confirm',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=self.generate_questions)
+                                        # command=self.generate_questions)
+                                        command= lambda: [self.generate_questions,
+                                                          show_add_metric_frame(),
+                                                          self.add_metric(frame_add_metric)])
 
-            button_generate.grid(row=18, column=0,
+            button_confirm.grid(row=18, column=0,
                                  padx=(10, 0),
                                  pady=2,
                                  sticky='w')
@@ -151,7 +160,7 @@ class MethodFragmentSelection(tk.Frame):
 
 
         data_types = dataframe.type.unique()
-        print(data_types)
+        # print(data_types)
 
         for item in self.unique_values:
 
@@ -245,9 +254,29 @@ class MethodFragmentSelection(tk.Frame):
                           pady=(10, 0),
                           sticky='w')
 
+
+        check_list = list(self.checkbox_list.keys())
+        # print(("check_box_list ----- ", check_list))
+
+        sql = "select method_fragment_name from method_fragment where method_fragment_name in ({seq})".format(
+            seq=','.join(['?'] * len(check_list)))
+
+        test_retrieve = self.data_object.query_with_par(sql, check_list)
+        test_retrieve_datatypes = self.data_object.query_no_par("SELECT DISTINCT metric_value_type FROM metric ORDER BY metric_value_type")
+
+        # print("test_retrieve ----- ", test_retrieve)
+
+        # for value in test_retrieve:
+        #     print(("test_retrieve ----- ", value))
+
+
+        # for value in test_retrieve_datatypes:
+        #     print(("test_retrieve_datatype ----- ", value))
+
+
         combobox = ttk.Combobox(
             frame,
-            values=["Option 1", "Option 2", "Option 3"])
+            values=test_retrieve)
         combobox.grid(row=3, column=1, padx=2)
 
         label_type= tk.Label(frame, text='Data type')
@@ -257,7 +286,7 @@ class MethodFragmentSelection(tk.Frame):
 
         combobox_2 = ttk.Combobox(
             frame,
-            values=["Option 1", "Option 2", "Option 3"])
+            values=test_retrieve_datatypes)
         combobox_2.grid(row=3, column=2, padx=2)
 
 
@@ -286,9 +315,13 @@ class MethodFragmentSelection(tk.Frame):
 
         combobox.get()
         combobox_2.get()
+
+        print('TEXT BOX: ', text.get())
         print('COMBOBOX 1: ', combobox.get())
         print('COMBOBOX 2: ', combobox_2.get())
-        print('TEXT BOX: ', text.get())
+
+
+
 
     def get_target(self, event=None):
         self.input_combobox = event.widget.get()
@@ -297,6 +330,7 @@ class MethodFragmentSelection(tk.Frame):
 
 
         self.create_list(target_key)
+        self.show_summary_metrics()
 
     def create_list(self, target_key):
 
@@ -384,3 +418,29 @@ class MethodFragmentSelection(tk.Frame):
                              sticky='w')
 
         combobox_target.bind("<<ComboboxSelected>>", self.get_target)
+
+    def show_summary_metrics(self):
+
+        for value in self.checkbox_list:
+
+            print('--- show_summary_metrics - Check')
+
+        self.data_object.populate_measure_point_query()
+
+    def get_data_object(self, data):
+        self.data_object = data
+
+        # print("--- get_data_object - Check")
+
+
+
+
+
+
+
+
+
+
+
+
+

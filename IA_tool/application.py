@@ -31,6 +31,26 @@ class Application(tk.Tk):
 
         # self.geometry("{}x{}".format(width, height))
 
+        # Un hardcode it
+        dirname = os.getcwd()
+        name_db = 'test2.db'
+        database = os.path.join(dirname, 'data', 'sql', name_db)
+        self.create_database(database)
+
+        # test_row = ("NAME", 5, "TEST DEFINITION",
+        #             "TEST QUESTION? ", "MULTIPLE CHOICE", None, None, "student")
+
+        # self.data_model.create_metric(self.data_model.conn, test_row)
+
+        self.project_purpose_screen.send_data_object(self.data_model)
+
+
+
+
+
+    def create_database(self, database):
+        self.data_model = m.SQLModel(database)
+
 
     def setup_menu(self):
         self.menuBar = Menu(master=self)
@@ -54,12 +74,21 @@ class Application(tk.Tk):
     def setup_screen(self):
         notebook = ttk.Notebook(self)
 
-        notebook.add(views.ProjectPurposeScreen(), text='1- Project purpose')
-        notebook.add(views.DataCollectionScreen(), text='2- Data collection')
-        notebook.add(views.DataAnalysisScreen(), text='3- Data analysis')
-        notebook.add(views.ImpactAssessmentScreen(), text='4- Evaluation')
+        self.project_purpose_screen = views.ProjectPurposeScreen()
+        self.data_collection_screen = views.DataCollectionScreen()
+        self.data_analysis_screen = views.DataAnalysisScreen()
+        self.impact_assessment_screen = views.ImpactAssessmentScreen()
+
+        notebook.add(self.project_purpose_screen, text='1- Project purpose')
+        notebook.add(self.data_collection_screen, text='2- Data collection')
+        notebook.add(self.data_analysis_screen, text='3- Data analysis')
+        notebook.add(self.impact_assessment_screen, text='4- Evaluation')
 
         notebook.grid(row=1, column=1, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
+
+
+
+
 
 
     # Exit GUI cleanly
