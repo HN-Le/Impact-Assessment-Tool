@@ -174,33 +174,6 @@ class ProjectPurposeScreen(tk.Frame):
                              pady=2,
                              sticky='w')
 
-        # label_set_metric_target = tk.Label(frame_select_method_fragments,
-        #                                 text='Set metric target')
-        #
-        # label_set_metric_target.grid(row=6, column=0, columnspan=2,
-        #                           padx=(20, 0), pady=(20, 0),
-        #                           sticky='w')
-        #
-        # button_upload_7 = tk.Button(frame_select_method_fragments,
-        #                             text='Add',
-        #                             width=c.Size.button_width, height=c.Size.button_height,
-        #                             command='')
-        #
-        # button_upload_7.grid(row=7, column=0,
-        #                      padx=(10, 0),
-        #                      pady=2,
-        #                      sticky='w')
-        #
-        # button_upload_8 = tk.Button(frame_select_method_fragments,
-        #                             text='Show',
-        #                             width=c.Size.button_width, height=c.Size.button_height,
-        #                             command='')
-        #
-        # button_upload_8.grid(row=7, column=1,
-        #                      padx=(10, 0),
-        #                      pady=2,
-        #                      sticky='w')
-
         self.sendFrame(frame_select_method_fragments)
 
     def sendFrame(self, frame):
