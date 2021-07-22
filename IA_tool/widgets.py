@@ -72,7 +72,7 @@ class MethodFragmentSelection(tk.Frame):
             width =  self.selection_window.winfo_screenwidth()
             height =  self.selection_window.winfo_screenheight()
 
-            self.selection_window.geometry('%sx%s' % (int(width-100), int(height)))
+            # self.selection_window.geometry('%sx%s' % (int(width-100), int(height)))
 
             self.selection_window.protocol("WM_DELETE_WINDOW", lambda arg='method_fragment': self.hide_window(arg))
 
@@ -82,18 +82,6 @@ class MethodFragmentSelection(tk.Frame):
             frame_method_fragments.grid(padx=(10, 0),
                                      sticky='nsew')
 
-            frame_add_metric = ttk.LabelFrame(self.selection_window, text="Add additional metrics",
-                                              width=1200, height=400)
-
-            def show_add_metric_frame():
-
-                frame_add_metric.grid_propagate(0)
-                frame_add_metric.grid(padx=(10, 0),
-                                            sticky='nsew')
-
-
-            # make add_metric section
-            # self.add_metric(frame_add_metric)
 
 
             dataframe_object = m.surveyModel()
@@ -108,8 +96,12 @@ class MethodFragmentSelection(tk.Frame):
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         # command=self.generate_questions)
                                         command= lambda: [self.generate_questions,
-                                                          show_add_metric_frame(),
-                                                          self.add_metric(frame_add_metric)])
+                                                          # show_add_metric_frame(),
+                                                          self.show_info_screen(),
+                                                          self.selection_window.withdraw(),
+                                                          self.add_metric(self.frame_add_metric),
+                                                          self.delete_frame(self.scrollable_metric_frame),
+                                                          self.show_summary_metrics()])
 
             button_confirm.grid(row=18, column=0,
                                  padx=(10, 0),
@@ -129,7 +121,7 @@ class MethodFragmentSelection(tk.Frame):
             width = self.info_window.winfo_screenwidth()
             height = self.info_window.winfo_screenheight()
 
-            self.info_window.geometry('%sx%s' % (int(width-100), int(height)))
+            # self.info_window.geometry('%sx%s' % (int(width-100), int(height)))
 
             self.info_window.protocol("WM_DELETE_WINDOW", lambda arg='summary': self.hide_window(arg))
 
@@ -328,15 +320,21 @@ class MethodFragmentSelection(tk.Frame):
 
         target_key = self.chose_target_list[self.input_combobox]
 
+        if self.community_list is not None:
+            self.community_list.delete('0', tk.END)
+
+        # print('get_target -- target_key ', target_key)
 
         self.create_list(target_key)
-        self.show_summary_metrics()
+        # self.show_summary_metrics()
+
+
 
     def create_list(self, target_key):
 
         self.dataframe = m.surveyModel()
 
-        label_survey_questions_community = tk.Label(self.frame_questions,
+        label_survey_questions_community = tk.Label(self.frame_survey_questions,
                                                     text='Generated questions for: ')
 
         label_survey_questions_community.grid(row=4, column=0,
@@ -344,10 +342,10 @@ class MethodFragmentSelection(tk.Frame):
                                               pady=(10, 0),
                                               sticky='w')
 
-        scrollbar_v_community_list = tk.Scrollbar(self.frame_questions)
-        scrollbar_h_community_list = tk.Scrollbar(self.frame_questions)
+        scrollbar_v_community_list = tk.Scrollbar(self.frame_survey_questions)
+        scrollbar_h_community_list = tk.Scrollbar(self.frame_survey_questions)
 
-        self.community_list = tk.Listbox(self.frame_questions, yscrollcommand=scrollbar_v_community_list.set,
+        self.community_list = tk.Listbox(self.frame_survey_questions, yscrollcommand=scrollbar_v_community_list.set,
                                          xscrollcommand=scrollbar_h_community_list.set,
                                          width=140, height=15)
 
@@ -367,13 +365,17 @@ class MethodFragmentSelection(tk.Frame):
             metrics = values[1].values
             types = values[2].values
 
+
+
             for index, item in enumerate(values[0]):
                 self.community_list.insert(tk.END, ' ' + item)
                 self.community_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
                 self.community_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
                 self.community_list.insert(tk.END, '\n')
 
-        button_download_all = tk.Button(self.frame_questions,
+        # print('create_list, community list:  ---', self.community_list)
+
+        button_download_all = tk.Button(self.frame_survey_questions,
                                text='Download all questions',
                                height=c.Size.button_height,
                                command='')
@@ -382,29 +384,52 @@ class MethodFragmentSelection(tk.Frame):
                         padx=(10, 0),
                         sticky='w')
 
+
+
+        # make add_metric section
+        # self.add_metric(self.frame_add_metric)
+
     def make_summary_tabs(self):
         self.notebook_summary = ttk.Notebook(self.info_window)
 
-        self.frame_metrics = ttk.Frame(self.info_window, width=1200, height=400)
-        self.frame_metrics .grid_propagate(0)
-        self.frame_metrics .grid(padx=(10, 0),
-                                    sticky='nsew')
+        self.frame_metrics = ttk.Frame(self.info_window, width=1200, height=800)
+        # self.frame_metrics .grid_propagate(0)
+        self.frame_metrics.grid(row=0, column=0,
+                                padx=(10, 0),
+                                sticky='nsew')
 
-        self.frame_questions = ttk.Frame(self.info_window, width=1200, height=400)
+        self.scrollable_metric_frame = ScrollableFrame(self.frame_metrics)
+
+        self.frame_questions = ttk.Frame(self.info_window, width=1200, height=800)
         self.frame_questions.grid_propagate(0)
         self.frame_questions.grid(padx=(10, 0),
                                     sticky='nsew')
 
-        self.notebook_summary.add(self.frame_metrics , text='Metrics')
-        self.notebook_summary.add( self.frame_questions, text='Survey Questions')
+        self.notebook_summary.add(self.frame_metrics, text='Metrics')
+        self.notebook_summary.add(self.frame_questions, text='Survey Questions')
 
-        self.notebook_summary.pack(expand=1, fill="both")
+        self.notebook_summary.grid(row=0, column=0, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
 
     def make_questions(self):
+
+        self.frame_survey_questions = ttk.LabelFrame(self.frame_questions, text="Survey questions",
+                                                     width=1200, height=500)
+
+        self.frame_survey_questions.grid_propagate(0)
+        self.frame_survey_questions.grid(padx=5, pady=5,
+                                         sticky='e')
+
+        self.frame_add_metric = ttk.LabelFrame(self.frame_questions, text="Add additional metrics",
+                                               width=1200, height=400)
+
+        self.frame_add_metric.grid_propagate(0)
+        self.frame_add_metric.grid(padx=10, pady=10,
+                                   sticky='nsew')
+
         self.create_list('project_provider')
 
         combobox_target = ttk.Combobox(
-            self.frame_questions,
+            self.frame_survey_questions,
             values=["Project Provider",
                     "Community School Leader",
                     "Teacher",
@@ -421,9 +446,79 @@ class MethodFragmentSelection(tk.Frame):
 
     def show_summary_metrics(self):
 
-        for value in self.checkbox_list:
+        # TODO add chosen metric fragments and metrics to metric tab
 
-            print('--- show_summary_metrics - Check')
+        # label_method_fragment_header = tk.Label(self.frame_metrics, text='Method Fragment', font='Helvetica 12 bold')
+        # label_method_fragment_header.grid(row=0, column=0,
+        #                                   padx=10, pady=10,
+        #                                   columnspan=10,
+        #                          sticky='w')
+        #
+        # label_metric_header = tk.Label(self.frame_metrics, text='Metric', font='Helvetica 12 bold')
+        # label_metric_header.grid(row=0, column=10,
+        #                          sticky='w')
+
+        # list of method fragments that are checked off in the tool
+        check_list = list(self.checkbox_list.keys())
+
+        print(("check_box_list ----- ", check_list))
+
+        # # retrieve the list of checkbox list
+        # sql_retrieve_fragments = "select method_fragment_name from method_fragment where method_fragment_name in ({seq})".format(
+        #     seq=','.join(['?'] * len(check_list)))
+        #
+        # retrieve_method_fragments = self.data_object.query_with_par(sql_retrieve_fragments, check_list)
+        #
+        sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name in ({seq})".format(
+            seq=','.join(['?'] * len(check_list)))
+
+        retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, check_list)
+        print("retrieve_method_frag_id: ", retrieve_method_frag_id)
+
+        frag_id_list = []
+        for value in retrieve_method_frag_id:
+            frag_id_list.append(int(value[0]))
+
+        # print("frag_id_list: ", frag_id_list)
+
+        # print("frag_id_list length: ", frag_id_list)
+
+        sql_retrieve_metrics = "select metric_name from metric where metric.method_fragment_id in ({seq})".format(
+            seq=','.join(['?'] * len(frag_id_list)))
+
+        retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, frag_id_list)
+
+        # print("retrieve_metrics: ", retrieve_metrics)
+
+        # frame summary_metrics scrollable
+        self.scrollable_metric_frame = ScrollableFrame(self.frame_metrics)
+
+        for index, value in enumerate(self.checkbox_list):
+            print("show_summary_metrics: VALUE: ", value)
+            print("show_summary_metrics: type of VALUE: ", type(value[0]))
+
+            ttk.Label(self.scrollable_metric_frame.scrollable_frame,
+                      anchor="w", justify='left',
+                      text=str(index+1) + ":  " + value).pack(fill='both')
+
+        for index, value in enumerate(retrieve_metrics):
+            ttk.Label(self.scrollable_metric_frame.scrollable_frame,
+                      anchor="w", justify='left',
+                      text=str(index+1) + ":  " + value[0]).pack(fill='both')
+
+
+        self.scrollable_metric_frame.pack(side="left", fill="both", expand=True)
+
+
+
+        for value in self.checkbox_list:
+            print('--- show_summary_metrics - value: ', value)
+            # print('--- show_summary_metrics - Check')
+
+        # for index, value in enumerate(self.checkbox_list):
+        #     print('')
+
+
 
         self.data_object.populate_measure_point_query()
 
@@ -432,7 +527,36 @@ class MethodFragmentSelection(tk.Frame):
 
         # print("--- get_data_object - Check")
 
+    def delete_frame(self, frame):
 
+        if frame is not None:
+            frame.pack_forget()
+            frame.destroy()
+
+
+# ref: https://blog.teclado.com/tkinter-scrollable-frames/
+class ScrollableFrame(ttk.Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+
+        canvas = tk.Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar.pack(side="right", fill="y")
 
 
 
