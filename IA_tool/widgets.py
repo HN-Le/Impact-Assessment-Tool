@@ -368,9 +368,9 @@ class MethodFragmentSelection(tk.Frame):
 
 
             for index, item in enumerate(values[0]):
-                self.community_list.insert(tk.END, ' ' + item)
-                self.community_list.insert(tk.END, '      ' + 'Metric: ' + metrics[index])
-                self.community_list.insert(tk.END, '      ' + 'Type:  ' + types[index])
+                self.community_list.insert(tk.END, ' ' + 'Survey question:   ' + item)
+                self.community_list.insert(tk.END, '                ' + 'Metric:   ' + metrics[index])
+                self.community_list.insert(tk.END, '                   ' + 'Type:   ' + types[index])
                 self.community_list.insert(tk.END, '\n')
 
         # print('create_list, community list:  ---', self.community_list)
@@ -458,53 +458,32 @@ class MethodFragmentSelection(tk.Frame):
         # label_metric_header.grid(row=0, column=10,
         #                          sticky='w')
 
-        # list of method fragments that are checked off in the tool
-        check_list = list(self.checkbox_list.keys())
-
-        print(("check_box_list ----- ", check_list))
-
-        # # retrieve the list of checkbox list
-        # sql_retrieve_fragments = "select method_fragment_name from method_fragment where method_fragment_name in ({seq})".format(
-        #     seq=','.join(['?'] * len(check_list)))
-        #
-        # retrieve_method_fragments = self.data_object.query_with_par(sql_retrieve_fragments, check_list)
-        #
-        sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name in ({seq})".format(
-            seq=','.join(['?'] * len(check_list)))
-
-        retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, check_list)
-        print("retrieve_method_frag_id: ", retrieve_method_frag_id)
-
-        frag_id_list = []
-        for value in retrieve_method_frag_id:
-            frag_id_list.append(int(value[0]))
-
-        # print("frag_id_list: ", frag_id_list)
-
-        # print("frag_id_list length: ", frag_id_list)
-
-        sql_retrieve_metrics = "select metric_name from metric where metric.method_fragment_id in ({seq})".format(
-            seq=','.join(['?'] * len(frag_id_list)))
-
-        retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, frag_id_list)
-
-        # print("retrieve_metrics: ", retrieve_metrics)
 
         # frame summary_metrics scrollable
         self.scrollable_metric_frame = ScrollableFrame(self.frame_metrics)
 
         for index, value in enumerate(self.checkbox_list):
-            print("show_summary_metrics: VALUE: ", value)
-            print("show_summary_metrics: type of VALUE: ", type(value[0]))
+            # print("show_summary_metrics: VALUE: ", value)
+            # print("show_summary_metrics: type of VALUE: ", type(value[0]))
+
+            sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
+            retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((value),))
+
+
+            sql_retrieve_metrics = "select metric_name from metric where method_fragment_id=?"
+            retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, retrieve_method_frag_id[0])
+
 
             ttk.Label(self.scrollable_metric_frame.scrollable_frame,
                       anchor="w", justify='left',
+                      font='Helvetica 10 bold',
                       text=str(index+1) + ":  " + value).pack(fill='both')
 
-        for index, value in enumerate(retrieve_metrics):
-            ttk.Label(self.scrollable_metric_frame.scrollable_frame,
-                      anchor="w", justify='left',
-                      text=str(index+1) + ":  " + value[0]).pack(fill='both')
+            for metric_index, metric in enumerate(retrieve_metrics):
+                ttk.Label(self.scrollable_metric_frame.scrollable_frame,
+                          anchor="w", justify='left',
+                          text= '    ' + str(index+1) + '.' + str(metric_index+1) + '  - ' +  metric[0]).pack(fill='both')
+                # print("METRIC TYPE: ", type(metric))
 
 
         self.scrollable_metric_frame.pack(side="left", fill="both", expand=True)
