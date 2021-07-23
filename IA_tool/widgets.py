@@ -56,7 +56,6 @@ class MethodFragmentSelection(tk.Frame):
         self.checkbox_list = {}
         self.input_combobox = {}
 
-
         global selection_window
         self.selection_window = None
 
@@ -97,7 +96,6 @@ class MethodFragmentSelection(tk.Frame):
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         # command=self.generate_questions)
                                         command= lambda: [self.generate_questions,
-                                                          # show_add_metric_frame(),
                                                           self.show_info_screen(),
                                                           self.selection_window.withdraw(),
                                                           self.delete_frame(self.scrollable_metric_frame),
@@ -251,6 +249,8 @@ class MethodFragmentSelection(tk.Frame):
         sql = "select method_fragment_name from method_fragment where method_fragment_name in ({seq})".format(
             seq=','.join(['?'] * len(check_list)))
 
+
+
         retrieve_method_fragment = self.data_object.query_with_par(sql, check_list)
         retrieve_method_fragment_string = []
 
@@ -297,7 +297,7 @@ class MethodFragmentSelection(tk.Frame):
         button_add = tk.Button(self.test_frame,
                                text='Add',
                                width=c.Size.button_width, height=c.Size.button_height,
-                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question)])
+                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question, combobox_target)])
 
         button_add.grid(row=0, column=6,
                                    padx = 10, pady=(20, 10))
@@ -318,9 +318,30 @@ class MethodFragmentSelection(tk.Frame):
 
         # textbox survey question
         user_survey_question = tk.StringVar()
-        user_survey_question_input = ttk.Entry(self.test_frame, width=93, textvariable=user_survey_question)
-        user_survey_question_input.grid(row=1, column=1, columnspan=10, sticky='w',
+        user_survey_question_input = ttk.Entry(self.test_frame, width=57, textvariable=user_survey_question)
+        user_survey_question_input.grid(row=1, column=1, columnspan=5, sticky='w',
                                padx=10, pady=(0, 20))
+
+        # label for target to ask to
+        ttk.Label(self.test_frame,
+                  font='Helvetica 11',
+                  text='Ask to: ').grid(row=1, column=4,
+                                                            columnspan=20,
+                                                            padx=10, pady=(0, 20),
+                                                            sticky='w')
+
+        # combobox: Ask to
+        combobox_target = ttk.Combobox(
+            self.test_frame,
+            values=["Project Provider",
+                    "Community School Leader",
+                    "Teacher",
+                    "Student"
+                    ])
+        combobox_target.grid(row=1, column=5,
+                        padx=10, pady=(0, 20))
+
+
 
         # Placeholder for status message
         self.status_message_add_metric = '-- PLACEHOLDER STATUS MESSAGE --'
@@ -331,12 +352,11 @@ class MethodFragmentSelection(tk.Frame):
                                                             padx=10, pady=(0, 20),
                                                             sticky='w')
 
-
         # remove metric
         ttk.Label(self.remove_frame,
                   anchor="w", justify='left',
                   font='Helvetica 11',
-                  text='Enter fragment id: ').grid(row=0, column=0, sticky='w',
+                  text='Enter metric id: ').grid(row=0, column=0, sticky='w',
                                padx=10, pady=(10, 10))
 
         # textbox remove method fragment
@@ -345,23 +365,11 @@ class MethodFragmentSelection(tk.Frame):
         user_method_remove_input.grid(row=0, column=1, sticky='w',
                                padx=10, pady=(20, 10))
 
-        ttk.Label(self.remove_frame,
-                  anchor="w", justify='left',
-                  font='Helvetica 11',
-                  text='Enter method id: ').grid(row=0, column=2, sticky='w',
-                               padx=10, pady=(20, 10))
-
-        # textbox remove metric
-        user_metric_remove = tk.StringVar()
-        user_metric_remove_input = ttk.Entry(self.remove_frame, width=15, textvariable=user_metric_remove)
-        user_metric_remove_input.grid(row=0, column=3, sticky='w',
-                               padx=10, pady=(20, 10))
-
         # remove button
         button_remove = tk.Button(self.remove_frame,
                                   text='Remove',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command=lambda: [self.remove_button(user_method_remove, user_metric_remove)])
+                                  command=lambda: [self.remove_button(user_method_remove)])
 
         button_remove.grid(row=0, column=4, sticky='w',
                                padx=10, pady=(20, 10))
@@ -383,39 +391,88 @@ class MethodFragmentSelection(tk.Frame):
                                                                sticky='w')
 
 
-    def add_button(self, combobox, combobox_2, text, user_survey_question):
+    def add_button(self, method_frag_input, data_type_input, metric_input, user_survey_question, combobox_target):
 
         # todo link user added metric to metrics list
         # todo add validation for input boxes
         # todo show text for confirmation that metric is added
 
-        combobox.current()
-        combobox_2.current()
+        method_frag_input.current()
+        data_type_input.current()
+        combobox_target.current()
 
-        combobox.get()
-        combobox_2.get()
+        method_frag_input.get()
+        data_type_input.get()
+        combobox_target.get()
 
-        print('METRIC TEXT BOX: ', text.get())
-        print('METHOD FRAG BOX: ', combobox.get())
-        print('DATATYPE BOX: ', combobox_2.get())
+
+        print('METRIC TEXT BOX: ', metric_input.get())
+        print('METHOD FRAG BOX: ', method_frag_input.get())
+        print('DATATYPE BOX: ', data_type_input.get())
         print('SURVEY QUESTION BOX: ', user_survey_question.get())
 
-        combobox.delete(0, 'end')
-        combobox_2.delete(0, 'end')
-        text.set('')
+        sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
+        retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((method_frag_input.get()),))
+
+        metric_name = metric_input.get()
+        method_fragment_id = retrieve_method_frag_id[0][0]
+        metric_definition = None
+        metric_question = user_survey_question.get()
+        metric_value_type = data_type_input.get()
+        multiple_answers = None
+        answer_options = None
+        target_name = self.chose_target_list[combobox_target.get()]
+        user_made = True
+
+        metric = (metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made)
+
+        # print('Metric_name ---------', metric)
+
+        self.data_object.create_metric(metric)
+
+        # reset input boxes
+        method_frag_input.delete(0, 'end')
+        data_type_input.delete(0, 'end')
+        combobox_target.delete(0, 'end')
+        metric_input.set('')
         user_survey_question.set('')
 
-    def remove_button(self, frag_id, metric_id):
+
+
+
+    def remove_button(self, frag_id):
 
         # todo link user added metric to metrics list
         # todo add validation for input boxes
         # todo show text for confirmation that metric is added
 
-        print('FRAGMENT ID TEXT BOX: ', frag_id.get())
-        print('METRIC ID TEXT BOX: ', metric_id.get())
+        # # empty lists
+        # self.metric_list.clear()
+        # self.method_frag_list.clear()
 
+        frag_id_int_user = int((frag_id.get()),)
+        frag_id_in_db = self.metric_id_list[frag_id_int_user-1]
+
+        # print('frag_id_int_user ----------- ', frag_id_int_user)
+        # print('self.metric_id_list[frag_id_int_user] ----------- ', self.metric_id_list[frag_id_int_user - 1])
+
+        sql_check = "select user_made from metric where metric_id = ?"
+        retrieve_check = self.data_object.query_with_par(sql_check, ((frag_id_in_db),))
+
+        sql_retrieve_method_frag_id = "delete from metric where metric_id = (?)"
+
+        # print('retrieve_check ------ ', retrieve_check[0][0])
+
+        if retrieve_check[0][0] == False:
+            print('Standard metric, do not remove ----------')
+        else:
+            self.data_object.delete_row_with_par(sql_retrieve_method_frag_id, frag_id_in_db)
+            print('User metric, removed! ----------')
+
+        # print('self.metric_id_list ----------- ', self.metric_id_list)
+
+        # reset
         frag_id.set('')
-        metric_id.set('')
 
     def get_target(self, event=None):
         self.input_combobox = event.widget.get()
@@ -433,6 +490,7 @@ class MethodFragmentSelection(tk.Frame):
 
     def create_list(self, target_key):
 
+        # todo rewrite to link with db
         self.dataframe = m.surveyModel()
 
         label_survey_questions_community = tk.Label(self.frame_survey_questions,
@@ -494,11 +552,6 @@ class MethodFragmentSelection(tk.Frame):
                                  padx=(10, 0),
                                  sticky='w')
 
-
-
-        # make add_metric section
-        # self.add_metric(self.frame_add_metric)
-
     def make_summary_tabs(self):
         self.notebook_summary = ttk.Notebook(self.info_window)
 
@@ -510,6 +563,8 @@ class MethodFragmentSelection(tk.Frame):
 
         self.summary_metrics = ttk.LabelFrame(self.frame_metrics, text="Summary of all metrics",
                                               width=600, height=400)
+
+
 
         self.summary_metrics.pack(fill="both", expand=True)
 
@@ -530,6 +585,7 @@ class MethodFragmentSelection(tk.Frame):
         self.frame_questions.grid_propagate(0)
         self.frame_questions.grid(padx=(10, 0),
                                     sticky='nsew')
+
 
         self.notebook_summary.add(self.frame_metrics, text='Metrics')
         self.notebook_summary.add(self.frame_questions, text='Survey Questions')
@@ -565,35 +621,70 @@ class MethodFragmentSelection(tk.Frame):
 
     def show_summary_metrics(self):
 
-
         # frame summary_metrics scrollable
         self.scrollable_metric_frame = ScrollableFrame(self.summary_metrics)
+
+        self.metric_id_list = []
+
+        # # summary stats
+
+        amount_of_frags = len(self.checkbox_list)
+        amount_of_metrics = 0
+        counter = 0
+
+        stat_label_frags = ttk.Label(self.scrollable_metric_frame.scrollable_frame,
+                               anchor="w", justify='left',
+                               font='Helvetica 11 ',
+                               text='Total amount of method fragments:   ' + str(
+                                   amount_of_frags))
+
+        stat_label_frags.pack(fill='both', pady=(10, 0))
+
+        stat_label_metric = ttk.Label(self.scrollable_metric_frame.scrollable_frame,
+                               anchor="w", justify='left',
+                               font='Helvetica 11 ',
+                               text='Total amount of metrics:   ' + str(
+                                   amount_of_metrics))
+
+        stat_label_metric.pack(fill='both', pady=(0, 10))
 
         for index, value in enumerate(self.checkbox_list):
             # print("show_summary_metrics: VALUE: ", value)
             # print("show_summary_metrics: type of VALUE: ", type(value[0]))
 
+            # retrieve method fragment id from checked methods fragments
             sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
             retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((value),))
 
-
-            sql_retrieve_metrics = "select metric_name from metric where method_fragment_id=?"
+            # retrieve metrics from the method fragments
+            sql_retrieve_metrics = "select * from metric where method_fragment_id=?"
             retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, retrieve_method_frag_id[0])
 
+            amount_of_metrics += len(retrieve_metrics)
+
+            if index == (len(self.checkbox_list) - 1):
+                stat_label_frags['text'] = 'Total amount of method fragments: ' + str(
+                                   amount_of_frags)
+                stat_label_metric['text'] = 'Total amount of metrics:   ' + str(
+                                   amount_of_metrics)
 
             ttk.Label(self.scrollable_metric_frame.scrollable_frame,
                       anchor="w", justify='left',
                       font='Helvetica 10 bold',
-                      text=str(index+1) + ":  " + value).pack(fill='both')
+                      text=value).pack(fill='both')
 
             for metric_index, metric in enumerate(retrieve_metrics):
+
                 ttk.Label(self.scrollable_metric_frame.scrollable_frame,
                           anchor="w", justify='left',
-                          text= '    ' + str(metric_index+1) + '  - ' + metric[0]).pack(fill='both')
-                # print("METRIC TYPE: ", type(metric))
+                          text= '    ' + str(counter+1) + '  - ' + str(metric[1])).pack(fill='both')
+                counter += 1
 
+                # print('ID ------', metric[0])
+                self.metric_id_list.append(metric[0])
 
         self.scrollable_metric_frame.pack(side="left", fill="both", expand=True)
+
 
     def get_data_object(self, data):
         self.data_object = data
@@ -630,6 +721,7 @@ class ScrollableFrame(ttk.Frame):
 
         canvas = tk.Canvas(self)
         scrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
+
         self.scrollable_frame = ttk.Frame(canvas)
 
         self.scrollable_frame.bind(

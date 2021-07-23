@@ -58,7 +58,7 @@ class SQLModel:
         self.project_2 = ("Test Project Versie 2")
         self.create_project(self.conn, self.project_2)
 
-        self.load_in_stock_data(self.conn)
+        self.load_in_stock_data()
 
 
     def create_connection(self, db_file):
@@ -97,6 +97,7 @@ class SQLModel:
                                                  multiple_answers bool,
                                                  answer_options text,
                                                  target_name varchar(50),
+                                                 user_made bool,
                                                  FOREIGN KEY (method_fragment_id) REFERENCES method_fragment (method_fragment_id)
                                              );"""
 
@@ -179,12 +180,12 @@ class SQLModel:
 
         return cur.lastrowid
 
-    def create_metric(self, conn, metric):
+    def create_metric(self, metric):
 
-        cur = conn.cursor()
+        cur = self.conn.cursor()
 
-        sql = """ INSERT INTO metric(metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name ) 
-                VALUES (?,?,?,?,?,?,?,?) """
+        sql = """ INSERT INTO metric(metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made) 
+                VALUES (?,?,?,?,?,?,?,?,?) """
 
         # check whether it is already present in database
         metric_name = metric[0]
@@ -198,7 +199,7 @@ class SQLModel:
 
         if entry is None:
             cur.execute(sql, metric)
-            conn.commit()
+            self.conn.commit()
             print('New metric added')
 
         else:
@@ -257,7 +258,7 @@ class SQLModel:
 
         return cur.lastrowid
 
-    def load_in_stock_data(self, conn):
+    def load_in_stock_data(self):
 
         dirname = os.getcwd()
         filename = os.path.join(dirname, 'data', 'method_fragments', 'master_list.xlsx')
@@ -269,7 +270,7 @@ class SQLModel:
         dataframe.fillna(np.nan, inplace=True)
 
         for row in unique_values:
-            self.create_method_fragment(conn, (row,))
+            self.create_method_fragment(self.conn, (row,))
 
         for index, row in dataframe.iterrows():
             category = row['category']
@@ -280,6 +281,7 @@ class SQLModel:
             answer_options = row['answer_options']
             multiple_answers = row['multiple_answers_possible']
             target_name = row['target']
+            user_made = False
 
             if multiple_answers == 'yes':
                 multiple_answers = True
@@ -287,16 +289,16 @@ class SQLModel:
             else:
                 multiple_answers = False
 
-            cur = conn.cursor()
+            cur = self.conn.cursor()
             cur.execute(""" SELECT method_fragment_id FROM method_fragment WHERE method_fragment_name = (?) """,
                         (category,))
             method_fragment_id = cur.fetchall()
             method_fragment_id = int(method_fragment_id[0][0])
 
             row = (metric_name, method_fragment_id, metric_definition,
-                   metric_question, metric_value_type, multiple_answers, answer_options, target_name)
+                   metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made)
 
-            self.create_metric(conn, row)
+            self.create_metric(row)
 
 
     def populate_measure_point_query(self):
@@ -346,3 +348,13 @@ class SQLModel:
             if cur.description is not None:
                 return cur.fetchall()
 
+    def delete_row_with_par(self, query, parameter):
+
+        cur = self.conn.cursor()
+
+        try:
+            cur.execute(query, (parameter,))
+        except Error as e:
+            raise e
+        else:
+            self.conn.commit()
