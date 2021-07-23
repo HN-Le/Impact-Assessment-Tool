@@ -1,14 +1,13 @@
+
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime
-from tkinter import scrolledtext
-from tkinter import Menu
 from tkinter import filedialog
 from . import widgets as w
 from . import constants as c
-from tkPDFViewer import tkPDFViewer as pdf
-import webbrowser
 
+from datetime import datetime
+from tkinter import scrolledtext
+from tkinter import Menu
 from data.sql import create_db as database
 
 class ProjectPurposeScreen(tk.Frame):
@@ -31,7 +30,7 @@ class ProjectPurposeScreen(tk.Frame):
                    sticky='n')
 
         # make object
-        self.project_pdf = w.PDFViewer(self)
+        self.project_pdf = w.FileOpener(self)
 
         # convert to string var and set init text
         self.text_project_pdf = tk.StringVar()
@@ -51,6 +50,8 @@ class ProjectPurposeScreen(tk.Frame):
         button_upload_1.grid(row=2, column=0,
                              padx=(10, 0), pady=5,
                              sticky='w')
+
+        # todo project_goals add validation (don't execute when no filepath is selected)
         # place show button
         button_show_1 = tk.Button(frame_project_goals,
                                   text='Show',
@@ -77,7 +78,7 @@ class ProjectPurposeScreen(tk.Frame):
                                  columnspan=2,
                                  sticky='w')
 
-        self.goal_pdf = w.PDFViewer(self)
+        self.goal_pdf = w.FileOpener(self)
 
         # convert to string var and set init text
         self.text_goal_pdf = tk.StringVar()
@@ -97,6 +98,7 @@ class ProjectPurposeScreen(tk.Frame):
                            pady=5,
                            sticky='w')
 
+        # todo goal_model add validation (don't execute when no filepath is selected)
         button_show_2 = tk.Button(frame_goal_model,
                                   text='Show',
                                   width=c.Size.button_width, height=c.Size.button_height,
@@ -213,7 +215,7 @@ class DataCollectionScreen(tk.Frame):
                                              sticky='w')
 
         # make object
-        self.project_pdf = w.PDFViewer(self)
+        self.project_pdf = w.FileOpener(self)
 
         # convert to string var and set init text
         self.text_sampling_pdf = tk.StringVar()
@@ -235,6 +237,8 @@ class DataCollectionScreen(tk.Frame):
         button_upload_1.grid(row=2, column=0,
                              padx=(10, 0), pady=5,
                              sticky='w')
+
+        # todo sampling_strategy add validation (don't execute when no filepath is selected)
         # place show button
         button_show_1 = tk.Button(frame_sampling,
                                   text='Show',
@@ -403,7 +407,7 @@ class DataCollectionScreen(tk.Frame):
                                       sticky='w')
 
             # make object
-            self.project_start = w.PDFViewer(self)
+            self.project_start = w.FileOpener(self)
 
             # convert to string var and set init text
             self.text_project_provider = tk.StringVar()
@@ -438,7 +442,7 @@ class DataCollectionScreen(tk.Frame):
 
             # --------- 2.2 community leader
 
-            self.community_leader = w.PDFViewer(self)
+            self.community_leader = w.FileOpener(self)
 
             label_community_leader = tk.Label(frame_project_start,
                                               text='Community leader data (CSV file only)')
@@ -482,7 +486,7 @@ class DataCollectionScreen(tk.Frame):
 
             # --------- 2.2 teacher
 
-            self.teacher = w.PDFViewer(self)
+            self.teacher = w.FileOpener(self)
 
             label_teacher = tk.Label(frame_project_start,
                                               text='Teacher data (CSV file only)')
@@ -525,7 +529,7 @@ class DataCollectionScreen(tk.Frame):
 
             # --------- 2.2 student
 
-            self.student = w.PDFViewer(self)
+            self.student = w.FileOpener(self)
 
             label_student= tk.Label(frame_project_start,
                                      text='Student data (CSV file only)')

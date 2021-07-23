@@ -1,20 +1,21 @@
-import sys
+
 import tkinter as tk
 from tkinter import ttk
-from . import views as v
-from tkPDFViewer import tkPDFViewer as pdf
+from . import constants as c
 from tkinter import filedialog
-import os
+from . import models as m
 import webbrowser
+
 import numpy as np
 import pandas as pd
-from . import constants as c
+import os
 from varname import nameof
-from . import models as m
+from . import views as v
+import sys
 from tkinter import font
 
 
-class PDFViewer(tk.Frame):
+class FileOpener(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -132,11 +133,11 @@ class MethodFragmentSelection(tk.Frame):
             self.make_questions()
 
             # go to metric tab
-            self.notebook_summary.select(1)
+            self.notebook_summary.select(0)
 
 
         else:
-            self.notebook_summary.select(1)
+            self.notebook_summary.select(0)
             self.info_window.deiconify()
 
         # checkbox_1 = tk.BooleanVar()
@@ -151,10 +152,6 @@ class MethodFragmentSelection(tk.Frame):
         counter = 0
 
         self.checkbox = dict()
-
-
-        data_types = dataframe.type.unique()
-        # print(data_types)
 
         for item in self.unique_values:
 
@@ -231,13 +228,16 @@ class MethodFragmentSelection(tk.Frame):
 
     def add_metric(self):
 
+        # todo add input validation to the metric entry field and combo boxes
+        # todo add input validation to the remove metric for enter frag id and enter metric id and combo boxes
+
         self.test_frame = ttk.LabelFrame(self.frame_metrics, text="Add metric",
-                                         width=600, height=200)
+                                         width=600, height=300)
 
         self.test_frame.pack(fill="both")
 
         self.remove_frame = ttk.LabelFrame(self.frame_metrics, text="Remove metric",
-                                         width=600, height=200)
+                                         width=600, height=300)
 
         self.remove_frame.pack(fill="both")
 
@@ -252,99 +252,170 @@ class MethodFragmentSelection(tk.Frame):
             seq=','.join(['?'] * len(check_list)))
 
         retrieve_method_fragment = self.data_object.query_with_par(sql, check_list)
+        retrieve_method_fragment_string = []
+
         retrieve_datatypes = self.data_object.query_no_par(
             "SELECT DISTINCT metric_value_type FROM metric ORDER BY metric_value_type")
 
+        # turn tuple into string to put in combo list
+        def retrieve_method_fragment_str():
+            for value in retrieve_method_fragment:
+                retrieve_method_fragment_string.append(value[0])
+
+        retrieve_method_fragment_str()
+
+        # make labels and input boxes for metric, method fragment and data type
         for index, value in enumerate(labels):
             ttk.Label(self.test_frame,
                       anchor="w", justify='left',
                       font='Helvetica 11',
-                      text=value).pack(fill='both', padx=20, pady=20, side='left')
+                      text=value).grid(row=0, column=index + index,
+                                       padx=10, pady=(20, 10))
 
+            # input boxes
             if index == 0:
                 # textbox metric
                 user_metric = tk.StringVar()
                 user_metric_input = ttk.Entry(self.test_frame, width=15, textvariable=user_metric)
-                user_metric_input.pack(side='left', anchor="sw", pady=20)
+                user_metric_input.grid(row=0, column=(index + index +1),
+                                       padx = 10, pady=(20, 10))
             elif index == 1:
-                # combobox method fragment
+                # combobox: method fragment
                 combobox = ttk.Combobox(
                     self.test_frame,
-                    values=retrieve_method_fragment)
-                combobox.pack(side='left', anchor="s", pady=20)
+                    values=retrieve_method_fragment_string)
+                combobox.grid(row=0, column=(index + index +1),
+                                       padx = 10, pady=(20, 10))
             else:
-                # combobox data types
+                # combobox: data types
                 combobox_2 = ttk.Combobox(
                     self.test_frame,
                     values=retrieve_datatypes)
-                combobox_2.pack(side='left', anchor="se", pady=20)
+                combobox_2.grid(row=0, column=(index + index +1),
+                                       padx = 10, pady=(20, 10))
 
         button_add = tk.Button(self.test_frame,
                                text='Add',
                                width=c.Size.button_width, height=c.Size.button_height,
-                               command=lambda: [self.add_button(combobox, combobox_2, user_metric)])
+                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question)])
 
-        button_add.pack(side='left', padx=(30, 10), pady=20)
+        button_add.grid(row=0, column=6,
+                                   padx = 10, pady=(20, 10))
 
         # refresh screen button
         button_add_refresh = tk.Button(self.test_frame,
                                           text='Refresh screen',
+                                          command=self.refresh_summary_window)
 
-                                          command='')
+        button_add_refresh.grid(row=0, column=7,
+                                   padx = 10, pady=(20, 10))
 
-        button_add_refresh.pack(side='left', pady=20)
+        ttk.Label(self.test_frame,
+                  anchor="w", justify='left',
+                  font='Helvetica 11',
+                  text='Survey question').grid(row=1, column=0,
+                                   padx=10, pady=(0, 20))
+
+        # textbox survey question
+        user_survey_question = tk.StringVar()
+        user_survey_question_input = ttk.Entry(self.test_frame, width=93, textvariable=user_survey_question)
+        user_survey_question_input.grid(row=1, column=1, columnspan=10, sticky='w',
+                               padx=10, pady=(0, 20))
+
+        # Placeholder for status message
+        self.status_message_add_metric = '-- PLACEHOLDER STATUS MESSAGE --'
+        ttk.Label(self.test_frame,
+                  font='Helvetica 11', foreground='red',
+                  text=self.status_message_add_metric).grid(row=2, column=0,
+                                                            columnspan=20,
+                                                            padx=10, pady=(0, 20),
+                                                            sticky='w')
 
 
+        # remove metric
         ttk.Label(self.remove_frame,
                   anchor="w", justify='left',
                   font='Helvetica 11',
-                  text='Enter fragment id: ').pack(fill='both', padx=20, pady=20, side='left')
+                  text='Enter fragment id: ').grid(row=0, column=0, sticky='w',
+                               padx=10, pady=(10, 10))
 
-        # textbox method fragment
+        # textbox remove method fragment
         user_method_remove = tk.StringVar()
         user_method_remove_input = ttk.Entry(self.remove_frame, width=15, textvariable=user_method_remove)
-        user_method_remove_input.pack(side='left', anchor="sw", pady=20)
+        user_method_remove_input.grid(row=0, column=1, sticky='w',
+                               padx=10, pady=(20, 10))
 
         ttk.Label(self.remove_frame,
                   anchor="w", justify='left',
                   font='Helvetica 11',
-                  text='Enter method id: ').pack(fill='both', padx=20, pady=20, side='left')
+                  text='Enter method id: ').grid(row=0, column=2, sticky='w',
+                               padx=10, pady=(20, 10))
 
-        # textbox metric
+        # textbox remove metric
         user_metric_remove = tk.StringVar()
         user_metric_remove_input = ttk.Entry(self.remove_frame, width=15, textvariable=user_metric_remove)
-        user_metric_remove_input.pack(side='left', anchor="sw", pady=20)
+        user_metric_remove_input.grid(row=0, column=3, sticky='w',
+                               padx=10, pady=(20, 10))
 
         # remove button
         button_remove = tk.Button(self.remove_frame,
                                   text='Remove',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command='')
+                                  command=lambda: [self.remove_button(user_method_remove, user_metric_remove)])
 
-        button_remove.pack(side='left', padx=10, pady=20)
+        button_remove.grid(row=0, column=4, sticky='w',
+                               padx=10, pady=(20, 10))
 
         # refresh screen button
         button_remove_refresh = tk.Button(self.remove_frame,
                                   text='Refresh screen',
+                                  command=self.refresh_summary_window)
 
-                                  command='')
+        button_remove_refresh.grid(row=0, column=5, sticky='w',
+                               padx=10, pady=(20, 10))
 
-        button_remove_refresh.pack(side='left', pady=20)
+        # Placeholder for status message
+        self.status_message_remove_metric = '-- PLACEHOLDER STATUS MESSAGE --'
+        ttk.Label(self.remove_frame,
+                  font='Helvetica 11', foreground='red',
+                  text=self.status_message_remove_metric).grid(row=1, column=0, columnspan=20,
+                                                            padx=10, pady=(0, 20),
+                                                               sticky='w')
 
 
-    def add_button(self, combobox, combobox_2, text):
+    def add_button(self, combobox, combobox_2, text, user_survey_question):
+
+        # todo link user added metric to metrics list
+        # todo add validation for input boxes
+        # todo show text for confirmation that metric is added
+
         combobox.current()
         combobox_2.current()
 
         combobox.get()
         combobox_2.get()
 
-        print('TEXT BOX: ', text.get())
-        print('COMBOBOX 1: ', combobox.get())
-        print('COMBOBOX 2: ', combobox_2.get())
+        print('METRIC TEXT BOX: ', text.get())
+        print('METHOD FRAG BOX: ', combobox.get())
+        print('DATATYPE BOX: ', combobox_2.get())
+        print('SURVEY QUESTION BOX: ', user_survey_question.get())
 
+        combobox.delete(0, 'end')
+        combobox_2.delete(0, 'end')
+        text.set('')
+        user_survey_question.set('')
 
+    def remove_button(self, frag_id, metric_id):
 
+        # todo link user added metric to metrics list
+        # todo add validation for input boxes
+        # todo show text for confirmation that metric is added
+
+        print('FRAGMENT ID TEXT BOX: ', frag_id.get())
+        print('METRIC ID TEXT BOX: ', metric_id.get())
+
+        frag_id.set('')
+        metric_id.set('')
 
     def get_target(self, event=None):
         self.input_combobox = event.widget.get()
@@ -524,8 +595,6 @@ class MethodFragmentSelection(tk.Frame):
 
         self.scrollable_metric_frame.pack(side="left", fill="both", expand=True)
 
-        self.data_object.populate_measure_point_query()
-
     def get_data_object(self, data):
         self.data_object = data
 
@@ -537,9 +606,25 @@ class MethodFragmentSelection(tk.Frame):
             frame.pack_forget()
             frame.destroy()
 
+    def refresh_summary_window(self):
+
+        self.generate_questions()
+        self.show_info_screen()
+        self.selection_window.withdraw()
+        self.delete_frame(self.scrollable_metric_frame)
+        self.delete_frame(self.test_frame)
+        self.delete_frame(self.remove_frame)
+        self.add_metric()
+        self.show_summary_metrics()
+        self.notebook_summary.select(0)
+
+        # print("REFRESH SUMMARY WINDOW ------ ")
+
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
+
+    # todo fix the scroll function
     def __init__(self, container, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
 

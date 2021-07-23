@@ -1,10 +1,12 @@
-import csv
+
 import os
-from .constants import FieldTypes as FT
 import pandas as pd
 from sqlite3 import Error
 import sqlite3
 import numpy as np
+
+from .constants import FieldTypes as FT
+import csv
 
 
 class surveyModel:
@@ -32,8 +34,8 @@ class surveyModel:
 
         return list_items
 
-class SQLModel:
 
+class SQLModel:
 
     def __init__(self, database):
 
@@ -46,10 +48,8 @@ class SQLModel:
                                    "end_project",
                                    "year_after_project_end"}
 
-
         # populate db
         self.define_sql_table(self.conn)
-
 
         # HARDCODED, REMOVE LATER
         self.project = ("Test Project")
@@ -58,9 +58,7 @@ class SQLModel:
         self.project_2 = ("Test Project Versie 2")
         self.create_project(self.conn, self.project_2)
 
-
         self.load_in_stock_data(self.conn)
-
 
 
     def create_connection(self, db_file):

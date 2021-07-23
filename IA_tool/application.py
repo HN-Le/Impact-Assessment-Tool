@@ -1,13 +1,16 @@
+
 import tkinter as tk
 from tkinter import ttk
-from datetime import datetime
 from tkinter import Menu
 from . import views as views
 from . import models as m
-from . import widgets as w
 import os
+
+from . import widgets as w
 from pathlib import Path
 import pandas as pd
+from datetime import datetime
+
 
 class Application(tk.Tk):
     """Application root window"""
@@ -35,13 +38,14 @@ class Application(tk.Tk):
         dirname = os.getcwd()
         name_db = 'test2.db'
         database = os.path.join(dirname, 'data', 'sql', name_db)
+
+        # create database
         self.create_database(database)
 
-        # test_row = ("NAME", 5, "TEST DEFINITION",
-        #             "TEST QUESTION? ", "MULTIPLE CHOICE", None, None, "student")
+        # populate measure point table
+        self.data_model.populate_measure_point_query()
 
-        # self.data_model.create_metric(self.data_model.conn, test_row)
-
+        # send data_model object to other functions
         self.project_purpose_screen.send_data_object(self.data_model)
 
 
