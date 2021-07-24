@@ -319,7 +319,7 @@ class SQLModel:
     def query_with_par(self, query, parameter):
 
         cur = self.conn.cursor()
-        # print('models: parameters --- ' , parameter)
+        print('models: parameters --- ', parameter)
 
         try:
             cur.execute(query, parameter)

@@ -48,10 +48,6 @@ class Application(tk.Tk):
         # send data_model object to other functions
         self.project_purpose_screen.send_data_object(self.data_model)
 
-
-
-
-
     def create_database(self, database):
         self.data_model = m.SQLModel(database)
 

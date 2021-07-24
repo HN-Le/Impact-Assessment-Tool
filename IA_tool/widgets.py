@@ -128,7 +128,7 @@ class MethodFragmentSelection(tk.Frame):
 
             self.make_summary_tabs()
 
-            self.make_questions()
+            self.make_questions(refresh=False)
 
             # go to metric tab
             self.notebook_summary.select(0)
@@ -297,17 +297,10 @@ class MethodFragmentSelection(tk.Frame):
         button_add = tk.Button(self.test_frame,
                                text='Add',
                                width=c.Size.button_width, height=c.Size.button_height,
-                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question, combobox_target)])
+                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question, combobox_target),
+                                                self.refresh_summary_window()])
 
         button_add.grid(row=0, column=6,
-                                   padx = 10, pady=(20, 10))
-
-        # refresh screen button
-        button_add_refresh = tk.Button(self.test_frame,
-                                          text='Refresh screen',
-                                          command=self.refresh_summary_window)
-
-        button_add_refresh.grid(row=0, column=7,
                                    padx = 10, pady=(20, 10))
 
         ttk.Label(self.test_frame,
@@ -369,17 +362,10 @@ class MethodFragmentSelection(tk.Frame):
         button_remove = tk.Button(self.remove_frame,
                                   text='Remove',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command=lambda: [self.remove_button(user_method_remove)])
+                                  command=lambda: [self.remove_button(user_method_remove),
+                                                   self.refresh_summary_window()])
 
         button_remove.grid(row=0, column=4, sticky='w',
-                               padx=10, pady=(20, 10))
-
-        # refresh screen button
-        button_remove_refresh = tk.Button(self.remove_frame,
-                                  text='Refresh screen',
-                                  command=self.refresh_summary_window)
-
-        button_remove_refresh.grid(row=0, column=5, sticky='w',
                                padx=10, pady=(20, 10))
 
         # Placeholder for status message
@@ -481,6 +467,7 @@ class MethodFragmentSelection(tk.Frame):
 
         if self.community_list is not None:
             self.community_list.delete('0', tk.END)
+            print('self.community_list is not None: ----------')
 
         # print('get_target -- target_key ', target_key)
 
@@ -519,20 +506,23 @@ class MethodFragmentSelection(tk.Frame):
         scrollbar_v_community_list.config(command=self.community_list.yview)
         scrollbar_h_community_list.config(command=self.community_list.xview)
 
-        for line in self.checkbox_list:
-            values = self.dataframe.show_relevant_fragments(self.dataframe.dataframe, line, target_key)
-            metrics = values[1].values
-            types = values[2].values
+        # --------------
+        for index, value in enumerate(self.checkbox_list):
 
+            # retrieve method fragment id from checked methods fragments
+            sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
+            retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((value),))
 
+            # retrieve metrics from the method fragments
+            sql_retrieve_metrics = "select * from metric where method_fragment_id=(?) and target_name=(?)"
+            retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, (retrieve_method_frag_id[0][0], target_key))
 
-            for index, item in enumerate(values[0]):
-                self.community_list.insert(tk.END, ' ' + 'Survey question:   ' + item)
-                self.community_list.insert(tk.END, '                ' + 'Metric:   ' + metrics[index])
-                self.community_list.insert(tk.END, '                   ' + 'Type:   ' + types[index])
+            for metric_index, metric in enumerate(retrieve_metrics):
+
+                self.community_list.insert(tk.END, ' ' + 'Survey question:   ' + str(metric[4]))
+                self.community_list.insert(tk.END, '                ' + 'Metric:   ' + str(metric[1]))
+                self.community_list.insert(tk.END, '                   ' + 'Type:   ' + str(metric[5]))
                 self.community_list.insert(tk.END, '\n')
-
-        # print('create_list, community list:  ---', self.community_list)
 
         button_download_all = tk.Button(self.frame_survey_questions,
                                text='Download all questions',
@@ -592,32 +582,36 @@ class MethodFragmentSelection(tk.Frame):
 
         self.notebook_summary.grid(row=0, column=0, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
 
-    def make_questions(self):
+    def make_questions(self, refresh):
 
-        self.frame_survey_questions = ttk.LabelFrame(self.frame_questions, text="Survey questions",
-                                                     width=1200, height=600)
+        if refresh == False:
+            self.frame_survey_questions = ttk.LabelFrame(self.frame_questions, text="Survey questions",
+                                                         width=1200, height=600)
 
-        self.frame_survey_questions.grid_propagate(0)
-        self.frame_survey_questions.grid(padx=5, pady=5,
-                                         sticky='e')
+            self.frame_survey_questions.grid_propagate(0)
+            self.frame_survey_questions.grid(padx=5, pady=5,
+                                             sticky='e')
 
-        self.create_list('project_provider')
 
-        combobox_target = ttk.Combobox(
-            self.frame_survey_questions,
-            values=["Project Provider",
-                    "Community School Leader",
-                    "Teacher",
-                    "Student"
-                    ])
+            self.create_list('project_provider')
 
-        combobox_target.current(0)
-        # -----------------------
+            self.combobox_target_survey = ttk.Combobox(
+                self.frame_survey_questions,
+                values=["Project Provider",
+                        "Community School Leader",
+                        "Teacher",
+                        "Student"
+                        ])
 
-        combobox_target.grid(row=5, column=0, padx=(20, 0), pady=2,
-                             sticky='w')
+            self.combobox_target_survey.current(0)
 
-        combobox_target.bind("<<ComboboxSelected>>", self.get_target)
+            self.combobox_target_survey.grid(row=5, column=0, padx=(20, 0), pady=2,
+                                             sticky='w')
+
+            self.combobox_target_survey.bind("<<ComboboxSelected>>", self.get_target)
+        else:
+            self.create_list('')
+
 
     def show_summary_metrics(self):
 
@@ -625,8 +619,6 @@ class MethodFragmentSelection(tk.Frame):
         self.scrollable_metric_frame = ScrollableFrame(self.summary_metrics)
 
         self.metric_id_list = []
-
-        # # summary stats
 
         amount_of_frags = len(self.checkbox_list)
         amount_of_metrics = 0
@@ -699,6 +691,8 @@ class MethodFragmentSelection(tk.Frame):
 
     def refresh_summary_window(self):
 
+        self.combobox_target_survey.delete(0, 'end')
+        self.make_questions(refresh=True)
         self.generate_questions()
         self.show_info_screen()
         self.selection_window.withdraw()
