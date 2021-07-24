@@ -10,7 +10,7 @@ class FieldTypes:
     boolean = 7
 
 class Size:
-    label_frame_width = 600
+    label_frame_width = 800
     label_frame_height = 150
 
     button_width = 9

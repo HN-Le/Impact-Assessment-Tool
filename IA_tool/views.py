@@ -112,7 +112,7 @@ class ProjectPurposeScreen(tk.Frame):
         # -------------------------------------------------------------------------------------------
 
         frame_select_method_fragments = ttk.LabelFrame(self, text="1.3 Method Fragments",
-                                          width=1200, height=700)
+                                          width=c.Size.label_frame_width, height=300)
         frame_select_method_fragments.grid_propagate(0)
         frame_select_method_fragments.grid(padx=(10, 0),
                               sticky='nsew')
@@ -128,7 +128,6 @@ class ProjectPurposeScreen(tk.Frame):
 
 
         # checkboxes and method fragments
-
         button_upload_3 = tk.Button(frame_select_method_fragments,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
@@ -139,29 +138,52 @@ class ProjectPurposeScreen(tk.Frame):
                            pady=2,
                            sticky='w')
 
+        status_message_show_method_frags = ''
+
+        # todo turn status messages into a function
+        def if_clicked():
+            if self.method_fragment.is_checked == False:
+                show_status_message['text'] = 'Select method fragments first!'
+                print('views - if_clicked FALSE -------------')
+            else:
+                self.method_fragment.show_info_screen()
+                print('views - if_clicked TRUE -------------')
+
+
         button_upload_4 = tk.Button(frame_select_method_fragments,
                                     text='Show',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command=self.method_fragment.show_info_screen)
+                                    command=if_clicked)
 
         button_upload_4.grid(row=3, column=1,
                              padx=(10, 0),
                              pady=2,
                              sticky='w')
 
+        # ------------
+
+        show_status_message = ttk.Label(frame_select_method_fragments,
+                              font='Helvetica 11', foreground='red',
+                              text=status_message_show_method_frags)
+
+        show_status_message.grid(row=4, column=0,
+                                columnspan=20,
+                                padx=10, pady=(10),
+                                sticky='w')
+
         label_add_definition = tk.Label(frame_select_method_fragments,
                                                    text='Add metric definition & set targets')
 
-        label_add_definition.grid(row=4, column=0, columnspan=100,
-                                             padx=(20, 0), pady=(20, 0),
+        label_add_definition.grid(row=5, column=0, columnspan=100,
+                                             padx=(20, 0),
                                              sticky='w')
 
         button_upload_5 = tk.Button(frame_select_method_fragments,
                                     text='Add',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command='')
+                                    command= lambda: [self.method_fragment.show_add_metric_definition_window()])
 
-        button_upload_5.grid(row=5, column=0,
+        button_upload_5.grid(row=6, column=0,
                              padx=(10, 0),
                              pady=2,
                              sticky='w')
@@ -171,10 +193,20 @@ class ProjectPurposeScreen(tk.Frame):
                                     width=c.Size.button_width, height=c.Size.button_height,
                                     command='')
 
-        button_upload_6.grid(row=5, column=1,
+        button_upload_6.grid(row=6, column=1,
                              padx=(10, 0),
                              pady=2,
                              sticky='w')
+
+        status_message_add_metric_def = '-- PLACEHOLDER --'
+        show_status_message_metric_def = ttk.Label(frame_select_method_fragments,
+                                        font='Helvetica 11', foreground='red',
+                                        text=status_message_add_metric_def)
+
+        show_status_message_metric_def.grid(row=7, column=0,
+                                 columnspan=20,
+                                 padx=10, pady=(10),
+                                 sticky='w')
 
         self.sendFrame(frame_select_method_fragments)
 
