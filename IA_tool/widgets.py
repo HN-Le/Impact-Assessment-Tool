@@ -351,6 +351,8 @@ class MethodFragmentSelection(tk.Frame):
                                                             sticky='w')
 
         # remove metric
+
+        # todo popup window for removal of metric
         ttk.Label(self.remove_frame,
                   anchor="w", justify='left',
                   font='Helvetica 11',
@@ -739,9 +741,14 @@ class MethodFragmentSelection(tk.Frame):
         # make frame scrollable
         self.scrollable_add_metric_frame = ScrollableFrame(self.add_metric_window)
 
+        metric_frame = ttk.Frame(self.add_metric_window, width=1200, height=800)
+
+        frame_list = []
+
         for index, value in enumerate(self.checkbox_list):
             # print("show_summary_metrics: VALUE: ", value)
             # print("show_summary_metrics: type of VALUE: ", type(value[0]))
+
 
             # retrieve method fragment id from checked methods fragments
             sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
@@ -768,10 +775,6 @@ class MethodFragmentSelection(tk.Frame):
 
                 ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
                           anchor="w", justify='left',
-                          text='    ' + 'Definition: ').pack(fill='both')
-
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
-                          anchor="w", justify='left',
                           text='    ' + 'Set metric target: ').pack(fill='both')
 
                 ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
@@ -781,6 +784,14 @@ class MethodFragmentSelection(tk.Frame):
                 ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
                           anchor="w", justify='left',
                           text='    ' + 'Demographic scope: ').pack(fill='both')
+
+                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+                          anchor="w", justify='left',
+                          text='    ' + 'Metric definition: ').pack(fill='both')
+
+                user_metric = tk.StringVar()
+                ttk.Entry(self.scrollable_add_metric_frame.scrollable_frame,
+                          width=15, textvariable=user_metric).pack(fill='both', padx=20)
 
                 ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
                           text='').pack()
@@ -809,11 +820,6 @@ class MethodFragmentSelection(tk.Frame):
         print('add_metric_target ----')
         print('demographic of interest BOOL ----')
         print('demographic of interest scope text ----')
-
-
-
-
-
 
 
     # ref: https://blog.teclado.com/tkinter-scrollable-frames/
