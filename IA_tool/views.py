@@ -409,10 +409,10 @@ class DataCollectionScreen(tk.Frame):
             self.start_project_window = tk.Toplevel()
             self.start_project_window.wm_title('Load data')
 
-            width =  self.start_project_window.winfo_screenwidth()
-            height =  self.start_project_window.winfo_screenheight()
-
-            self.start_project_window.geometry('%sx%s' % (int(width-100), int(height)))
+            # width =  self.start_project_window.winfo_screenwidth()
+            # height =  self.start_project_window.winfo_screenheight()
+            #
+            # self.start_project_window.geometry('%sx%s' % (int(width-100), int(height)))
 
             self.start_project_window.protocol("WM_DELETE_WINDOW", lambda arg='start_project': self.hide_window(arg))
 
@@ -455,7 +455,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [self.project_start.get_file_path(),
-                                                         self.text_project_provider.set(self.project_start.get_file_name()), self.focus_window(self.start_project_window)])
+                                                         self.text_project_provider.set(self.project_start.get_file_name())])
 
             # place upload button
             button_upload_1.grid(row=3, column=0,

@@ -5,6 +5,7 @@ from . import constants as c
 from tkinter import filedialog
 from . import models as m
 import webbrowser
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -143,8 +144,6 @@ class MethodFragmentSelection(tk.Frame):
             self.notebook_summary.select(0)
             self.info_window.deiconify()
 
-        # checkbox_1 = tk.BooleanVar()
-        # tk.Checkbutton(frame_project_goals, text="male", variable=checkbox_1).grid(row=0, sticky='w')
 
     def make_checkboxes(self, dataframe, frame):
 
@@ -741,14 +740,27 @@ class MethodFragmentSelection(tk.Frame):
         # make frame scrollable
         self.scrollable_add_metric_frame = ScrollableFrame(self.add_metric_window)
 
-        metric_frame = ttk.Frame(self.add_metric_window, width=1200, height=800)
 
-        frame_list = []
+
+        self.metric_id_list = []
+        self.button_id_list = []
+        self.user_metric_defintion_text_widget = []
+        self.user_metric_defintion_text = []
+        self.checkbox_demographic = []
+        self.checkbox_demographic_var = []
+        self.metric_id_holder = []
+
+        self.demo_scope_list = []
+        self.metric_target_list = []
+
+        counter = 0
 
         for index, value in enumerate(self.checkbox_list):
             # print("show_summary_metrics: VALUE: ", value)
             # print("show_summary_metrics: type of VALUE: ", type(value[0]))
 
+            # make frame
+            metric_frame = ttk.Frame(self.scrollable_add_metric_frame.scrollable_frame, width=1200, height=800)
 
             # retrieve method fragment id from checked methods fragments
             sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
@@ -758,43 +770,109 @@ class MethodFragmentSelection(tk.Frame):
             sql_retrieve_metrics = "select * from metric where method_fragment_id=?"
             retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, retrieve_method_frag_id[0])
 
-            ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+            # for metric in retrieve_metrics:
+            #     print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
+            #     print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
+
+            ttk.Label(metric_frame,
                       anchor="w", justify='left',
-                      font='Helvetica 12 bold',
+                      font='Helvetica 14', foreground='blue',
                       text=value).pack(fill='both')
 
             for metric_index, metric in enumerate(retrieve_metrics):
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
-                          anchor="w", justify='left',
-                          text='    ' + 'Metric: ' +str(metric[1])).pack(fill='both')
+                # print(' ID: retrieve_metrics[0] -------------- ', metric[0])
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+                # print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
+                # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
+
+                ttk.Label(metric_frame,
                           anchor="w", justify='left',
+                          font='Helvetica 10 bold',
+                          text='    ' + 'Metric: ').pack(fill='both')
+
+                ttk.Label(metric_frame,
+                          anchor="w", justify='left',
+                          text=str(metric[1])).pack(anchor='w', padx=(40,0))
+
+                self.metric_id_holder.append(metric[1])
+
+                ttk.Label(metric_frame,
+                          anchor="w", justify='left',
+                          font='Helvetica 10 bold',
                           text='    ' + 'Target group: ').pack(fill='both')
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+                ttk.Label(metric_frame,
                           anchor="w", justify='left',
-                          text='    ' + 'Set metric target: ').pack(fill='both')
+                          text=str(metric[8])).pack(anchor='w', padx=(40, 0))
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+                ttk.Label(metric_frame,
                           anchor="w", justify='left',
-                          text='    ' + 'Demographic of interest: ').pack(fill='both')
+                          font='Helvetica 10 bold',
+                          text='    ' + 'Set metric target in %: ').pack(fill='both')
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+                user_target_input = tk.StringVar()
+                user_target = ttk.Entry(metric_frame,
+                                            width=15,
+                                            textvariable=user_target_input).pack(anchor='w', padx=(40,0))
+
+                self.metric_id_holder[counter] = tk.BooleanVar()
+                checkbox_demographic = ttk.Checkbutton(metric_frame,
+                                           text='Demographic of interest',
+                                           variable=self.metric_id_holder[counter],
+                                           onvalue=True, offvalue=False)
+
+                checkbox_demographic.pack(anchor="w", padx=(10,0))
+
+                self.checkbox_demographic.append(self.metric_id_holder[counter])
+
+                ttk.Label(metric_frame,
                           anchor="w", justify='left',
+                          font='Helvetica 10 bold',
                           text='    ' + 'Demographic scope: ').pack(fill='both')
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
+                user_demo_scope_input = tk.StringVar()
+                user_demo_scope = ttk.Entry(metric_frame,
+                                                   width=15,
+                                                   textvariable=user_demo_scope_input).pack(fill='both', padx=(40,0))
+
+                ttk.Label(metric_frame,
                           anchor="w", justify='left',
+                          font='Helvetica 10 bold',
                           text='    ' + 'Metric definition: ').pack(fill='both')
 
-                user_metric = tk.StringVar()
-                ttk.Entry(self.scrollable_add_metric_frame.scrollable_frame,
-                          width=15, textvariable=user_metric).pack(fill='both', padx=20)
+                user_metric_definition_input = tk.StringVar()
+                user_metric_definition = ttk.Entry(metric_frame,
+                                                   width=15,
+                                                   textvariable=user_metric_definition_input).pack(fill='both', padx=(40,0))
 
-                ttk.Label(self.scrollable_add_metric_frame.scrollable_frame,
-                          text='').pack()
+                self.metric_id_list.append(metric[0])
+
+                button = tk.Button(metric_frame,
+                                   text='Save',
+                                   width=c.Size.button_width, height=c.Size.button_height,
+                                   command=partial(self.save_metric_stats, counter)).pack(pady=(10,0), anchor="w", padx=(20,0))
+
+                counter += 1
+
+                self.button_id_list.append(button)
+                self.user_metric_defintion_text.append(user_metric_definition_input)
+                # self.user_metric_defintion_text_widget.append(user_metric_definition)
+                self.demo_scope_list.append(user_demo_scope_input)
+                self.metric_target_list.append(user_target_input)
+
+
+                # white line
+                ttk.Label(metric_frame, text='').pack()
+
+
+            metric_frame.pack(fill='both')
+
+        print('button_id_list ---------- ', len(self.button_id_list))
+
+        print('METRIC ITEM LIST', self.metric_id_list)
+
+
 
 
 
@@ -820,6 +898,22 @@ class MethodFragmentSelection(tk.Frame):
         print('add_metric_target ----')
         print('demographic of interest BOOL ----')
         print('demographic of interest scope text ----')
+
+    def save_metric_stats(self, index):
+        print('save_metric_stats button index ---- ', index)
+        print('save_metric_stats textinput ---- ', self.user_metric_defintion_text[index].get())
+        print('save_metric_stats metric_id ---- ', self.metric_id_list[index])
+        print('save_metric_stats checkbox ---- ', self.checkbox_demographic[index].get())
+        print('save_metric_stats demo_scope ---- ', self.demo_scope_list[index].get())
+        print('save_metric_stats target ---- ', self.metric_target_list[index].get())
+
+
+
+
+
+
+
+
 
 
     # ref: https://blog.teclado.com/tkinter-scrollable-frames/
@@ -848,14 +942,3 @@ class ScrollableFrame(ttk.Frame):
         canvas.pack(side="left", fill="both", expand=True)
 
         scrollbar.pack(side="right", fill="y")
-
-
-
-
-
-
-
-
-
-
-
