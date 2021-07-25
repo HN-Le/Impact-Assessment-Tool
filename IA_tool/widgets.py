@@ -740,8 +740,6 @@ class MethodFragmentSelection(tk.Frame):
         # make frame scrollable
         self.scrollable_add_metric_frame = ScrollableFrame(self.add_metric_window)
 
-
-
         self.metric_id_list = []
         self.button_id_list = []
         self.user_metric_defintion_text_widget = []
@@ -777,7 +775,7 @@ class MethodFragmentSelection(tk.Frame):
             ttk.Label(metric_frame,
                       anchor="w", justify='left',
                       font='Helvetica 14', foreground='blue',
-                      text=value).pack(fill='both')
+                      text=value).pack(fill='both', pady=10)
 
             for metric_index, metric in enumerate(retrieve_metrics):
 
@@ -809,12 +807,22 @@ class MethodFragmentSelection(tk.Frame):
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
-                          text='    ' + 'Set metric target in %: ').pack(fill='both')
+                          text='    ' + 'Metric definition: ').pack(fill='both', pady=(0, 5))
+
+                user_metric_definition_input = tk.StringVar()
+                user_metric_definition = ttk.Entry(metric_frame,
+                                                   width=15,
+                                                   textvariable=user_metric_definition_input).pack(fill='both', padx=(40,0), pady=(0, 5))
+
+                ttk.Label(metric_frame,
+                          anchor="w", justify='left',
+                          font='Helvetica 10 bold',
+                          text='    ' + 'Set metric target in %: ').pack(fill='both', pady=(0, 5))
 
                 user_target_input = tk.StringVar()
                 user_target = ttk.Entry(metric_frame,
                                             width=15,
-                                            textvariable=user_target_input).pack(anchor='w', padx=(40,0))
+                                            textvariable=user_target_input).pack(anchor='w', padx=(40,0), pady=(0, 5))
 
                 self.metric_id_holder[counter] = tk.BooleanVar()
                 checkbox_demographic = ttk.Checkbutton(metric_frame,
@@ -822,31 +830,21 @@ class MethodFragmentSelection(tk.Frame):
                                            variable=self.metric_id_holder[counter],
                                            onvalue=True, offvalue=False)
 
-                checkbox_demographic.pack(anchor="w", padx=(10,0))
+                checkbox_demographic.pack(anchor="w", padx=(10,0), pady=(0, 5))
 
                 self.checkbox_demographic.append(self.metric_id_holder[counter])
 
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
-                          text='    ' + 'Demographic scope: ').pack(fill='both')
+                          text='    ' + 'Demographic scope: ').pack(fill='both', pady=(0, 5))
 
                 user_demo_scope_input = tk.StringVar()
                 user_demo_scope = ttk.Entry(metric_frame,
                                                    width=15,
-                                                   textvariable=user_demo_scope_input).pack(fill='both', padx=(40,0))
+                                                   textvariable=user_demo_scope_input).pack(fill='both', padx=(40,0), pady=(0, 5))
 
-                ttk.Label(metric_frame,
-                          anchor="w", justify='left',
-                          font='Helvetica 10 bold',
-                          text='    ' + 'Metric definition: ').pack(fill='both')
 
-                user_metric_definition_input = tk.StringVar()
-                user_metric_definition = ttk.Entry(metric_frame,
-                                                   width=15,
-                                                   textvariable=user_metric_definition_input).pack(fill='both', padx=(40,0))
-
-                self.metric_id_list.append(metric[0])
 
                 button = tk.Button(metric_frame,
                                    text='Save',
@@ -855,6 +853,7 @@ class MethodFragmentSelection(tk.Frame):
 
                 counter += 1
 
+                self.metric_id_list.append(metric[0])
                 self.button_id_list.append(button)
                 self.user_metric_defintion_text.append(user_metric_definition_input)
                 # self.user_metric_defintion_text_widget.append(user_metric_definition)
@@ -871,10 +870,6 @@ class MethodFragmentSelection(tk.Frame):
         print('button_id_list ---------- ', len(self.button_id_list))
 
         print('METRIC ITEM LIST', self.metric_id_list)
-
-
-
-
 
         # put scrollable frame in window
         self.scrollable_add_metric_frame.pack(fill="both", expand='true')
