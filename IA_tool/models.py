@@ -110,6 +110,8 @@ class SQLModel:
                                                  metric_target_id integer PRIMARY KEY,
                                                  increase boolean NOT NULL,
                                                  metric_target_value integer NOT NULL,
+                                                 interest_demographic boolean,
+                                                 interest_scope text,
                                                  project_id integer NOT NULL,
                                                  metric_id integer NOT NULL,
                                                  FOREIGN KEY (metric_id) REFERENCES metric (metric_id),
@@ -258,6 +260,42 @@ class SQLModel:
 
         return cur.lastrowid
 
+    def create_metric_target(self, metric_target):
+
+        cur = self.conn.cursor()
+
+        sql = """ INSERT INTO metric_target(increase, metric_target_value, interest_demographic, interest_scope, project_id, metric_id) 
+                VALUES (?,?,?,?,?,?) """
+
+        print('METRIC TARGET', metric_target)
+
+        # check whether it is already present in database
+        metric_id = metric_target[5]
+
+        # print("create_measuring_point: type ", type(measuring_point_name))
+        # print("create_measuring_point: measuring_point_name ", measuring_point_name)
+
+        test_sql = "SELECT * FROM metric_target WHERE metric_id = ? "
+        cur.execute(test_sql, (((metric_id),)))
+
+        entry = cur.fetchone()
+
+        # print('create_measuring_point - entry: ', entry)
+
+        if entry is None:
+            cur.execute(sql, metric_target)
+            self.conn.commit()
+            print('New metric target added')
+
+        else:
+            print('Metric target found')
+            sql = 'update metric_target set metric_target_value = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
+            parameters = (metric_target[1], metric_target[0], metric_target[3], metric_id)
+
+            self.update_row_with_par(sql, parameters)
+
+        return cur.lastrowid
+
     def load_in_stock_data(self):
 
         dirname = os.getcwd()
@@ -347,6 +385,19 @@ class SQLModel:
             # no rows are returned
             if cur.description is not None:
                 return cur.fetchall()
+
+    def update_row_with_par(self, query, parameter):
+        cur = self.conn.cursor()
+
+        try:
+            print('update_row parameters', parameter)
+            cur.execute(query, parameter)
+        except Error as e:
+            raise e
+        else:
+            self.conn.commit()
+            print('Row updated ------')
+
 
     def delete_row_with_par(self, query, parameter):
 

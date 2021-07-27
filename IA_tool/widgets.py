@@ -750,8 +750,18 @@ class MethodFragmentSelection(tk.Frame):
 
         self.demo_scope_list = []
         self.metric_target_list = []
+        self.if_increase_list = []
 
         counter = 0
+
+
+        # retrieve method fragment id from checked methods fragments
+        sql_retrieve_metric_target = "select * from metric_target "
+        retrieve_metric_target = self.data_object.query_no_par(sql_retrieve_metric_target)
+
+        print('retrieve_metric_target ------', retrieve_metric_target)
+
+
 
         for index, value in enumerate(self.checkbox_list):
             # print("show_summary_metrics: VALUE: ", value)
@@ -780,7 +790,6 @@ class MethodFragmentSelection(tk.Frame):
             for metric_index, metric in enumerate(retrieve_metrics):
 
                 # print(' ID: retrieve_metrics[0] -------------- ', metric[0])
-
                 # print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
                 # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
 
@@ -813,6 +822,16 @@ class MethodFragmentSelection(tk.Frame):
                 user_metric_definition = ttk.Entry(metric_frame,
                                                    width=15,
                                                    textvariable=user_metric_definition_input).pack(fill='both', padx=(40,0), pady=(0, 5))
+                if metric[3] is not None:
+                    user_metric_definition_input.set(str(metric[3]))
+
+                # todo rewrite to only show when metric_definition is not None
+
+                button = tk.Button(metric_frame,
+                                   text='Reset metric definition',
+                                   height=1,
+                                   command=partial(self.reset_user_def, counter)).pack(pady=(0), anchor="e",
+                                                                                          padx=(20, 0))
 
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
@@ -821,8 +840,24 @@ class MethodFragmentSelection(tk.Frame):
 
                 user_target_input = tk.StringVar()
                 user_target = ttk.Entry(metric_frame,
-                                            width=15,
+                                            width=10,
                                             textvariable=user_target_input).pack(anchor='w', padx=(40,0), pady=(0, 5))
+
+
+
+                ttk.Label(metric_frame,
+                          anchor="w", justify='left',
+                          font='Helvetica 10 bold',
+                          text='    ' + 'Target increase or decrease: ').pack(fill='both', pady=(0, 5))
+
+                combobox = ttk.Combobox(
+                    metric_frame,
+                    width=15,
+                    values=["Increase",
+                            "Decrease"
+                            ])
+
+                combobox.pack(anchor='w', pady=(0, 5), padx=(40,0))
 
                 self.metric_id_holder[counter] = tk.BooleanVar()
                 checkbox_demographic = ttk.Checkbutton(metric_frame,
@@ -844,8 +879,6 @@ class MethodFragmentSelection(tk.Frame):
                                                    width=15,
                                                    textvariable=user_demo_scope_input).pack(fill='both', padx=(40,0), pady=(0, 5))
 
-
-
                 button = tk.Button(metric_frame,
                                    text='Save',
                                    width=c.Size.button_width, height=c.Size.button_height,
@@ -856,62 +889,84 @@ class MethodFragmentSelection(tk.Frame):
                 self.metric_id_list.append(metric[0])
                 self.button_id_list.append(button)
                 self.user_metric_defintion_text.append(user_metric_definition_input)
-                # self.user_metric_defintion_text_widget.append(user_metric_definition)
                 self.demo_scope_list.append(user_demo_scope_input)
                 self.metric_target_list.append(user_target_input)
+                self.if_increase_list.append(combobox)
 
 
                 # white line
                 ttk.Label(metric_frame, text='').pack()
 
-
             metric_frame.pack(fill='both')
 
         print('button_id_list ---------- ', len(self.button_id_list))
-
         print('METRIC ITEM LIST', self.metric_id_list)
 
         # put scrollable frame in window
         self.scrollable_add_metric_frame.pack(fill="both", expand='true')
 
+    def reset_user_def(self, index):
+
+        self.user_metric_defintion_text[index].set('')
+        reset_def = None
+
+        sql_update_definition = "update metric set metric_definition = (?) where metric_id = (?)"
+        self.data_object.update_row_with_par(sql_update_definition, (reset_def,
+                                                                     self.metric_id_list[index]))
 
 
 
-
-
-
-        # to add as frame : self.scrollable_add_metric_frame.scrollable_frame
-
-
-        # load in metric data
-
-
-    def add_metric_definition(self):
-        print('add_metric_definition ----')
-
-    def add_metric_target(self):
-        print('add_metric_target ----')
-        print('demographic of interest BOOL ----')
-        print('demographic of interest scope text ----')
 
     def save_metric_stats(self, index):
-        print('save_metric_stats button index ---- ', index)
-        print('save_metric_stats textinput ---- ', self.user_metric_defintion_text[index].get())
-        print('save_metric_stats metric_id ---- ', self.metric_id_list[index])
-        print('save_metric_stats checkbox ---- ', self.checkbox_demographic[index].get())
-        print('save_metric_stats demo_scope ---- ', self.demo_scope_list[index].get())
-        print('save_metric_stats target ---- ', self.metric_target_list[index].get())
+
+        # todo remove project id hardcode
+
+        self.if_increase_list[index].current()
+
+        # update metric target if there is input
+        if self.metric_target_list[index].get() != '' and self.if_increase_list[index].get() != '':
+
+            if self.if_increase_list[index].get() == "Incease":
+                isIncrease = True
+            else:
+                isIncrease = False
+
+            # update metric_def if there is user_input
+            if self.user_metric_defintion_text[index].get() != '':
+                sql_update_definition = "update metric set metric_definition = (?) where metric_id = (?)"
+
+                self.data_object.update_row_with_par(sql_update_definition,
+                                                     (self.user_metric_defintion_text[index].get(),
+                                                      self.metric_id_list[index]))
 
 
+            metric_target = int(self.metric_target_list[index].get())
+            metric_id = self.metric_id_list[index]
+
+            interest_demographic = self.checkbox_demographic[index].get()
+            interest_scope = self.demo_scope_list[index].get()
+
+            if interest_demographic == '':
+                interest_scope = None
+
+            # un hardcode project_id !
+            target = (isIncrease, metric_target, interest_demographic, interest_scope, 1, metric_id)
+            self.data_object.create_metric_target(target)
+
+        else:
+            print('ERROR, no target input! ----')
 
 
+        print('save_metric_stats| button index ---- ', index)
+        print('save_metric_stats| metric definition ---- ', self.user_metric_defintion_text[index].get())
+        print('save_metric_stats| metric_id ---- ', self.metric_id_list[index])
+        print('save_metric_stats| checkbox ---- ', self.checkbox_demographic[index].get())
+        print('save_metric_stats| demographic scope ---- ', self.demo_scope_list[index].get())
+        print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
+        print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
 
 
-
-
-
-
-    # ref: https://blog.teclado.com/tkinter-scrollable-frames/
+# ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
 
     # todo fix the scroll function
