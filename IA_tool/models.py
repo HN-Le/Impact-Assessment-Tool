@@ -289,9 +289,11 @@ class SQLModel:
 
         else:
             print('Metric target found')
-            sql = 'update metric_target set metric_target_value = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
-            parameters = (metric_target[1], metric_target[0], metric_target[3], metric_id)
+            sql = 'update metric_target set metric_target_value = (?), increase = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
+            parameters = self.parameter
 
+            # parameters = (metric_target[1], metric_target[0], metric_target[3], metric_id)
+            print('Metric_target| parameters: ', parameters)
             self.update_row_with_par(sql, parameters)
 
         return cur.lastrowid
@@ -338,6 +340,11 @@ class SQLModel:
 
             self.create_metric(row)
 
+    def send_parameter(self, parameter):
+        self.get_parameter(parameter)
+
+    def get_parameter(self, parameter):
+        self.parameter = parameter
 
     def populate_measure_point_query(self):
         for point in self.measure_point_list:

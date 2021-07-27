@@ -755,11 +755,9 @@ class MethodFragmentSelection(tk.Frame):
         counter = 0
 
 
-        # retrieve method fragment id from checked methods fragments
-        sql_retrieve_metric_target = "select * from metric_target "
-        retrieve_metric_target = self.data_object.query_no_par(sql_retrieve_metric_target)
 
-        print('retrieve_metric_target ------', retrieve_metric_target)
+
+        # display if already in database metric_target target_increase demo of interest and demo_scope
 
 
 
@@ -792,6 +790,10 @@ class MethodFragmentSelection(tk.Frame):
                 # print(' ID: retrieve_metrics[0] -------------- ', metric[0])
                 # print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
                 # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
+
+                # print('retrieve_metric_target ------', metric[0])
+
+
 
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
@@ -884,7 +886,28 @@ class MethodFragmentSelection(tk.Frame):
                                    width=c.Size.button_width, height=c.Size.button_height,
                                    command=partial(self.save_metric_stats, counter)).pack(pady=(10,0), anchor="w", padx=(20,0))
 
-                counter += 1
+                # retrieve method fragment id from checked methods fragments
+                sql_retrieve_metric_target = "select * from metric_target where metric_id = (?)"
+                retrieve_metric_target = self.data_object.query_with_par(sql_retrieve_metric_target, [metric[0]])
+
+                # check if array is not empty
+                if retrieve_metric_target:
+                    print('retrieve_metric_target| ALL ------', retrieve_metric_target)
+                    print('retrieve_metric_target| if_increased ------', retrieve_metric_target[0][1])
+                    print('retrieve_metric_target| metric_target_value ------', retrieve_metric_target[0][2])
+                    print('retrieve_metric_target| if_interest_demographic ------', retrieve_metric_target[0][3])
+                    print('retrieve_metric_target| interest_scope ------', retrieve_metric_target[0][4])
+
+                    # if in database set text to
+                    user_target_input.set(str(retrieve_metric_target[0][2]))
+
+                    if retrieve_metric_target[0][1]:
+                        combobox.current(1)
+
+                    if retrieve_metric_target[0][3]:
+                        self.metric_id_holder[counter].set(True)
+
+                    user_demo_scope_input.set(str(retrieve_metric_target[0][4]))
 
                 self.metric_id_list.append(metric[0])
                 self.button_id_list.append(button)
@@ -893,14 +916,15 @@ class MethodFragmentSelection(tk.Frame):
                 self.metric_target_list.append(user_target_input)
                 self.if_increase_list.append(combobox)
 
+                counter += 1
 
                 # white line
                 ttk.Label(metric_frame, text='').pack()
 
             metric_frame.pack(fill='both')
 
-        print('button_id_list ---------- ', len(self.button_id_list))
-        print('METRIC ITEM LIST', self.metric_id_list)
+        # print('button_id_list ---------- ', len(self.button_id_list))
+        # print('METRIC ITEM LIST', self.metric_id_list)
 
         # put scrollable frame in window
         self.scrollable_add_metric_frame.pack(fill="both", expand='true')
@@ -922,6 +946,12 @@ class MethodFragmentSelection(tk.Frame):
         # todo remove project id hardcode
 
         self.if_increase_list[index].current()
+
+        self.data_object.send_parameter((self.metric_target_list[index].get(),
+                                        self.if_increase_list[index].get(),
+                                        self.checkbox_demographic[index].get(),
+                                        self.demo_scope_list[index].get(),
+                                        self.metric_id_list[index]))
 
         # update metric target if there is input
         if self.metric_target_list[index].get() != '' and self.if_increase_list[index].get() != '':
@@ -957,6 +987,7 @@ class MethodFragmentSelection(tk.Frame):
             print('ERROR, no target input! ----')
 
 
+
         print('save_metric_stats| button index ---- ', index)
         print('save_metric_stats| metric definition ---- ', self.user_metric_defintion_text[index].get())
         print('save_metric_stats| metric_id ---- ', self.metric_id_list[index])
@@ -964,6 +995,7 @@ class MethodFragmentSelection(tk.Frame):
         print('save_metric_stats| demographic scope ---- ', self.demo_scope_list[index].get())
         print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
         print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
+
 
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
