@@ -139,21 +139,30 @@ class ProjectPurposeScreen(tk.Frame):
                            sticky='w')
 
         status_message_show_method_frags = ''
+        status_message_add_metric_def = ''
 
         # todo turn status messages into a function
-        def if_clicked():
-            if self.method_fragment.is_checked == False:
+        def if_clicked(section):
+            if self.method_fragment.methode_frags_selected == False:
                 show_status_message['text'] = 'Select method fragments first!'
-                print('views - if_clicked FALSE -------------')
+                show_status_message_metric_def['text'] = 'Select method fragments first!'
+                self.method_fragment.send_status_message(show_status_message, show_status_message_metric_def)
             else:
-                self.method_fragment.show_info_screen()
-                print('views - if_clicked TRUE -------------')
+                show_status_message['text'] = ''
+                show_status_message_metric_def['text'] = ''
+
+                if section == 'method_frag':
+                    self.method_fragment.show_info_screen()
+                else:
+                    self.method_fragment.show_add_metric_definition_window()
+
+
 
 
         button_upload_4 = tk.Button(frame_select_method_fragments,
                                     text='Show',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command=if_clicked)
+                                    command=lambda: [if_clicked('method_frag')])
 
         button_upload_4.grid(row=3, column=1,
                              padx=(10, 0),
@@ -181,7 +190,7 @@ class ProjectPurposeScreen(tk.Frame):
         button_upload_5 = tk.Button(frame_select_method_fragments,
                                     text='Add',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command= lambda: [self.method_fragment.show_add_metric_definition_window()])
+                                    command=lambda: [if_clicked('add_metrics')])
 
         button_upload_5.grid(row=6, column=0,
                              padx=(10, 0),
@@ -198,7 +207,7 @@ class ProjectPurposeScreen(tk.Frame):
                              pady=2,
                              sticky='w')
 
-        status_message_add_metric_def = '-- PLACEHOLDER --'
+
         show_status_message_metric_def = ttk.Label(frame_select_method_fragments,
                                         font='Helvetica 11', foreground='red',
                                         text=status_message_add_metric_def)

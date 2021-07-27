@@ -63,7 +63,7 @@ class MethodFragmentSelection(tk.Frame):
         global info_window
         self.info_window = None
 
-        self.is_checked = False
+        self.methode_frags_selected = False
 
     def show_selection_screen(self):
 
@@ -102,13 +102,13 @@ class MethodFragmentSelection(tk.Frame):
                 self.delete_frame(self.remove_frame),
                 self.add_metric(),
                 self.show_summary_metrics()
-                self.is_checked = True
+                self.methode_frags_selected = True
 
             # generate button
             button_confirm = tk.Button(frame_method_fragments,
                                         text='Confirm',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command= lambda: [select_check()])
+                                        command= lambda: [select_check(), self.reset_status_message()])
 
             button_confirm.grid(row=18, column=0,
                                  padx=(10, 0),
@@ -117,6 +117,15 @@ class MethodFragmentSelection(tk.Frame):
 
         else:
             self.selection_window.deiconify()
+
+    def send_status_message(self, message_1, message_2):
+        self.reset_message_1 = message_1
+        self.reset_message_2 = message_2
+
+    def reset_status_message(self):
+        self.reset_message_1['text'] = ''
+        self.reset_message_2['text'] = ''
+
 
 
     def show_info_screen(self):
