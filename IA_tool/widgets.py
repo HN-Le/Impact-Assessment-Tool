@@ -34,7 +34,6 @@ class FileOpener(tk.Frame):
         self.file_path = filename
 
     def get_file_name(self):
-
         shown_text = "Filename: " + self.file_path.split("/")[-1]
         return shown_text
 
@@ -85,8 +84,6 @@ class MethodFragmentSelection(tk.Frame):
             frame_method_fragments.grid(padx=(10, 0),
                                      sticky='nsew')
 
-
-
             dataframe_object = m.surveyModel()
             dataframe = dataframe_object.dataframe
 
@@ -122,11 +119,11 @@ class MethodFragmentSelection(tk.Frame):
         self.reset_message_1 = message_1
         self.reset_message_2 = message_2
 
+        print('send_status_message ------')
+
     def reset_status_message(self):
         self.reset_message_1['text'] = ''
         self.reset_message_2['text'] = ''
-
-
 
     def show_info_screen(self):
 
@@ -310,8 +307,7 @@ class MethodFragmentSelection(tk.Frame):
         button_add = tk.Button(self.add_metrics_frame,
                                text='Add',
                                width=c.Size.button_width, height=c.Size.button_height,
-                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question, combobox_target),
-                                                self.refresh_summary_window()])
+                               command=lambda: [self.add_button(combobox, combobox_2, user_metric, user_survey_question, combobox_target)])
 
         button_add.grid(row=0, column=6,
                                    padx = 10, pady=(20, 10))
@@ -332,9 +328,9 @@ class MethodFragmentSelection(tk.Frame):
         ttk.Label(self.add_metrics_frame,
                   font='Helvetica 11',
                   text='Ask to: ').grid(row=1, column=4,
-                                                            columnspan=20,
-                                                            padx=10, pady=(0, 20),
-                                                            sticky='w')
+                                        columnspan=20,
+                                        padx=10, pady=(0, 20),
+                                        sticky='w')
 
         # combobox: Ask to
         combobox_target = ttk.Combobox(
@@ -350,10 +346,12 @@ class MethodFragmentSelection(tk.Frame):
 
 
         # Placeholder for status message
-        self.status_message_add_metric = '-- PLACEHOLDER STATUS MESSAGE --'
+        self.status_message_add_metric = tk.StringVar()
+        self.status_message_add_metric.set("")
+
         ttk.Label(self.add_metrics_frame,
                   font='Helvetica 11', foreground='red',
-                  text=self.status_message_add_metric).grid(row=2, column=0,
+                  textvariable=self.status_message_add_metric).grid(row=2, column=0,
                                                             columnspan=20,
                                                             padx=10, pady=(0, 20),
                                                             sticky='w')
@@ -377,17 +375,17 @@ class MethodFragmentSelection(tk.Frame):
         button_remove = tk.Button(self.remove_frame,
                                   text='Remove',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command=lambda: [self.remove_button(user_method_remove),
-                                                   self.refresh_summary_window()])
+                                  command=lambda: [self.remove_button(user_method_remove)])
 
         button_remove.grid(row=0, column=4, sticky='w',
                                padx=10, pady=(20, 10))
 
         # Placeholder for status message
-        self.status_message_remove_metric = '-- PLACEHOLDER STATUS MESSAGE --'
+        self.status_message_remove_metric = tk.StringVar()
+        self.status_message_remove_metric.set("")
         ttk.Label(self.remove_frame,
                   font='Helvetica 11', foreground='red',
-                  text=self.status_message_remove_metric).grid(row=1, column=0, columnspan=20,
+                  textvariable=self.status_message_remove_metric).grid(row=1, column=0, columnspan=20,
                                                             padx=10, pady=(0, 20),
                                                                sticky='w')
 
@@ -412,31 +410,41 @@ class MethodFragmentSelection(tk.Frame):
         print('DATATYPE BOX: ', data_type_input.get())
         print('SURVEY QUESTION BOX: ', user_survey_question.get())
 
-        sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
-        retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((method_frag_input.get()),))
+        if metric_input.get() and method_frag_input.get() and data_type_input.get() and user_survey_question.get():
 
-        metric_name = metric_input.get()
-        method_fragment_id = retrieve_method_frag_id[0][0]
-        metric_definition = None
-        metric_question = user_survey_question.get()
-        metric_value_type = data_type_input.get()
-        multiple_answers = None
-        answer_options = None
-        target_name = self.chose_target_list[combobox_target.get()]
-        user_made = True
+            sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
+            retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((method_frag_input.get()),))
 
-        metric = (metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made)
+            metric_name = metric_input.get()
+            method_fragment_id = retrieve_method_frag_id[0][0]
+            metric_definition = None
+            metric_question = user_survey_question.get()
+            metric_value_type = data_type_input.get()
+            multiple_answers = None
+            answer_options = None
+            target_name = self.chose_target_list[combobox_target.get()]
+            user_made = True
 
-        # print('Metric_name ---------', metric)
+            metric = (metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made)
 
-        self.data_object.create_metric(metric)
+            # print('Metric_name ---------', metric)
 
-        # reset input boxes
-        method_frag_input.delete(0, 'end')
-        data_type_input.delete(0, 'end')
-        combobox_target.delete(0, 'end')
-        metric_input.set('')
-        user_survey_question.set('')
+            self.data_object.create_metric(metric)
+
+            # reset input boxes
+            method_frag_input.delete(0, 'end')
+            data_type_input.delete(0, 'end')
+            combobox_target.delete(0, 'end')
+            metric_input.set('')
+            user_survey_question.set('')
+
+            self.refresh_summary_window()
+
+        else:
+            self.status_message_add_metric.set("Fill in every box!")
+            print('status_message_add_metric.set ------- ', self.status_message_add_metric)
+
+
 
 
 
@@ -447,33 +455,45 @@ class MethodFragmentSelection(tk.Frame):
         # todo add validation for input boxes
         # todo show text for confirmation that metric is added
 
-        # # empty lists
-        # self.metric_list.clear()
-        # self.method_frag_list.clear()
+        print('FRAG ID ------ ', frag_id.get())
 
-        frag_id_int_user = int((frag_id.get()),)
-        frag_id_in_db = self.metric_id_list[frag_id_int_user-1]
+        if frag_id.get():
+            frag_id_int = int(frag_id.get())
+            print('FRAG ID ------ ',frag_id_int)
 
-        # print('frag_id_int_user ----------- ', frag_id_int_user)
-        # print('self.metric_id_list[frag_id_int_user] ----------- ', self.metric_id_list[frag_id_int_user - 1])
+            if frag_id_int <= self.total_amount:
 
-        sql_check = "select user_made from metric where metric_id = ?"
-        retrieve_check = self.data_object.query_with_par(sql_check, ((frag_id_in_db),))
+                frag_id_int_user = int((frag_id.get()),)
+                frag_id_in_db = self.metric_id_list[frag_id_int_user-1]
 
-        sql_retrieve_method_frag_id = "delete from metric where metric_id = (?)"
+                # print('frag_id_int_user ----------- ', frag_id_int_user)
+                # print('self.metric_id_list[frag_id_int_user] ----------- ', self.metric_id_list[frag_id_int_user - 1])
 
-        # print('retrieve_check ------ ', retrieve_check[0][0])
+                sql_check = "select user_made from metric where metric_id = ?"
+                retrieve_check = self.data_object.query_with_par(sql_check, ((frag_id_in_db),))
 
-        if retrieve_check[0][0] == False:
-            print('Standard metric, do not remove ----------')
+                sql_retrieve_method_frag_id = "delete from metric where metric_id = (?)"
+
+                # print('retrieve_check ------ ', retrieve_check[0][0])
+
+                if retrieve_check[0][0] == False:
+                    print('Standard metric, do not remove ----------')
+                else:
+                    self.data_object.delete_row_with_par(sql_retrieve_method_frag_id, frag_id_in_db)
+                    print('User metric, removed! ----------')
+
+                # print('self.metric_id_list ----------- ', self.metric_id_list)
+
+                # reset
+                frag_id.set('')
+
+                self.refresh_summary_window()
+
+            else:
+                self.status_message_remove_metric.set("Please fill in an existing ID!")
+
         else:
-            self.data_object.delete_row_with_par(sql_retrieve_method_frag_id, frag_id_in_db)
-            print('User metric, removed! ----------')
-
-        # print('self.metric_id_list ----------- ', self.metric_id_list)
-
-        # reset
-        frag_id.set('')
+            self.status_message_remove_metric.set("Please fill in an ID!")
 
     def get_target(self, event=None):
         self.input_combobox = event.widget.get()
@@ -681,6 +701,8 @@ class MethodFragmentSelection(tk.Frame):
                 stat_label_metric['text'] = 'Total amount of metrics:   ' + str(
                                    amount_of_metrics)
 
+                self.total_amount = amount_of_metrics
+
             ttk.Label(self.scrollable_metric_frame.scrollable_frame,
                       anchor="w", justify='left',
                       font='Helvetica 10 bold',
@@ -726,10 +748,6 @@ class MethodFragmentSelection(tk.Frame):
 
         # print("REFRESH SUMMARY WINDOW ------ ")
 
-    def adjust_metric_definition(self):
-        # todo option to change metric descripton
-        print('')
-
     def show_add_metric_definition_window(self):
 
         # make pop up window
@@ -740,11 +758,6 @@ class MethodFragmentSelection(tk.Frame):
         width = 1200
         height = 800
         self.add_metric_window.geometry("{}x{}".format(width, height))
-
-        # make labelframe
-        # frame_add_metric = ttk.LabelFrame(self.add_metric_window, text="Add metric definitions",
-        #                                         width=1200, height=800)
-        # frame_add_metric.pack(fill='both')
 
         # make frame scrollable
         self.scrollable_add_metric_frame = ScrollableFrame(self.add_metric_window)

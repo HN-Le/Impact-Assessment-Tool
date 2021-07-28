@@ -15,6 +15,8 @@ class ProjectPurposeScreen(tk.Frame):
     def __init__(self):
         tk.Frame.__init__(self)
 
+        project_goal_selected = False
+        goal_model_selected = False
 
         frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals",
                                              width=c.Size.label_frame_width, height=c.Size.label_frame_height)
@@ -44,19 +46,47 @@ class ProjectPurposeScreen(tk.Frame):
         button_upload_1 = tk.Button(frame_project_goals,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command= lambda: [self.project_pdf.get_file_path(), self.text_project_pdf.set(self.project_pdf.get_file_name())])
+                                    command= lambda: [select_goal_select_functions()])
 
         # place upload button
         button_upload_1.grid(row=2, column=0,
                              padx=(10, 0), pady=5,
                              sticky='w')
 
+        def select_goal_select_functions():
+
+            self.project_pdf.get_file_path()
+            filename = self.project_pdf.get_file_name()
+
+            if len(filename) > 10:
+                self.text_project_pdf.set(filename)
+                project_goal_selected = True
+                status_message_project_txt.set("")
+
+
         # todo project_goals add validation (don't execute when no filepath is selected)
+
+        status_message_project_txt = tk.StringVar()
+        status_message_project_txt.set("")
+        status_message_project_label = tk.Label(frame_project_goals,
+                                                font='Helvetica 11', foreground='red',
+                                                textvariable=status_message_project_txt).grid(row=4, column=0,
+                                                                                              sticky='w',
+                                                                                              padx=(20, 0),
+                                                                                              columnspan=150)
+
+        def select_goal_show_functions():
+            if project_goal_selected:
+                self.project_pdf.show_project_goals()
+            else:
+                status_message_project_txt.set("Select project goals first!")
+                print('Select project goals first!')
+
         # place show button
         button_show_1 = tk.Button(frame_project_goals,
                                   text='Show',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command=self.project_pdf.show_project_goals)
+                                  command=select_goal_show_functions)
 
         button_show_1.grid(row=2, column=1,
                          padx=(10, 0), pady=5,
@@ -88,21 +118,46 @@ class ProjectPurposeScreen(tk.Frame):
         self.project_goals_label = tk.Label(frame_goal_model,
                                       textvariable=self.text_goal_pdf).grid(row=4, column=0, sticky='w', padx=(20, 0), columnspan=150)
 
+        def goal_model_select_functions():
+            self.goal_pdf.get_file_path()
+            filename = self.goal_pdf.get_file_name()
+
+            print('Filename length: -----', len(filename))
+
+            if len(filename) > 10:
+                self.text_goal_pdf.set(filename)
+                status_message_project_model_txt.set("")
+                goal_model_selected = True
+
+
+        def goal_model_show_functions():
+            if goal_model_selected:
+                self.goal_pdf.show_project_goals()
+            else:
+                status_message_project_model_txt.set("Select goal model first!")
+                print('Select goal goals first!')
+
         button_upload_2 = tk.Button(frame_goal_model,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command=lambda: [self.goal_pdf.get_file_path(), self.text_goal_pdf.set(self.goal_pdf.get_file_name())])
+                                    command=lambda: [goal_model_select_functions()])
 
         button_upload_2.grid(row=2, column=0,
                            padx=(10, 0),
                            pady=5,
                            sticky='w')
 
+        status_message_project_model_txt = tk.StringVar()
+        status_message_project_model_txt.set("")
+        tk.Label(frame_goal_model,
+                 font='Helvetica 11', foreground='red',
+                 textvariable=status_message_project_model_txt).grid(row=5, column=0, sticky='w', padx=(20, 0), columnspan=150)
+
         # todo goal_model add validation (don't execute when no filepath is selected)
         button_show_2 = tk.Button(frame_goal_model,
                                   text='Show',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command=lambda: [self.goal_pdf.show_project_goals()])
+                                  command=lambda: [goal_model_show_functions()])
 
         button_show_2.grid(row=2, column=1,
                          padx=(10, 0),
@@ -131,7 +186,8 @@ class ProjectPurposeScreen(tk.Frame):
         button_upload_3 = tk.Button(frame_select_method_fragments,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                  command=self.method_fragment.show_selection_screen)
+                                  command=lambda : [self.method_fragment.show_selection_screen(),
+                                                    self.method_fragment.send_status_message(show_status_message, show_status_message_metric_def)])
 
         button_upload_3.grid(row=3, column=0,
                            padx=(10, 0),
@@ -143,10 +199,12 @@ class ProjectPurposeScreen(tk.Frame):
 
         # todo turn status messages into a function
         def if_clicked(section):
+            self.method_fragment.send_status_message(show_status_message, show_status_message_metric_def)
+
             if self.method_fragment.methode_frags_selected == False:
                 show_status_message['text'] = 'Select method fragments first!'
                 show_status_message_metric_def['text'] = 'Select method fragments first!'
-                self.method_fragment.send_status_message(show_status_message, show_status_message_metric_def)
+
             else:
                 show_status_message['text'] = ''
                 show_status_message_metric_def['text'] = ''
@@ -155,9 +213,6 @@ class ProjectPurposeScreen(tk.Frame):
                     self.method_fragment.show_info_screen()
                 else:
                     self.method_fragment.show_add_metric_definition_window()
-
-
-
 
         button_upload_4 = tk.Button(frame_select_method_fragments,
                                     text='Show',
@@ -188,25 +243,14 @@ class ProjectPurposeScreen(tk.Frame):
                                              sticky='w')
 
         button_upload_5 = tk.Button(frame_select_method_fragments,
-                                    text='Add',
-                                    width=c.Size.button_width, height=c.Size.button_height,
+                                    text='Add / Show',
+                                    height=c.Size.button_height,
                                     command=lambda: [if_clicked('add_metrics')])
 
         button_upload_5.grid(row=6, column=0,
                              padx=(10, 0),
                              pady=2,
                              sticky='w')
-
-        button_upload_6 = tk.Button(frame_select_method_fragments,
-                                    text='Show',
-                                    width=c.Size.button_width, height=c.Size.button_height,
-                                    command='')
-
-        button_upload_6.grid(row=6, column=1,
-                             padx=(10, 0),
-                             pady=2,
-                             sticky='w')
-
 
         show_status_message_metric_def = ttk.Label(frame_select_method_fragments,
                                         font='Helvetica 11', foreground='red',
@@ -229,7 +273,6 @@ class ProjectPurposeScreen(tk.Frame):
     def send_data_object(self, data):
         self.data_object = data
         self.method_fragment.get_data_object(self.data_object)
-
 
 class DataCollectionScreen(tk.Frame):
 
