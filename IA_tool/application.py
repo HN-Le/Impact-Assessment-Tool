@@ -6,11 +6,6 @@ from . import views as views
 from . import models as m
 import os
 
-from . import widgets as w
-from pathlib import Path
-import pandas as pd
-from datetime import datetime
-
 
 class Application(tk.Tk):
     """Application root window"""

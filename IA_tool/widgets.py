@@ -7,14 +7,7 @@ from . import models as m
 import webbrowser
 from functools import partial
 
-import time
-import numpy as np
-import pandas as pd
-import os
-from varname import nameof
-from . import views as v
-import sys
-from tkinter import font
+
 
 
 class FileOpener(tk.Frame):

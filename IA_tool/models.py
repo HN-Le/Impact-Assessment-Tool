@@ -6,10 +6,6 @@ import sqlite3
 import numpy as np
 
 
-from .constants import FieldTypes as FT
-import csv
-
-
 class surveyModel:
 
     def __init__(self):

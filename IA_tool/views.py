@@ -5,10 +5,6 @@ from tkinter import filedialog
 from . import widgets as w
 from . import constants as c
 
-from datetime import datetime
-from tkinter import scrolledtext
-from tkinter import Menu
-from data.sql import create_db as database
 
 class ProjectPurposeScreen(tk.Frame):
 
