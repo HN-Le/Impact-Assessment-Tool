@@ -5,6 +5,7 @@ from sqlite3 import Error
 import sqlite3
 import numpy as np
 
+
 from .constants import FieldTypes as FT
 import csv
 
@@ -33,7 +34,6 @@ class surveyModel:
         list_items = [relevant_survey_inputs, relevant_metrics, relevant_type]
 
         return list_items
-
 
 class SQLModel:
 
@@ -89,7 +89,7 @@ class SQLModel:
 
         sql_create_metric_table = """CREATE TABLE IF NOT EXISTS metric (
                                                  metric_id integer PRIMARY KEY,
-                                                 metric_name varchar(200) NOT NULL,
+                                                 metric_name text NOT NULL,
                                                  method_fragment_id integer,
                                                  metric_definition text,
                                                  metric_question text,

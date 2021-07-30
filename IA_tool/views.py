@@ -670,7 +670,7 @@ class DataAnalysisScreen(tk.Frame):
 
     def __init__(self):
         tk.Frame.__init__(self)
-        frame_project_goals = ttk.LabelFrame(self, text="Test")
+        frame_project_goals = ttk.LabelFrame(self, text="")
         frame_project_goals.pack(fill="both", expand="yes")
 
         label = tk.Label(frame_project_goals, text='Data analysis content')
