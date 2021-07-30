@@ -6,8 +6,8 @@ from tkinter import filedialog
 from . import models as m
 import webbrowser
 from functools import partial
-import time
 
+import time
 import numpy as np
 import pandas as pd
 import os
