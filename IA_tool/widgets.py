@@ -607,12 +607,12 @@ class MethodFragmentSelection(tk.Frame):
         self.notebook_summary = ttk.Notebook(self.info_window)
 
         # make tabs
-        self.tab_metrics = ttk.Frame(self.info_window, width=1200, height=800)
+        self.tab_metrics = ttk.Frame(self.info_window, width=1200, height=600)
         self.tab_metrics.grid(row=0, column=0,
                               padx=(10, 0),
                               sticky='nsew')
 
-        self.tab_questions = ttk.Frame(self.info_window, width=1200, height=800)
+        self.tab_questions = ttk.Frame(self.info_window, width=1200, height=600)
         self.tab_questions.grid_propagate(0)
         self.tab_questions.grid(padx=(10, 0),
                                 sticky='nsew')
