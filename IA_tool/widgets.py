@@ -7,9 +7,6 @@ from . import models as m
 import webbrowser
 from functools import partial
 
-
-
-
 class FileOpener(tk.Frame):
 
     def __init__(self, parent):
@@ -27,9 +24,17 @@ class FileOpener(tk.Frame):
         print('Selected:', filename)
         self.file_path = filename
 
-    def get_file_name(self):
+    def return_file_name(self):
         shown_text = "Filename: " + self.file_path.split("/")[-1]
         return shown_text
+
+    def is_csv(self):
+        if self.file_path.endswith('.csv'):
+            print('ended with CSV! ----- ')
+            return True
+        else:
+            print('NOPS ---- ')
+            return False
 
 class MethodFragmentSelection(tk.Frame):
 
@@ -144,7 +149,6 @@ class MethodFragmentSelection(tk.Frame):
             self.notebook_summary.select(0)
             self.info_window.deiconify()
 
-
     def make_checkboxes(self, dataframe, frame):
 
         self.unique_values = dataframe.category.unique()
@@ -189,7 +193,6 @@ class MethodFragmentSelection(tk.Frame):
 
         self.append_value(self.checkbox_list, checkbox_name, checkbox_state)
 
-
     def append_value(self, dict_object, key, value):
         # Check if key exist in dict or not
         if key in dict_object:
@@ -205,8 +208,6 @@ class MethodFragmentSelection(tk.Frame):
             # As key is not in dict,
             # so, add key-value pair
             dict_object[key] = value
-
-
 
     def send_category_object(self, key, value):
         self.key = key
@@ -450,12 +451,6 @@ class MethodFragmentSelection(tk.Frame):
         else:
             self.status_message_add_metric.set("Please fill in every box!")
 
-
-
-
-
-
-
     def remove_button(self, frag_id):
 
         # todo link user added metric to metrics list
@@ -539,8 +534,6 @@ class MethodFragmentSelection(tk.Frame):
         # print('get_target -- target_key ', target_key)
 
         self.create_list(target_key)
-
-
 
     def create_list(self, target_key):
 
@@ -1052,8 +1045,6 @@ class MethodFragmentSelection(tk.Frame):
         print('save_metric_stats| demographic scope ---- ', self.demo_scope_list[index].get())
         print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
         print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
-
-
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):

@@ -11,8 +11,8 @@ class ProjectPurposeScreen(tk.Frame):
     def __init__(self):
         tk.Frame.__init__(self)
 
-        project_goal_selected = False
-        goal_model_selected = False
+        self.project_goal_selected = False
+        self.goal_model_selected = False
 
         frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals",
                                              width=c.Size.label_frame_width, height=c.Size.label_frame_height)
@@ -52,13 +52,15 @@ class ProjectPurposeScreen(tk.Frame):
         def select_goal_select_functions():
 
             self.project_pdf.get_file_path()
-            filename = self.project_pdf.get_file_name()
+            filename = self.project_pdf.return_file_name()
 
             if len(filename) > 10:
                 self.text_project_pdf.set(filename)
-                project_goal_selected = True
+                self.project_goal_selected = True
                 status_message_project_txt.set("")
-
+            else:
+                self.project_goal_selected = False
+                self.text_project_pdf.set('')
 
         # todo project_goals add validation (don't execute when no filepath is selected)
 
@@ -72,11 +74,10 @@ class ProjectPurposeScreen(tk.Frame):
                                                                                               columnspan=150)
 
         def select_goal_show_functions():
-            if project_goal_selected:
+            if self.project_goal_selected:
                 self.project_pdf.show_project_goals()
             else:
                 status_message_project_txt.set("Select project goals first!")
-                print('Select project goals first!')
 
         # place show button
         button_show_1 = tk.Button(frame_project_goals,
@@ -116,22 +117,24 @@ class ProjectPurposeScreen(tk.Frame):
 
         def goal_model_select_functions():
             self.goal_pdf.get_file_path()
-            filename = self.goal_pdf.get_file_name()
+            filename = self.goal_pdf.return_file_name()
 
             print('Filename length: -----', len(filename))
 
             if len(filename) > 10:
                 self.text_goal_pdf.set(filename)
                 status_message_project_model_txt.set("")
-                goal_model_selected = True
+                self.goal_model_selected = True
+            else:
+                self.goal_model_selected = False
+                self.text_goal_pdf.set('')
 
 
         def goal_model_show_functions():
-            if goal_model_selected:
+            if self.goal_model_selected:
                 self.goal_pdf.show_project_goals()
             else:
                 status_message_project_model_txt.set("Select goal model first!")
-                print('Select goal goals first!')
 
         button_upload_2 = tk.Button(frame_goal_model,
                                     text='Select',
@@ -280,22 +283,23 @@ class DataCollectionScreen(tk.Frame):
 
         self.data_collection_window = self
 
+        self.sampling_selected = False
+
         # --------- 2.1 Sampling strategy frame
         frame_sampling = ttk.LabelFrame(self, text="2.1 Sampling strategy",
                                                        width=1200, height=150)
         frame_sampling.grid_propagate(0)
-        frame_sampling.grid(padx=(10, 0),
-                                           sticky='nsew')
+        frame_sampling.grid(padx=(10, 0), sticky='nsew')
 
         label_sampling = tk.Label(frame_sampling,
-                                                   text='Determine sampling strategy')
+                                  text='Determine sampling strategy')
 
         label_sampling.grid(row=1, column=0, columnspan=100,
                                              padx=(20, 0),
                                              sticky='w')
 
         # make object
-        self.project_pdf = w.FileOpener(self)
+        self.data_collection_pdf = w.FileOpener(self)
 
         # convert to string var and set init text
         self.text_sampling_pdf = tk.StringVar()
@@ -304,14 +308,44 @@ class DataCollectionScreen(tk.Frame):
         # create label and place in gui
         self.project_label = tk.Label(frame_sampling,
                                       textvariable=self.text_sampling_pdf).grid(row=3, column=0, sticky='w',
-                                                                               padx=(20, 0), columnspan=150)
+                                                                                padx=(20, 0), columnspan=150)
+
+        # functions if valid
+        def sampling_show_functions():
+            if self.sampling_selected:
+                self.data_collection_pdf.show_project_goals()
+
+            else:
+                self.text_sampling_pdf.set("Select sampling strategy first!")
+                print('Select sampling strategy first!')
+
+        status_message_txt = tk.StringVar()
+        status_message_txt.set("")
+        status_message_label = tk.Label(frame_sampling,
+                                                font='Helvetica 11', foreground='red',
+                                                textvariable=status_message_txt).grid(row=4, column=0,
+                                                                                              sticky='w',
+                                                                                              padx=(20, 0),
+                                                                                              columnspan=150)
+
+        # check if valid link
+        def sampling_strategy_select_functions():
+            self.data_collection_pdf.get_file_path()
+            filename = self.data_collection_pdf.return_file_name()
+
+            if len(filename) > 10:
+                self.text_sampling_pdf.set(filename)
+                status_message_txt.set("")
+                self.sampling_selected = True
+            else:
+                self.sampling_selected = False
+                self.text_sampling_pdf.set('')
 
         # create button with actions
         button_upload_1 = tk.Button(frame_sampling,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command=lambda: [self.project_pdf.get_file_path(),
-                                                     self.text_sampling_pdf.set(self.project_pdf.get_file_name())])
+                                    command=lambda: [sampling_strategy_select_functions()])
 
         # place upload button
         button_upload_1.grid(row=2, column=0,
@@ -323,7 +357,7 @@ class DataCollectionScreen(tk.Frame):
         button_show_1 = tk.Button(frame_sampling,
                                   text='Show',
                                   width=c.Size.button_width, height=c.Size.button_height,
-                                  command=self.project_pdf.show_project_goals)
+                                  command=sampling_show_functions)
 
         button_show_1.grid(row=2, column=1,
                            padx=(10, 0), pady=5,
@@ -462,48 +496,152 @@ class DataCollectionScreen(tk.Frame):
             #
             # self.start_project_window.geometry('%sx%s' % (int(width-100), int(height)))
 
+            # make notebook
+            self.notebook_data_collection = ttk.Notebook(self.start_project_window)
+
+            # make tabs
+            self.tab_sop = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_sop.grid(row=0, column=0,
+                                  padx=(10, 0),
+                                  sticky='nsew')
+
+            self.tab_hop = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_hop.grid(padx=(10, 0),
+                                    sticky='nsew')
+
+            self.tab_eop = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_eop.grid(padx=(10, 0),
+                              sticky='nsew')
+
+            self.tab_yap = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_yap.grid(padx=(10, 0),
+                              sticky='nsew')
+
+            # add tabs to notebook
+            self.notebook_data_collection.add(self.tab_sop, text='1- Start of project')
+            # self.notebook_summary.add(self.tab_metric_definition, text='Metric Definitions')
+            self.notebook_data_collection.add(self.tab_hop, text='2- Halfway of project')
+            self.notebook_data_collection.add(self.tab_eop, text='3- End of project')
+            self.notebook_data_collection.add(self.tab_yap, text='4- Year after end of project')
+            self.notebook_data_collection.grid(row=0, column=0, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
+
             self.start_project_window.protocol("WM_DELETE_WINDOW", lambda arg='start_project': self.hide_window(arg))
 
+            # --------------------------------------
 
+            # file_opener_object = FileOpener
+            # text_sampling = label_name
+            # status_message
+            # file_selected = sampling_selected
 
-            frame_project_start= ttk.LabelFrame( self.start_project_window, text="2.2 Data collection",
+            data_file_status_list = []
+
+            time_period = ['sop', 'hop', 'eop', 'yap']
+            targets = ['provider', 'leader', 'teacher', 'student']
+
+            # fill data_file_status_list
+            for period in time_period:
+                for target in targets:
+                    data_file_status_list.append({'time_period': period,
+                                                  'target': target,
+                                                  'status': False})
+
+            def create_label(label_name, frame, row, column, color):
+                tk.Label(frame,
+                         font='Helvetica 11', foreground=color,
+                         textvariable=label_name).grid(row=row, column=column,
+                                                               sticky='w',
+                                                               padx=(10, 0),
+                                                               columnspan=150)
+
+            # check if valid link
+            def validate_path(file_name_label, status_message_label, file_opener_object, index):
+                file_opener_object.get_file_path()
+                filename = file_opener_object.return_file_name()
+
+                if len(filename) > 10:
+                    file_name_label.set(filename)
+                    status_message_label.set("")
+                    data_file_status_list[index]['status'] = True
+
+                else:
+                    data_file_status_list[index]['status'] = False
+                    file_name_label.set('')
+
+            # functions if valid
+            def show_csv_file(file_selected, status_message_label, file_opener_object):
+                if file_selected and file_opener_object.is_csv():
+                    file_opener_object.show_project_goals()
+
+                elif file_selected and file_opener_object.is_csv() == False :
+                    status_message_label.set("File is not a CSV file!")
+
+                else:
+                    status_message_label.set("Select a CSV file first!")
+
+            # --------------------------------------
+
+            frame_project_start= ttk.LabelFrame( self.tab_sop, text="2.2 Data collection - 1: Start of project",
                                                  width=1200, height=600)
             frame_project_start.grid_propagate(0)
             frame_project_start.grid(padx=(10, 0),
+                                     pady=(10,0),
                                      sticky='nsew')
 
-            label_project_header = tk.Label(frame_project_start,
-                                           text='1: Start of project')
-
-            label_project_header.grid(row=1, column=0, columnspan=4,
-                                     padx=(20, 0), pady=(20),
-                                     sticky='w')
-
             label_project_provider = tk.Label(frame_project_start,
-                                            text='Project provider data (CSV file only)')
+                                              text='Project provider data (CSV file only)',
+                                              font='Helvetica 11 bold')
 
             label_project_provider.grid(row=2, column=0, columnspan=4,
-                                      padx=(20, 0),
-                                      sticky='w')
+                                        padx=(10, 0),
+                                        pady=(10,0),
+                                        sticky='w')
 
             # make object
-            self.project_start = w.FileOpener(self)
+            self.provider_object_sop = w.FileOpener(self)
 
-            # convert to string var and set init text
-            self.text_project_provider = tk.StringVar()
-            self.text_project_provider.set("")
+            # validate there is input and that is a csv file
+            # sop = start of project
 
-            # create label and place in gui
-            self.project_label = tk.Label(frame_project_start,
-                                          textvariable=self.text_project_provider).grid(row=4, column=0, sticky='w', pady=(0,20),
-                                                                                    padx=(20, 0), columnspan=150)
+            # label for file_name provider
+            provider_file_label_sop = tk.StringVar()
+            provider_file_label_sop.set("")
+
+            # place in GUI
+            create_label(label_name= provider_file_label_sop,
+                         frame=frame_project_start,
+                         row=4,
+                         column=0,
+                         color='black')
+
+            # label for status message provider
+            provider_status_message_label_sop = tk.StringVar()
+            provider_status_message_label_sop.set("")
+
+            # place in GUI
+            create_label(label_name= provider_status_message_label_sop,
+                         frame=frame_project_start,
+                         row=5,
+                         column=0,
+                         color='red')
+
+            # check for period and target
+            # 0 = sop - provider
+            # 1 = sop - leader
+            # 2 = sop - teacher
+            # 3 = sop - student
+
+            # print(data_file_status_list[0]['target'])
 
             # create button with actions
             button_upload_1 = tk.Button(frame_project_start,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [self.project_start.get_file_path(),
-                                                         self.text_project_provider.set(self.project_start.get_file_name())])
+                                        command=lambda: [validate_path(file_name_label= provider_file_label_sop,
+                                                                       status_message_label= provider_status_message_label_sop,
+                                                                       file_opener_object= self.provider_object_sop,
+                                                                       index= 0)
+                                                         ])
 
             # place upload button
             button_upload_1.grid(row=3, column=0,
@@ -513,7 +651,10 @@ class DataCollectionScreen(tk.Frame):
             button_show_1 = tk.Button(frame_project_start,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command='')
+                                      command=lambda: [show_csv_file(file_selected= data_file_status_list[0]['status'],
+                                                                     status_message_label= provider_status_message_label_sop,
+                                                                     file_opener_object= self.provider_object_sop)
+                                      ])
 
             button_show_1.grid(row=3, column=1,
                                padx=(10, 0), pady=5,
@@ -522,58 +663,92 @@ class DataCollectionScreen(tk.Frame):
 
             # --------- 2.2 community leader
 
-            self.community_leader = w.FileOpener(self)
-
             label_community_leader = tk.Label(frame_project_start,
-                                              text='Community leader data (CSV file only)')
+                                              text='Community leader data (CSV file only)',
+                                              font='Helvetica 11 bold')
 
-            label_community_leader.grid(row=5, column=0, columnspan=4, pady=5,
-                                        padx=(20, 0),
+            label_community_leader.grid(row=6, column=0, columnspan=4,
+                                        pady=(10),
+                                        padx=(10, 0),
                                         sticky='w')
 
-            # convert to string var and set init text
-            self.text_community_leader= tk.StringVar()
-            self.text_community_leader.set("")
+            # make object
+            self.leader_object_sop = w.FileOpener(self)
 
-            # create label and place in gui
-            self.community_label = tk.Label(frame_project_start,
-                                          textvariable=self.text_community_leader).grid(row=7, column=0, sticky='w',
-                                                                                        pady=(0, 20),
-                                                                                        padx=(20, 0),
-                                                                                        columnspan=150)
+            # validate there is input and that is a csv file
+            # sop = start of project
+
+            # label for file_name community leader
+            leader_file_label_sop = tk.StringVar()
+            leader_file_label_sop.set("")
+
+            # place in GUI
+            create_label(label_name=leader_file_label_sop,
+                         frame=frame_project_start,
+                         row=8,
+                         column=0,
+                         color='black')
+
+            # label for status message community leader
+            leader_status_message_label_sop = tk.StringVar()
+            leader_status_message_label_sop.set("")
+
+            # place in GUI
+            create_label(label_name=leader_status_message_label_sop,
+                         frame=frame_project_start,
+                         row=9,
+                         column=0,
+                         color='red')
+
+            # check for period and target
+            # 0 = sop - provider
+            # 1 = sop - leader
+            # 2 = sop - teacher
+            # 3 = sop - student
 
             # create button with actions
             button_upload_2 = tk.Button(frame_project_start,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [self.community_leader.get_file_path(),
-                                                         self.text_community_leader.set(
-                                                             self.community_leader.get_file_name())])
+                                        command=lambda: [validate_path(file_name_label=leader_file_label_sop,
+                                                                       status_message_label=leader_status_message_label_sop,
+                                                                       file_opener_object=self.leader_object_sop,
+                                                                       index=1)
+                                                         ])
 
             # place upload button
-            button_upload_2.grid(row=6, column=0,
+            button_upload_2.grid(row=7, column=0,
                                  padx=(10, 0), pady=5,
                                  sticky='w')
             # place show button
             button_show_2 = tk.Button(frame_project_start,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command='')
+                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[1]['status'],
+                                                                     status_message_label=leader_status_message_label_sop,
+                                                                     file_opener_object=self.leader_object_sop)
+                                                       ])
 
-            button_show_2.grid(row=6, column=1,
+            button_show_2.grid(row=7, column=1,
                                padx=(10, 0), pady=5,
                                sticky='w')
 
             # --------- 2.2 teacher
 
-            self.teacher = w.FileOpener(self)
+
 
             label_teacher = tk.Label(frame_project_start,
-                                              text='Teacher data (CSV file only)')
+                                     text='Teacher data (CSV file only)',
+                                     font='Helvetica 11 bold')
 
-            label_teacher.grid(row=8, column=0, columnspan=4,
-                                        padx=(20, 0),
-                                        sticky='w')
+            label_teacher.grid(row=10,
+                               column=0, columnspan=4,
+                               padx=(20, 0),
+                               pady=10,
+                               sticky='w')
+
+            # make object
+            self.teacher_object_sop = w.FileOpener(self)
 
             # convert to string var and set init text
             self.text_teacher= tk.StringVar()
@@ -581,7 +756,7 @@ class DataCollectionScreen(tk.Frame):
 
             # create label and place in gui
             self.teacher_label = tk.Label(frame_project_start,
-                                            textvariable=self.text_teacher).grid(row=10, column=0, sticky='w',
+                                            textvariable=self.text_teacher).grid(row=13, column=0, sticky='w',
                                                                                           pady=(0, 20),
                                                                                           padx=(20, 0), columnspan=150)
 
@@ -591,10 +766,10 @@ class DataCollectionScreen(tk.Frame):
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [self.teacher.get_file_path(),
                                                          self.text_teacher.set(
-                                                             self.teacher.get_file_name())])
+                                                             self.teacher.return_file_name())])
 
             # place upload button
-            button_upload_3.grid(row=9, column=0,
+            button_upload_3.grid(row=11, column=0,
                                  padx=(10, 0), pady=5,
                                  sticky='w')
             # place show button
@@ -603,7 +778,7 @@ class DataCollectionScreen(tk.Frame):
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command='')
 
-            button_show_3.grid(row=9, column=1,
+            button_show_3.grid(row=11, column=1,
                                padx=(10, 0), pady=5,
                                sticky='w')
 
@@ -612,9 +787,10 @@ class DataCollectionScreen(tk.Frame):
             self.student = w.FileOpener(self)
 
             label_student= tk.Label(frame_project_start,
-                                     text='Student data (CSV file only)')
+                                    text='Student data (CSV file only)',
+                                    font='Helvetica 11 bold')
 
-            label_student.grid(row=11, column=0, columnspan=4,
+            label_student.grid(row=14, column=0, columnspan=4,
                                padx=(20, 0),
                                sticky='w')
 
@@ -624,7 +800,7 @@ class DataCollectionScreen(tk.Frame):
 
             # create label and place in gui
             self.student_label = tk.Label(frame_project_start,
-                                          textvariable=self.text_student).grid(row=13, column=0, sticky='w',
+                                          textvariable=self.text_student).grid(row=17, column=0, sticky='w',
                                                                                pady=(0, 20),
                                                                                padx=(20, 0), columnspan=150)
 
@@ -634,10 +810,10 @@ class DataCollectionScreen(tk.Frame):
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [self.student.get_file_path(),
                                                          self.text_student.set(
-                                                             self.student.get_file_name())])
+                                                             self.student.return_file_name())])
 
             # place upload button
-            button_upload_4.grid(row=12, column=0,
+            button_upload_4.grid(row=15, column=0,
                                  padx=(10, 0), pady=5,
                                  sticky='w')
             # place show button
@@ -646,7 +822,7 @@ class DataCollectionScreen(tk.Frame):
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command='')
 
-            button_show_4.grid(row=12, column=1,
+            button_show_4.grid(row=15, column=1,
                                padx=(10, 0), pady=5,
                                sticky='w')
 
