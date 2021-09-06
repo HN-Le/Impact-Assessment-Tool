@@ -30,10 +30,8 @@ class FileOpener(tk.Frame):
 
     def is_csv(self):
         if self.file_path.endswith('.csv'):
-            print('ended with CSV! ----- ')
             return True
         else:
-            print('NOPS ---- ')
             return False
 
 class MethodFragmentSelection(tk.Frame):
