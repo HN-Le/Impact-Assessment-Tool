@@ -527,9 +527,7 @@ class MethodFragmentSelection(tk.Frame):
 
         if self.community_list is not None:
             self.community_list.delete('0', tk.END)
-            print('self.community_list is not None: ----------')
-
-        # print('get_target -- target_key ', target_key)
+            self.metric_counter_label.set('')
 
         self.create_list(target_key)
 
@@ -564,6 +562,10 @@ class MethodFragmentSelection(tk.Frame):
         scrollbar_v_community_list.config(command=self.community_list.yview)
         scrollbar_h_community_list.config(command=self.community_list.xview)
 
+        metric_counter = 0
+        self.metric_counter_label = tk.StringVar()
+        self.metric_counter_label.set('')
+
         # Listbox with all the survey questions per target group
         for index, value in enumerate(self.checkbox_list):
 
@@ -576,19 +578,38 @@ class MethodFragmentSelection(tk.Frame):
             sql_retrieve_metrics = "select * from metric where method_fragment_id=(?) and target_name=(?)"
             retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, (retrieve_method_frag_id[0][0], target_key))
 
+            # provider_metric_counter =
+            # leader_metric_counter =
+            # teacher_metric_counter =
+            # student_metric_counter =
+
+            metric_counter = metric_counter + len(retrieve_metrics)
+
+            print('metric_counter ------ ', metric_counter)
+
             for metric_index, metric in enumerate(retrieve_metrics):
 
                 self.community_list.insert(tk.END, ' ' + 'Survey question:   ' + str(metric[4]))
                 self.community_list.insert(tk.END, '                ' + 'Metric:   ' + str(metric[1]))
                 self.community_list.insert(tk.END, '                   ' + 'Type:   ' + str(metric[5]))
+                self.community_list.insert(tk.END, '                   ' + 'Code:   ' + str(metric[2]))
                 self.community_list.insert(tk.END, '\n')
+
+        self.metric_counter_label.set("Amount of questions:  " + str(metric_counter))
+
+        tk.Label(self.frame_survey_questions,
+                 textvariable= self.metric_counter_label,
+                 font='Helvetica 11').grid(row=10, column=0,
+                                               padx=(20, 0),
+                                               pady=(0,10),
+                                               sticky='w')
 
         button_go_to_add_metrics = tk.Button(self.frame_survey_questions,
                                         text='Add additional metrics',
                                         height=c.Size.button_height,
                                         command=lambda: [self.notebook_summary.select(0)])
 
-        button_go_to_add_metrics.grid(row=10, column=0,
+        button_go_to_add_metrics.grid(row=11, column=0,
                                  padx=(10, 0),
                                  sticky='w')
 
@@ -661,7 +682,7 @@ class MethodFragmentSelection(tk.Frame):
 
             self.combobox_target_survey.current(0)
 
-            self.combobox_target_survey.grid(row=5, column=0, padx=(20, 0), pady=2,
+            self.combobox_target_survey.grid(row=5, column=0, padx=(20, 0), pady=(0,10),
                                              sticky='w')
 
             self.combobox_target_survey.bind("<<ComboboxSelected>>", self.get_target)
@@ -1034,15 +1055,22 @@ class MethodFragmentSelection(tk.Frame):
         else:
             self.status_message_list[index].set('Error, please fill both the metric target and target increase/decrease in!')
 
+        # print('save_metric_stats| button index ---- ', index)
+        # print('save_metric_stats| metric definition ---- ', self.user_metric_defintion_text[index].get())
+        # print('save_metric_stats| metric_id ---- ', self.metric_id_list[index])
+        # print('save_metric_stats| checkbox ---- ', self.checkbox_demographic[index].get())
+        # print('save_metric_stats| demographic scope ---- ', self.demo_scope_list[index].get())
+        # print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
+        # print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
 
+class DataAnalysis(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
 
-        print('save_metric_stats| button index ---- ', index)
-        print('save_metric_stats| metric definition ---- ', self.user_metric_defintion_text[index].get())
-        print('save_metric_stats| metric_id ---- ', self.metric_id_list[index])
-        print('save_metric_stats| checkbox ---- ', self.checkbox_demographic[index].get())
-        print('save_metric_stats| demographic scope ---- ', self.demo_scope_list[index].get())
-        print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
-        print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
+    # get data
+    def get_data_object(self, data):
+        self.data_object = data
+
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):

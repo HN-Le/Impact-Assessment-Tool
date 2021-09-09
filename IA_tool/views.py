@@ -62,8 +62,6 @@ class ProjectPurposeScreen(tk.Frame):
                 self.project_goal_selected = False
                 self.text_project_pdf.set('')
 
-        # todo project_goals add validation (don't execute when no filepath is selected)
-
         status_message_project_txt = tk.StringVar()
         status_message_project_txt.set("")
         status_message_project_label = tk.Label(frame_project_goals,
@@ -152,7 +150,6 @@ class ProjectPurposeScreen(tk.Frame):
                  font='Helvetica 11', foreground='red',
                  textvariable=status_message_project_model_txt).grid(row=5, column=0, sticky='w', padx=(20, 0), columnspan=150)
 
-        # todo goal_model add validation (don't execute when no filepath is selected)
         button_show_2 = tk.Button(frame_goal_model,
                                   text='Show',
                                   width=c.Size.button_width, height=c.Size.button_height,
@@ -265,7 +262,6 @@ class ProjectPurposeScreen(tk.Frame):
     def sendFrame(self, frame):
         self.method_fragment.retrieve_frame(frame)
 
-
     def getProjectPdfPath(self):
         self.project_pdf_file_path = filedialog.askopenfilename()
 
@@ -352,7 +348,6 @@ class DataCollectionScreen(tk.Frame):
                              padx=(10, 0), pady=5,
                              sticky='w')
 
-        # todo sampling_strategy add validation (don't execute when no filepath is selected)
         # place show button
         button_show_1 = tk.Button(frame_sampling,
                                   text='Show',
@@ -485,6 +480,9 @@ class DataCollectionScreen(tk.Frame):
                              sticky='w')
 
     def show_project_start(self):
+        # TODO split into multiple functions (sop, hop, eop, yap)
+        # TODO adjust buttons accordingly to function
+        # TODO figure out where to place notebook
 
         # if there is not already a 'start of project' window
         if not self.start_project_window:
@@ -1617,14 +1615,88 @@ class DataAnalysisScreen(tk.Frame):
 
     def __init__(self):
         tk.Frame.__init__(self)
-        frame_project_goals = ttk.LabelFrame(self, text="")
-        frame_project_goals.pack(fill="both", expand="yes")
 
-        label = tk.Label(frame_project_goals, text='Data analysis content')
-        label.pack()
+        global popup_window
+        self.popup_window = None
+
+        # create new instance of DataAnalysis class
+        self.data_analysis_object = w.DataAnalysis(self)
+
+        # ------------------------- Data Analysis: 3.1 Summary Data Frame
+
+        frame_summary_data = ttk.LabelFrame(self, text="3.1 Summary Data",
+                                           width=1200, height=200)
+        frame_summary_data.grid_propagate(0)
+        frame_summary_data.grid(padx=(10, 0),
+                               pady=(10, 0),
+                               sticky='nsew')
+
+        tk.Button(frame_summary_data, text='Show tables',
+                  width=15, height=1,
+                  command=lambda : [self.create_popup(), self.notebook_data_analysis.select(0)]).grid(row=1, column=0,
+                                            padx=(10,0), pady=10,
+                                            sticky='w')
+
+        # ------------------------- Data Analysis: 3.2 Visualisations Frame
+
+        frame_visualisations = ttk.LabelFrame(self, text="3.2 Visualisations ",
+                                            width=1200, height=200)
+        frame_visualisations.grid_propagate(0)
+        frame_visualisations.grid(padx=(10, 0),
+                                pady=(10, 0),
+                                sticky='nsew')
+
+        tk.Button(frame_visualisations, text='Show visualisations',
+                  width=18, height=1,
+                  command=lambda: [self.create_popup(), self.notebook_data_analysis.select(1)]).grid(row=2, column=0,
+                                            padx=(10,0), pady=10,
+                                            sticky='w')
+
+    # ------------------------- Data Analysis: Get data from SQL model
+    def send_data_object(self, data):
+        self.data_object = data
+        self.data_analysis_object.get_data_object(self.data_object)
+
+    # ------------------------- Popup window
+    def create_popup(self):
+        # if there is not already a 'start of project' window
+        if not self.popup_window:
+            # create pop up window
+            self.popup_window = tk.Toplevel()
+            self.popup_window.wm_title('Data Analysis')
+
+            # make notebook
+            self.notebook_data_analysis = ttk.Notebook(self.popup_window)
+
+            # make tabs
+            self.tab_tables = ttk.Frame(self.popup_window, width=1200, height=600)
+            self.tab_tables.grid(row=0, column=0,
+                              padx=(10, 0),
+                              sticky='nsew')
+
+            self.tab_visualisations = ttk.Frame(self.popup_window, width=1200, height=600)
+            self.tab_visualisations.grid(padx=(10, 0),
+                              sticky='nsew')
+
+            # add tabs to notebook
+            self.notebook_data_analysis.add(self.tab_tables, text='Summary Tables')
+            self.notebook_data_analysis.add(self.tab_visualisations, text='Visualisations')
+
+            self.notebook_data_analysis.grid(row=0, column=0, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
+
+            # hide window if closed
+            self.popup_window.protocol("WM_DELETE_WINDOW", lambda arg='popup': self.hide_window(arg))
+
+        else:
+            self.popup_window.deiconify()
+
+    def hide_window(self, window):
+
+        if window == "popup":
+            self.popup_window.withdraw()
 
 
-class ImpactAssessmentScreen(tk.Frame):
+class EvaluationScreen(tk.Frame):
 
     def __init__(self):
         tk.Frame.__init__(self)

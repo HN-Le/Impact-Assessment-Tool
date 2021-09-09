@@ -45,6 +45,7 @@ class Application(tk.Tk):
 
         # send data_model object to other functions
         self.project_purpose_screen.send_data_object(self.data_model)
+        self.data_analysis_screen.send_data_object(self.data_model)
 
     def create_database(self, database):
         self.data_model = m.SQLModel(database)
@@ -75,7 +76,7 @@ class Application(tk.Tk):
         self.project_purpose_screen = views.ProjectPurposeScreen()
         self.data_collection_screen = views.DataCollectionScreen()
         self.data_analysis_screen = views.DataAnalysisScreen()
-        self.impact_assessment_screen = views.ImpactAssessmentScreen()
+        self.impact_assessment_screen = views.EvaluationScreen()
 
         notebook.add(self.project_purpose_screen, text='1- Project purpose')
         notebook.add(self.data_collection_screen, text='2- Data collection')
