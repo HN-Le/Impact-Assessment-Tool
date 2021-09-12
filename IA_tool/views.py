@@ -541,6 +541,27 @@ class DataCollectionScreen(tk.Frame):
             time_period = ['sop', 'hop', 'eop', 'yap']
             targets = ['provider', 'leader', 'teacher', 'student']
 
+            self.file_path_dict = { 'sop_provider' : '',
+                                    'sop_leader' : '',
+                                    'sop_teacher' : '',
+                                    'sop_student' : '',
+
+                                    'hop_leader': '',
+                                    'hop_provider': '',
+                                    'hop_teacher': '',
+                                    'hop_student': '',
+
+                                    'eop_provider': '',
+                                    'eop_leader': '',
+                                    'eop_teacher': '',
+                                    'eop_student': '',
+
+                                    'yap_provider': '',
+                                    'yap_leader': '',
+                                    'yap_teacher': '',
+                                    'yap_student': ''
+            }
+
             # fill data_file_status_list
             for period in time_period:
                 for target in targets:
@@ -557,33 +578,42 @@ class DataCollectionScreen(tk.Frame):
                                                                columnspan=150)
 
             # check if valid link
+            # TODO change validation file paths first tab
             def validate_path(file_name_label, status_message_label, file_opener_object, index):
 
                 self.start_project_window.attributes("-topmost", False)
                 file_opener_object.get_file_path()
                 filename = file_opener_object.return_file_name()
 
-                if len(filename) > 10:
+                if len(filename) > 10 and file_opener_object.is_csv():
                     file_name_label.set(filename)
                     status_message_label.set("")
                     data_file_status_list[index]['status'] = True
+                    print('Good')
+
+                if len(filename) > 10:
+                    if file_opener_object.is_csv():
+                        file_name_label.set(filename)
+                        status_message_label.set("")
+                        data_file_status_list[index]['status'] = True
+                        print('Good')
+
+                    else:
+                        status_message_label.set("File is not a CSV file!")
+                        print('Meh')
 
                 else:
-                    data_file_status_list[index]['status'] = False
+                    status_message_label.set("Select a CSV file first!")
                     file_name_label.set('')
+                    print('Bad')
 
                 self.start_project_window.attributes("-topmost", True)
+                print('End?')
 
             # functions if valid
             def show_csv_file(file_selected, status_message_label, file_opener_object):
                 if file_selected and file_opener_object.is_csv():
                     file_opener_object.show_project_goals()
-
-                elif file_selected and file_opener_object.is_csv() == False :
-                    status_message_label.set("File is not a CSV file!")
-
-                else:
-                    status_message_label.set("Select a CSV file first!")
 
             #------------------------- Data collection: Start of project (SOP) Frame
 
@@ -644,7 +674,7 @@ class DataCollectionScreen(tk.Frame):
                                                                        status_message_label= provider_status_message_label_sop,
                                                                        file_opener_object= self.provider_object_sop,
                                                                        index= 0)
-                                                         ]).grid(row=3, column=0,
+                                                         ] ).grid(row=3, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
 
@@ -968,8 +998,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[5]['status'],
-                                                                     status_message_label=leader_status_message_label_hop,
-                                                                     file_opener_object=self.leader_object_hop)
+                                                                     status_message_label=leader_status_message_label_hop)
                                                        ]).grid(row=7, column=1,
                                                                padx=(10, 0), pady=5,
                                                                sticky='w')
@@ -1622,6 +1651,9 @@ class DataAnalysisScreen(tk.Frame):
         # create new instance of DataAnalysis class
         self.data_analysis_object = w.DataAnalysis(self)
 
+        # save file paths
+
+
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
         frame_summary_data = ttk.LabelFrame(self, text="3.1 Summary Data",
@@ -1663,32 +1695,86 @@ class DataAnalysisScreen(tk.Frame):
         if not self.popup_window:
             # create pop up window
             self.popup_window = tk.Toplevel()
+            self.popup_window.geometry('1200x600')
+
             self.popup_window.wm_title('Data Analysis')
+
+            self.popup_window.resizable(0,0)
 
             # make notebook
             self.notebook_data_analysis = ttk.Notebook(self.popup_window)
 
             # make tabs
             self.tab_tables = ttk.Frame(self.popup_window, width=1200, height=600)
-            self.tab_tables.grid(row=0, column=0,
-                              padx=(10, 0),
-                              sticky='nsew')
+            self.tab_tables.pack(side="left", fill="both", expand=True)
+
 
             self.tab_visualisations = ttk.Frame(self.popup_window, width=1200, height=600)
-            self.tab_visualisations.grid(padx=(10, 0),
-                              sticky='nsew')
+            self.tab_visualisations.pack(side="left", fill="both", expand=True)
 
             # add tabs to notebook
             self.notebook_data_analysis.add(self.tab_tables, text='Summary Tables')
             self.notebook_data_analysis.add(self.tab_visualisations, text='Visualisations')
 
-            self.notebook_data_analysis.grid(row=0, column=0, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
+            self.notebook_data_analysis.pack(side="left", fill="both")
 
             # hide window if closed
             self.popup_window.protocol("WM_DELETE_WINDOW", lambda arg='popup': self.hide_window(arg))
 
+            # label
+            tk.Label(self.tab_tables,
+                     text= 'Select the time frame and target group',
+                     font='Helvetica 12').pack(side='top',
+                                                    pady=(10,5),
+                                                    padx=10)
+            # combobox
+            self.select_time_frame = ttk.Combobox(
+                self.tab_tables,
+                state="readonly",
+                values=["Start of project",
+                        "Halfway point of project",
+                        "End of project",
+                        "Year after end of project"
+                        ])
+
+            # self.select_time_frame.current(0)
+
+            self.select_time_frame.pack(side='top',
+                                        pady=5,
+                                        padx=10)
+
+            self.select_target = ttk.Combobox(
+                self.tab_tables,
+                state="readonly",
+                values=["Project Provider",
+                        "Community School Leader",
+                        "Teacher",
+                        "Student"
+                        ])
+
+            # self.select_target.current(0)
+
+            self.select_target.pack(side='top',
+                                        pady=5,
+                                        padx=10)
+
+            # TODO Add input validation
+            tk.Button(self.tab_tables, text='Create table',
+                      width=18, height=1,
+                      command=lambda: [self.data_analysis_object.make_table(self.tab_tables)]).pack(side='top',
+                                                                                                    pady=10,
+                                                                                                    padx=10)
+
+
+
+
         else:
             self.popup_window.deiconify()
+
+
+
+
+
 
     def hide_window(self, window):
 

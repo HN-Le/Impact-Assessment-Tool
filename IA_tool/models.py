@@ -128,6 +128,7 @@ class SQLModel:
                                                  data_bool boolean,
                                                  data_str text,
                                                  data_int integer,
+                                                 data_float float,
                                                  FOREIGN KEY (metric_id) REFERENCES metric (metric_id),
                                                  FOREIGN KEY (measuring_point_id) REFERENCES measuring_point (measuring_point_id)
                                              );"""

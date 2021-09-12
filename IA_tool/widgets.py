@@ -6,6 +6,7 @@ from tkinter import filedialog
 from . import models as m
 import webbrowser
 from functools import partial
+import csv
 
 class FileOpener(tk.Frame):
 
@@ -1071,6 +1072,103 @@ class DataAnalysis(tk.Frame):
     def get_data_object(self, data):
         self.data_object = data
 
+    def load_in_table_data(self):
+        self.student_object_yap
+
+    def make_table(self, frame):
+
+        #TODO unhardcode path
+        hardcoded_file_path = 'C:/Users/Tiny/Desktop/test 1 - csv.csv'
+
+        # make treeview frame
+        TableMargin = tk.Frame(frame, width=100, height=600)
+        TableMargin.pack(side="left", fill="both", expand=True)
+
+        # make tree
+        self.tree = ttk.Treeview(TableMargin, columns=("Metric", "Value"), selectmode="extended", height=600)
+
+        # make y scrollbar
+        self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical', command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scrollbary.set)
+
+        # make tree headings
+        self.tree.heading('Metric', text="Metric", anchor='w')
+        self.tree.heading('Value', text="Value", anchor='w')
+
+        # make tree columns
+        self.tree.column('#0', stretch='no', minwidth=0, width=0)
+        self.tree.column('#1', stretch='no', minwidth=0, width=550)
+        self.tree.column('#2', stretch='no', minwidth=0, width=550)
+
+        # place tree
+        self.tree.pack(side="bottom", fill="both", expand=True, padx=10)
+
+        # place vertical scrollbar
+        self.scrollbary.pack(side="right", fill="y")
+        self.scrollbary.configure(command=self.tree.yview)
+
+
+        # open CSV and load in headers
+        with open(hardcoded_file_path, "rt") as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            # print(header)
+
+        # clean column names
+        column_names = []
+
+        header_list = list(header)
+        print('header list ---', header_list)
+
+
+        # for export_code in header_list:
+        #     column_names.append(export_code.replace("\n", '-'))
+
+        # print('Column Names --- ',column_names[0])
+
+        # load csv into database
+
+        # extract export code
+
+        # clean column name, Survey question: , lower/upper case, spacebars, dots
+
+        #         for index, value in enumerate(labels):
+        counter_test = 0
+
+        with open(hardcoded_file_path, newline='\n') as f:
+
+            reader = csv.DictReader(f, delimiter=',')
+
+            for index, row in enumerate(reader):
+
+                # print("ROWWW -- ",row)
+                # print('Index: ', index)
+                # print('-----')
+
+                for metric_index, item in enumerate(row):
+                    # print(row['4\nnumber of schools reached (number of projects)'])
+
+                    # print('metric_index: ', metric_index)
+                    # print('modulo index metric: ', metric_index % len(column_names))
+                    # print('modulo index value: ', (metric_index + 10) % len(header_list))
+
+                    # skip non relevant headers
+                    if metric_index in range(0,10):
+                        continue
+
+                    else:
+                        metric = header_list[metric_index]
+                        value = row[header_list[metric_index]]
+
+                        counter_test += 1
+                        print('metric_index: ', metric_index)
+                        print('Metric: ', metric)
+                        print('Value: ', value)
+                        print('-----')
+
+
+                        self.tree.insert("", tk.END, values=(metric, value))
+        print(counter_test)
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
