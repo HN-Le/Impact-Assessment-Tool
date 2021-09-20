@@ -413,3 +413,27 @@ class SQLModel:
             raise e
         else:
             self.conn.commit()
+
+class pathModel:
+
+    def __init__(self):
+        self.file_path_dict = {'sop_provider': '',
+                               'sop_leader': '',
+                               'sop_teacher': '',
+                               'sop_student': '',
+
+                               'hop_leader': '',
+                               'hop_provider': '',
+                               'hop_teacher': '',
+                               'hop_student': '',
+
+                               'eop_provider': '',
+                               'eop_leader': '',
+                               'eop_teacher': '',
+                               'eop_student': '',
+
+                               'yap_provider': '',
+                               'yap_leader': '',
+                               'yap_teacher': '',
+                               'yap_student': ''
+                               }

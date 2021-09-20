@@ -4,6 +4,7 @@ from tkinter import ttk
 from . import constants as c
 from tkinter import filedialog
 from . import models as m
+from . import views as v
 import webbrowser
 from functools import partial
 import csv
@@ -34,6 +35,14 @@ class FileOpener(tk.Frame):
             return True
         else:
             return False
+
+class FilePaths(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+    def get_dict(self, path_file):
+        self.file_path_dict = path_file
+
 
 class MethodFragmentSelection(tk.Frame):
 
@@ -1072,20 +1081,25 @@ class DataAnalysis(tk.Frame):
     def get_data_object(self, data):
         self.data_object = data
 
-    def load_in_table_data(self):
-        self.student_object_yap
+    def get_paths_dict(self, dict):
+        self.paths_dict = dict
+
+    def load_in_paths(self, dict):
+        self.paths = dict
 
     def make_table(self, frame):
 
         #TODO unhardcode path
         hardcoded_file_path = 'C:/Users/Tiny/Desktop/test 1 - csv.csv'
 
+        #TODO only execute once
+
         # make treeview frame
         TableMargin = tk.Frame(frame, width=100, height=600)
         TableMargin.pack(side="left", fill="both", expand=True)
 
         # make tree
-        self.tree = ttk.Treeview(TableMargin, columns=("Metric", "Value"), selectmode="extended", height=600)
+        self.tree = ttk.Treeview(TableMargin, columns=("Metric", "Value"), selectmode="extended", height=550)
 
         # make y scrollbar
         self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical', command=self.tree.yview)
@@ -1101,7 +1115,7 @@ class DataAnalysis(tk.Frame):
         self.tree.column('#2', stretch='no', minwidth=0, width=550)
 
         # place tree
-        self.tree.pack(side="bottom", fill="both", expand=True, padx=10)
+        self.tree.pack(side="bottom", fill="both", padx=10)
 
         # place vertical scrollbar
         self.scrollbary.pack(side="right", fill="y")
@@ -1161,10 +1175,11 @@ class DataAnalysis(tk.Frame):
                         value = row[header_list[metric_index]]
 
                         counter_test += 1
-                        print('metric_index: ', metric_index)
-                        print('Metric: ', metric)
-                        print('Value: ', value)
-                        print('-----')
+
+                        # print('metric_index: ', metric_index)
+                        # print('Metric: ', metric)
+                        # print('Value: ', value)
+                        # print('-----')
 
 
                         self.tree.insert("", tk.END, values=(metric, value))

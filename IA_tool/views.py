@@ -306,6 +306,8 @@ class DataCollectionScreen(tk.Frame):
                                       textvariable=self.text_sampling_pdf).grid(row=3, column=0, sticky='w',
                                                                                 padx=(20, 0), columnspan=150)
 
+
+
         # functions if valid
         def sampling_show_functions():
             if self.sampling_selected:
@@ -525,17 +527,10 @@ class DataCollectionScreen(tk.Frame):
             self.notebook_data_collection.add(self.tab_yap, text='4- Year after end of project')
             self.notebook_data_collection.grid(row=0, column=0, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
 
-
             # hide window if closed
             self.start_project_window.protocol("WM_DELETE_WINDOW", lambda arg='start_project': self.hide_window(arg))
 
             #------------------------- functions for validation and label creation
-
-            # file_opener_object = FileOpener
-            # text_sampling = label_name
-            # status_message
-            # file_selected = sampling_selected
-
             data_file_status_list = []
 
             time_period = ['sop', 'hop', 'eop', 'yap']
@@ -562,12 +557,37 @@ class DataCollectionScreen(tk.Frame):
                                     'yap_student': ''
             }
 
+            targets_with_period = ['sop_provider',
+                                   'sop_leader',
+                                   'sop_teacher',
+                                   'sop_student',
+
+                                   'hop_provider',
+                                   'hop_leader',
+                                   'hop_teacher',
+                                   'hop_student',
+
+                                   'eop_provider',
+                                   'eop_leader',
+                                   'eop_teacher',
+                                   'eop_student',
+
+                                   'yap_provider',
+                                   'yap_leader',
+                                   'yap_teacher',
+                                   'yap_student'
+                                   ]
+
+
+
             # fill data_file_status_list
             for period in time_period:
                 for target in targets:
                     data_file_status_list.append({'time_period': period,
                                                   'target': target,
                                                   'status': False})
+
+
 
             def create_label(label_name, frame, row, column, color):
                 tk.Label(frame,
@@ -577,6 +597,7 @@ class DataCollectionScreen(tk.Frame):
                                                                padx=(10, 0),
                                                                columnspan=150)
 
+
             # check if valid link
             # TODO change validation file paths first tab
             def validate_path(file_name_label, status_message_label, file_opener_object, index):
@@ -585,30 +606,41 @@ class DataCollectionScreen(tk.Frame):
                 file_opener_object.get_file_path()
                 filename = file_opener_object.return_file_name()
 
-                if len(filename) > 10 and file_opener_object.is_csv():
-                    file_name_label.set(filename)
-                    status_message_label.set("")
-                    data_file_status_list[index]['status'] = True
-                    print('Good')
-
                 if len(filename) > 10:
                     if file_opener_object.is_csv():
                         file_name_label.set(filename)
                         status_message_label.set("")
                         data_file_status_list[index]['status'] = True
-                        print('Good')
+
+                        self.file_path_dict[targets_with_period[index]] = file_opener_object.file_path
+
+                        print('----')
+                        print('target: ', targets_with_period[index])
+                        print('path: ', file_opener_object.file_path)
+                        print('----')
 
                     else:
                         status_message_label.set("File is not a CSV file!")
-                        print('Meh')
+                        file_name_label.set('')
+
+                        self.file_path_dict[targets_with_period[index]] = ''
+
+                        print('----')
+                        print('target: ', targets_with_period[index])
+                        print('path: ', self.file_path_dict[targets_with_period[index]])
+                        print('----')
 
                 else:
                     status_message_label.set("Select a CSV file first!")
                     file_name_label.set('')
-                    print('Bad')
+                    self.file_path_dict[targets_with_period[index]] = ''
+
+                    print('----')
+                    print('target: ', targets_with_period[index])
+                    print('path: ', self.file_path_dict[targets_with_period[index]])
+                    print('----')
 
                 self.start_project_window.attributes("-topmost", True)
-                print('End?')
 
             # functions if valid
             def show_csv_file(file_selected, status_message_label, file_opener_object):
@@ -625,6 +657,7 @@ class DataCollectionScreen(tk.Frame):
                                      sticky='nsew')
 
             # ------------------------- SOP
+
             # ------------------------- SOP: Project provider
 
             tk.Label(frame_project_sop,
@@ -1640,6 +1673,7 @@ class DataCollectionScreen(tk.Frame):
         if window == "start_project":
             self.start_project_window.withdraw()
 
+
 class DataAnalysisScreen(tk.Frame):
 
     def __init__(self):
@@ -1689,6 +1723,8 @@ class DataAnalysisScreen(tk.Frame):
         self.data_object = data
         self.data_analysis_object.get_data_object(self.data_object)
 
+
+
     # ------------------------- Popup window
     def create_popup(self):
         # if there is not already a 'start of project' window
@@ -1699,7 +1735,6 @@ class DataAnalysisScreen(tk.Frame):
 
             self.popup_window.wm_title('Data Analysis')
 
-            self.popup_window.resizable(0,0)
 
             # make notebook
             self.notebook_data_analysis = ttk.Notebook(self.popup_window)

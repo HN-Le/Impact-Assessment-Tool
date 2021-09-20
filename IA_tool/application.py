@@ -40,6 +40,9 @@ class Application(tk.Tk):
         # create database
         self.create_database(database)
 
+        # create path model
+        self.create_path_dict()
+
         # populate measure point table
         self.data_model.populate_measure_point_query()
 
@@ -47,9 +50,18 @@ class Application(tk.Tk):
         self.project_purpose_screen.send_data_object(self.data_model)
         self.data_analysis_screen.send_data_object(self.data_model)
 
+
+
+
+        print(self.path_model.file_path_dict)
+
+
+
     def create_database(self, database):
         self.data_model = m.SQLModel(database)
 
+    def create_path_dict(self):
+        self.path_model = m.pathModel()
 
     def setup_menu(self):
         self.menuBar = Menu(master=self)
