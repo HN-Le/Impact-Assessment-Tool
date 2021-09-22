@@ -23,7 +23,7 @@ class FileOpener(tk.Frame):
 
     def get_file_path(self):
         filename = filedialog.askopenfilename()
-        print('Selected:', filename)
+        # print('Selected:', filename)
         self.file_path = filename
 
     def return_file_name(self):
@@ -1073,6 +1073,13 @@ class MethodFragmentSelection(tk.Frame):
         # print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
         # print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
 
+class DataCollection(tk.Frame):
+
+    # get the dict with paths
+    def get_dict_paths(self, data):
+        self.dict_paths = data
+
+
 class DataAnalysis(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -1184,6 +1191,9 @@ class DataAnalysis(tk.Frame):
 
                         self.tree.insert("", tk.END, values=(metric, value))
         print(counter_test)
+
+
+
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):

@@ -174,8 +174,8 @@ class SQLModel:
             conn.commit()
             print('New method fragment added')
 
-        else:
-            print('Method fragment found')
+        # else:
+        #     print('Method fragment found')
 
         return cur.lastrowid
 
@@ -201,8 +201,8 @@ class SQLModel:
             self.conn.commit()
             print('New metric added')
 
-        else:
-            print('Metric found')
+        # else:
+        #     print('Metric found')
 
         return cur.lastrowid
 
@@ -222,8 +222,8 @@ class SQLModel:
             conn.commit()
             print('New project added')
 
-        else:
-            print('Project found')
+        # else:
+        #     print('Project found')
 
         return cur.lastrowid
 
@@ -252,8 +252,8 @@ class SQLModel:
             conn.commit()
             print('New measuring point added')
 
-        else:
-            print('Measuring point found')
+        # else:
+        #     print('Measuring point found')
 
         return cur.lastrowid
 
@@ -417,6 +417,7 @@ class SQLModel:
 class pathModel:
 
     def __init__(self):
+
         self.file_path_dict = {'sop_provider': '',
                                'sop_leader': '',
                                'sop_teacher': '',
@@ -437,3 +438,9 @@ class pathModel:
                                'yap_teacher': '',
                                'yap_student': ''
                                }
+
+    def update_path_dict(self, targets_with_period, index, file_path):
+
+        self.file_path_dict[targets_with_period[index]] = file_path
+
+

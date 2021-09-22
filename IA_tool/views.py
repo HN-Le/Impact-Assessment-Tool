@@ -294,8 +294,11 @@ class DataCollectionScreen(tk.Frame):
                                              padx=(20, 0),
                                              sticky='w')
 
-        # make object
+        # make file opener object
         self.data_collection_pdf = w.FileOpener(self)
+
+        # make data collection object
+        self.data_collection = w.DataCollection(self)
 
         # convert to string var and set init text
         self.text_sampling_pdf = tk.StringVar()
@@ -305,8 +308,6 @@ class DataCollectionScreen(tk.Frame):
         self.project_label = tk.Label(frame_sampling,
                                       textvariable=self.text_sampling_pdf).grid(row=3, column=0, sticky='w',
                                                                                 padx=(20, 0), columnspan=150)
-
-
 
         # functions if valid
         def sampling_show_functions():
@@ -481,6 +482,12 @@ class DataCollectionScreen(tk.Frame):
                              padx=(100, 0),
                              sticky='w')
 
+    def send_dict_paths(self, dict):
+        self.dict_paths = dict
+        self.data_collection.get_dict_paths(self.dict_paths)
+
+
+
     def show_project_start(self):
         # TODO split into multiple functions (sop, hop, eop, yap)
         # TODO adjust buttons accordingly to function
@@ -587,8 +594,6 @@ class DataCollectionScreen(tk.Frame):
                                                   'target': target,
                                                   'status': False})
 
-
-
             def create_label(label_name, frame, row, column, color):
                 tk.Label(frame,
                          font='Helvetica 11', foreground=color,
@@ -596,7 +601,6 @@ class DataCollectionScreen(tk.Frame):
                                                                sticky='w',
                                                                padx=(10, 0),
                                                                columnspan=150)
-
 
             # check if valid link
             # TODO change validation file paths first tab
@@ -606,38 +610,42 @@ class DataCollectionScreen(tk.Frame):
                 file_opener_object.get_file_path()
                 filename = file_opener_object.return_file_name()
 
+                # check if a file is selected
                 if len(filename) > 10:
+                    # check if file is a csv and if so save path
                     if file_opener_object.is_csv():
                         file_name_label.set(filename)
                         status_message_label.set("")
                         data_file_status_list[index]['status'] = True
 
-                        self.file_path_dict[targets_with_period[index]] = file_opener_object.file_path
+                        self.dict_paths.update_path_dict(targets_with_period, index, file_opener_object.file_path)
 
                         print('----')
                         print('target: ', targets_with_period[index])
                         print('path: ', file_opener_object.file_path)
                         print('----')
 
+                    # error warning if not csv
                     else:
                         status_message_label.set("File is not a CSV file!")
                         file_name_label.set('')
 
-                        self.file_path_dict[targets_with_period[index]] = ''
+                        self.dict_paths.update_path_dict(targets_with_period, index, '')
 
                         print('----')
                         print('target: ', targets_with_period[index])
-                        print('path: ', self.file_path_dict[targets_with_period[index]])
+                        print('path: ', file_opener_object.file_path)
                         print('----')
 
+                # if file is not a csv
                 else:
                     status_message_label.set("Select a CSV file first!")
                     file_name_label.set('')
-                    self.file_path_dict[targets_with_period[index]] = ''
+                    self.dict_paths.update_path_dict(targets_with_period, index, '')
 
                     print('----')
                     print('target: ', targets_with_period[index])
-                    print('path: ', self.file_path_dict[targets_with_period[index]])
+                    print('path: ', file_opener_object.file_path)
                     print('----')
 
                 self.start_project_window.attributes("-topmost", True)
