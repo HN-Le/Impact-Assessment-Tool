@@ -1096,26 +1096,144 @@ class DataAnalysis(tk.Frame):
 
     def load_into_database(self, dict):
 
-        # test with metric table, show metric_id, metric_name and method_fragment_id
-        sql_metrics= "select * from metric"
-        retrieve_metrics = self.data_object.query_no_par(sql_metrics)
 
-        metric_id = retrieve_metrics[0]
-        metric_name = retrieve_metrics[1]
+        counter = 0
 
-        for metric in retrieve_metrics:
-            metric_id = metric[0]
-            metric_name = metric[1]
-            method_id = metric[2]
+        # check in the dict what the target is for each item
+        def target_check(item):
+            if item.endswith('provider'):
+                return 'project_provider'
 
-            # print('Metric ID: --- ', metric_id)
-            # print('Metric Name: --- ', metric_name)
+            elif item.endswith('leader'):
+                return 'community_school_leader'
+
+            elif item.endswith('teacher'):
+                return 'teacher'
+
+            else:
+                return 'student'
+
+        def data_type_check(value):
+
+            if isinstance(value, int) or isinstance(value, float):
+                return value
+
+            elif isinstance(value, str):
+                cleaned_value = (value.lower()).strip()
+                return cleaned_value
+
+        # loop through dict and extract the data from the valid paths
+        for id, item in enumerate(dict):
+            # print('Key: ', path)
+            # print('Value: ',dict[path])
+
+            # variables for the SQL query
+            measuring_point_id = None
+            metric_id = None
+            file_id = id
+            data_bool = None
+            data_str = None
+            data_int = None
+            data_float = None
+
+            target = None
+
+            # non valid paths
+            if dict[item] == '':
+                print(item, ': No path')
+
+            else:
+                # check which target group the file is for
+                target = target_check(item)
+
+                # extract the measuring point
+                if item.startswith('sop'):
+                    measuring_point_id = 0
+
+                elif item.startswith('hop'):
+                    measuring_point_id = 1
+
+                elif item.startswith('eop'):
+                    measuring_point_id = 2
+
+                else:
+                    measuring_point_id = 3
+
+                # print('file ID = ', file_id)
+                # print('Target: ', item)
+                # print('Path: ', dict[item])
+
+                # open the valid paths and extract the data
+                with open(dict[item], newline='\n') as f:
+
+                    reader = csv.DictReader(f, delimiter=',')
+
+                    # get header names
+                    metric_list = reader.fieldnames
+
+                    print('Metric List: ', metric_list)
+
+                    # each survey in the csv file (1 row = 1 survey)
+                    for index, row in enumerate(reader):
+
+                        # print("ROWWW -- ",row)
+                        # print('Index: ', index)
+                        # print('-----')
+
+                        # loop through the non-header rows
+                        for metric_index, item in enumerate(row):
+
+                            # skip non relevant headers
+                            if metric_index in range(0,10):
+                                continue
+
+                            # extract relevant data and save in database
+                            else:
+
+                                metric_name = ((metric_list[metric_index]).lower()).strip()
+                                target_name = (target.lower()).strip()
+
+                                # TODO check if it works with strings!
+                                metric_value_data = data_type_check(row[metric_list[metric_index]])
+
+                                print('-----')
+                                print('Metric: ', metric_name)
+                                print('Metric Value: ', metric_value_data)
+                                print('Target Name: ', target_name)
+
+                                sql_metrics = "select * from metric where lower(metric_name) = (?) and lower(target_name) = (?)"
+                                retrieve_metrics = self.data_object.query_with_par(sql_metrics, (metric_name, target_name))
+
+                                for metric_item in retrieve_metrics:
+                                    counter += 1
+                                    metric_id = metric_item[0]
+
+                                    metric_data_type = ((metric_item[5]).lower()).strip()
+
+                                    print(metric_data_type)
+
+                                metric_value = (measuring_point_id,
+                                                metric_id,
+                                                file_id,
+                                                data_bool,
+                                                data_str,
+                                                data_int,
+                                                data_float)
+
+                                print('Metric_value DATABASE', metric_value)
+                                print('-----')
+        print(counter)
+
+
+
+                #
+                #     # print('Metric ID: --- ', metric_id)
+                #     # print('Metric Name: --- ', metric_name)
 
     def make_table(self, frame, timeframe, target):
 
         print('Paths --- ', self.paths_dict.file_path_dict)
 
-        self.load_into_database(self.paths_dict.file_path_dict)
 
         #TODO unhardcode path
         hardcoded_file_path = 'C:/Users/Tiny/Desktop/test 1 - csv.csv'
@@ -1128,7 +1246,6 @@ class DataAnalysis(tk.Frame):
 
         self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical')
         self.scrollbarx = tk.Scrollbar(TableMargin, orient='horizontal')
-
 
         # make tree
         self.tree = ttk.Treeview(TableMargin,
@@ -1157,9 +1274,6 @@ class DataAnalysis(tk.Frame):
         # place tree
         self.tree.pack(fill='both',
                        padx=10)
-
-
-
 
         # open CSV and load in headers
         with open(hardcoded_file_path, "rt") as f:
@@ -1231,7 +1345,6 @@ class DataAnalysis(tk.Frame):
         #                 # print('-----')
         #
         #
-        #                 # TODO finish this
         #                 # measuring_point_id =
         #                 # metric_id =
         #                 # file_id =

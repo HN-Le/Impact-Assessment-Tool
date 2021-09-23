@@ -1714,7 +1714,7 @@ class DataAnalysisScreen(tk.Frame):
 
         tk.Button(frame_load_data, text='Load in data',
                   width=18, height=1,
-                  command='').grid(row=2, column=0,
+                  command=lambda: [self.data_analysis_object.load_into_database(self.dict_paths.file_path_dict)]).grid(row=2, column=0,
                                             padx=(10,0), pady=5,
                                             sticky='w')
 

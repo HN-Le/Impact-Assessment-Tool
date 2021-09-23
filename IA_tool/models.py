@@ -214,6 +214,10 @@ class SQLModel:
         sql = """ INSERT INTO metric_value(measuring_point_id, metric_id, file_id, data_bool, data_str, data_int, data_float)
                 VALUES (?,?,?,?,?,?,?) """
 
+        sql_check_file_id
+        # check whether there already has been a file
+        measuring_point_name = measuring_point[0]
+
         cur.execute(sql, metric)
         self.conn.commit()
         print('New value added')
