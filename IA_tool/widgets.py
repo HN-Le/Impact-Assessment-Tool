@@ -1127,6 +1127,7 @@ class DataAnalysis(tk.Frame):
         TableMargin.pack(side="top", fill="both", expand='True')
 
         self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical')
+        self.scrollbarx = tk.Scrollbar(TableMargin, orient='horizontal')
 
 
         # make tree
@@ -1134,10 +1135,14 @@ class DataAnalysis(tk.Frame):
                                  columns=("Metric ID", "Metric Name", "Method ID"),
                                  selectmode="extended",
                                  yscrollcommand=self.scrollbary.set,
+                                 xscrollcommand=self.scrollbarx.set,
                                  height=400)
 
         self.scrollbary.config(command=self.tree.yview)
         self.scrollbary.pack(side="right", fill="y")
+
+        self.scrollbarx.config(command=self.tree.xview)
+        self.scrollbarx.pack(side="bottom", fill="both", expand='True')
 
         # make tree headings
         self.tree.heading('Metric ID', text="Metric ID", anchor='w')
