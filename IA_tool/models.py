@@ -125,6 +125,7 @@ class SQLModel:
                                                  metric_value_id integer PRIMARY KEY,
                                                  measuring_point_id integer NOT NULL,
                                                  metric_id integer NOT NULL,
+                                                 file_id integer,
                                                  data_bool boolean,
                                                  data_str text,
                                                  data_int integer,
@@ -206,6 +207,19 @@ class SQLModel:
 
         return cur.lastrowid
 
+    def create_metric_value(self, metric_value):
+
+        cur = self.conn.cursor()
+
+        sql = """ INSERT INTO metric_value(measuring_point_id, metric_id, file_id, data_bool, data_str, data_int, data_float)
+                VALUES (?,?,?,?,?,?,?) """
+
+        cur.execute(sql, metric)
+        self.conn.commit()
+        print('New value added')
+
+        return cur.lastrowid
+
     def create_project(self, conn, project):
 
         cur = conn.cursor()
@@ -227,9 +241,9 @@ class SQLModel:
 
         return cur.lastrowid
 
-    def create_measuring_point(self, conn, measuring_point):
+    def create_measuring_point(self, measuring_point):
 
-        cur = conn.cursor()
+        cur = self.conn.cursor()
 
         sql = """ INSERT INTO measuring_point(measuring_point_name, project_id ) 
                 VALUES (?,?) """
@@ -240,8 +254,8 @@ class SQLModel:
         # print("create_measuring_point: type ", type(measuring_point_name))
         # print("create_measuring_point: measuring_point_name ", measuring_point_name)
 
-        test_sql = "SELECT * FROM measuring_point WHERE measuring_point_name = ? "
-        cur.execute(test_sql, (((measuring_point_name),)))
+        sql_check = "SELECT * FROM measuring_point WHERE measuring_point_name = ? "
+        cur.execute(sql_check, (((measuring_point_name),)))
 
         entry = cur.fetchone()
 
@@ -249,7 +263,7 @@ class SQLModel:
 
         if entry is None:
             cur.execute(sql, measuring_point)
-            conn.commit()
+            self.conn.commit()
             print('New measuring point added')
 
         # else:
@@ -272,8 +286,8 @@ class SQLModel:
         # print("create_measuring_point: type ", type(measuring_point_name))
         # print("create_measuring_point: measuring_point_name ", measuring_point_name)
 
-        test_sql = "SELECT * FROM metric_target WHERE metric_id = ? "
-        cur.execute(test_sql, (((metric_id),)))
+        sql = "SELECT * FROM metric_target WHERE metric_id = ? "
+        cur.execute(sql, (((metric_id),)))
 
         entry = cur.fetchone()
 
@@ -355,8 +369,9 @@ class SQLModel:
             # print('Measure_point_query: point - ', point)
             # print('Measure_point_query: project_id - ', project_id)
             # print('Measure_point_query: project_name - ', ((self.project),))
-            # print('Measure_point_query: measure_point - ', measure_point)
-            self.create_measuring_point(self.conn, measure_point)
+            # print('Measure_point_query: measure_point -
+
+            self.create_measuring_point(measure_point)
 
     def query_with_par(self, query, parameter):
 

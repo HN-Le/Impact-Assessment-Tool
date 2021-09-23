@@ -1693,13 +1693,48 @@ class DataAnalysisScreen(tk.Frame):
         # create new instance of DataAnalysis class
         self.data_analysis_object = w.DataAnalysis(self)
 
+
         # save file paths
 
+        # ------------------------- Data Analysis: Load all data files
+
+        frame_load_data = ttk.LabelFrame(self, text="Load All Data",
+                                            width=1200, height=150)
+        frame_load_data.grid_propagate(0)
+        frame_load_data.grid(padx=(10, 0),
+                                pady=(10, 0),
+                                sticky='nsew')
+
+        # status message
+        tk.Label(frame_load_data,
+                 text='Load all data for data analysis',
+                 font='Helvetica 12').grid(row=1, column=0,
+                                            padx=(10,0), pady=5,
+                                            sticky='w')
+
+        tk.Button(frame_load_data, text='Load in data',
+                  width=18, height=1,
+                  command='').grid(row=2, column=0,
+                                            padx=(10,0), pady=5,
+                                            sticky='w')
+
+        # TODO add statusmessage for when loading is succesfull
+
+        # convert to string var and set init text
+        self.status_load_data = tk.StringVar()
+        self.status_load_data.set("STATUS MESSAGE")
+
+        # status message
+        tk.Label(frame_load_data,
+                 textvariable=self.status_load_data,
+                 font='Helvetica 12', foreground='red').grid(row=3, column=0,
+                                                                padx=(10,0), pady=5,
+                                                                sticky='w')
 
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
         frame_summary_data = ttk.LabelFrame(self, text="3.1 Summary Data",
-                                           width=1200, height=200)
+                                           width=1200, height=130)
         frame_summary_data.grid_propagate(0)
         frame_summary_data.grid(padx=(10, 0),
                                pady=(10, 0),
@@ -1708,28 +1743,39 @@ class DataAnalysisScreen(tk.Frame):
         tk.Button(frame_summary_data, text='Show tables',
                   width=15, height=1,
                   command=lambda : [self.create_popup(), self.notebook_data_analysis.select(0)]).grid(row=1, column=0,
-                                            padx=(10,0), pady=10,
+                                            padx=(10,0), pady=(10,5),
                                             sticky='w')
+
+        tk.Button(frame_summary_data, text='Show visualisations',
+                  width=18, height=1,
+                  command=lambda: [self.create_popup(), self.notebook_data_analysis.select(1)]).grid(row=2, column=0,
+                                                                                                     padx=(10, 0),
+                                                                                                     pady=5,
+                                                                                                     sticky='w')
 
         # ------------------------- Data Analysis: 3.2 Visualisations Frame
 
-        frame_visualisations = ttk.LabelFrame(self, text="3.2 Visualisations ",
-                                            width=1200, height=200)
-        frame_visualisations.grid_propagate(0)
-        frame_visualisations.grid(padx=(10, 0),
-                                pady=(10, 0),
-                                sticky='nsew')
-
-        tk.Button(frame_visualisations, text='Show visualisations',
-                  width=18, height=1,
-                  command=lambda: [self.create_popup(), self.notebook_data_analysis.select(1)]).grid(row=2, column=0,
-                                            padx=(10,0), pady=10,
-                                            sticky='w')
+        # frame_visualisations = ttk.LabelFrame(self, text="3.2 Visualisations ",
+        #                                     width=1200, height=200)
+        # frame_visualisations.grid_propagate(0)
+        # frame_visualisations.grid(padx=(10, 0),
+        #                         pady=(10, 0),
+        #                         sticky='nsew')
+        #
+        # tk.Button(frame_visualisations, text='Show visualisations',
+        #           width=18, height=1,
+        #           command=lambda: [self.create_popup(), self.notebook_data_analysis.select(1)]).grid(row=2, column=0,
+        #                                     padx=(10,0), pady=10,
+        #                                     sticky='w')
 
     # ------------------------- Data Analysis: Get data from SQL model
     def send_data_object(self, data):
         self.data_object = data
         self.data_analysis_object.get_data_object(self.data_object)
+
+    def send_dict_paths(self, dict):
+        self.dict_paths = dict
+        self.data_analysis_object.get_paths_dict(self.dict_paths)
 
 
 
@@ -1801,12 +1847,44 @@ class DataAnalysisScreen(tk.Frame):
                                         pady=5,
                                         padx=10)
 
-            # TODO Add input validation
+            def validate_combobox_input():
+
+                # print ('Timeframe: ', self.select_time_frame.get())
+                # print ('Target: ', self.select_target.get())
+
+                if self.select_time_frame.get() == '' and self.select_target.get() == '':
+                    self.status_message_tables.set('Select a timeframe and target!')
+
+                elif self.select_time_frame.get() == '' and self.select_target.get() != '':
+                    self.status_message_tables.set('Select a timeframe!')
+
+                elif self.select_time_frame.get() != '' and self.select_target.get() == '':
+                    self.status_message_tables.set('Select a target!')
+
+                else:
+                    self.data_analysis_object.make_table(self.tab_tables,
+                                                         self.select_time_frame.get(),
+                                                         self.select_target.get())
+
             tk.Button(self.tab_tables, text='Create table',
                       width=18, height=1,
-                      command=lambda: [self.data_analysis_object.make_table(self.tab_tables)]).pack(side='top',
-                                                                                                    pady=10,
-                                                                                                    padx=10)
+                      command=lambda: [validate_combobox_input()
+                                       ]).pack(side='top',
+                                                pady=10,
+                                                padx=10)
+
+            # convert to string var and set init text
+            self.status_message_tables = tk.StringVar()
+            self.status_message_tables.set("")
+
+            # status message
+            tk.Label(self.tab_tables,
+                     textvariable=self.status_message_tables,
+                     font='Helvetica 12', foreground='red').pack(side='top',
+                                               pady=(0, 5),
+                                               padx=10)
+
+
 
 
 

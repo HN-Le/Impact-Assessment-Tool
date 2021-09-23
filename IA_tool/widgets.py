@@ -1094,7 +1094,28 @@ class DataAnalysis(tk.Frame):
     def load_in_paths(self, dict):
         self.paths = dict
 
-    def make_table(self, frame):
+    def load_into_database(self, dict):
+
+        # test with metric table, show metric_id, metric_name and method_fragment_id
+        sql_metrics= "select * from metric"
+        retrieve_metrics = self.data_object.query_no_par(sql_metrics)
+
+        metric_id = retrieve_metrics[0]
+        metric_name = retrieve_metrics[1]
+
+        for metric in retrieve_metrics:
+            metric_id = metric[0]
+            metric_name = metric[1]
+            method_id = metric[2]
+
+            # print('Metric ID: --- ', metric_id)
+            # print('Metric Name: --- ', metric_name)
+
+    def make_table(self, frame, timeframe, target):
+
+        print('Paths --- ', self.paths_dict.file_path_dict)
+
+        self.load_into_database(self.paths_dict.file_path_dict)
 
         #TODO unhardcode path
         hardcoded_file_path = 'C:/Users/Tiny/Desktop/test 1 - csv.csv'
@@ -1102,31 +1123,37 @@ class DataAnalysis(tk.Frame):
         #TODO only execute once
 
         # make treeview frame
-        TableMargin = tk.Frame(frame, width=100, height=600)
-        TableMargin.pack(side="left", fill="both", expand=True)
+        TableMargin = tk.Frame(frame, width=1200, height=500)
+        TableMargin.pack(side="top", fill="both", expand='True')
+
+        self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical')
+
 
         # make tree
-        self.tree = ttk.Treeview(TableMargin, columns=("Metric", "Value"), selectmode="extended", height=550)
+        self.tree = ttk.Treeview(TableMargin,
+                                 columns=("Metric ID", "Metric Name", "Method ID"),
+                                 selectmode="extended",
+                                 yscrollcommand=self.scrollbary.set,
+                                 height=400)
 
-        # make y scrollbar
-        self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical', command=self.tree.yview)
-        self.tree.configure(yscrollcommand=self.scrollbary.set)
+        self.scrollbary.config(command=self.tree.yview)
+        self.scrollbary.pack(side="right", fill="y")
 
         # make tree headings
-        self.tree.heading('Metric', text="Metric", anchor='w')
-        self.tree.heading('Value', text="Value", anchor='w')
+        self.tree.heading('Metric ID', text="Metric ID", anchor='w')
+        self.tree.heading('Metric Name', text="Metric Name", anchor='w')
+        self.tree.heading('Method ID', text="Method ID", anchor='w')
 
         # make tree columns
         self.tree.column('#0', stretch='no', minwidth=0, width=0)
-        self.tree.column('#1', stretch='no', minwidth=0, width=550)
-        self.tree.column('#2', stretch='no', minwidth=0, width=550)
+        self.tree.column('#1', stretch='no', minwidth=0, width=400)
+        self.tree.column('#2', stretch='no', minwidth=0, width=400)
 
         # place tree
-        self.tree.pack(side="bottom", fill="both", padx=10)
+        self.tree.pack(fill='both',
+                       padx=10)
 
-        # place vertical scrollbar
-        self.scrollbary.pack(side="right", fill="y")
-        self.scrollbary.configure(command=self.tree.yview)
+
 
 
         # open CSV and load in headers
@@ -1139,7 +1166,7 @@ class DataAnalysis(tk.Frame):
         column_names = []
 
         header_list = list(header)
-        print('header list ---', header_list)
+        # print('header list ---', header_list)
 
 
         # for export_code in header_list:
@@ -1156,41 +1183,74 @@ class DataAnalysis(tk.Frame):
         #         for index, value in enumerate(labels):
         counter_test = 0
 
-        with open(hardcoded_file_path, newline='\n') as f:
+        # test with metric table, show metric_id, metric_name and method_fragment_id
+        sql_metrics = "select * from metric"
+        retrieve_metrics = self.data_object.query_no_par(sql_metrics)
 
-            reader = csv.DictReader(f, delimiter=',')
+        for metric in retrieve_metrics:
+            metric_id = metric[0]
+            metric_name = metric[1]
+            method_id = metric[2]
 
-            for index, row in enumerate(reader):
+            self.tree.insert("", tk.END, values=(metric_id, metric_name, method_id))
 
-                # print("ROWWW -- ",row)
-                # print('Index: ', index)
-                # print('-----')
-
-                for metric_index, item in enumerate(row):
-                    # print(row['4\nnumber of schools reached (number of projects)'])
-
-                    # print('metric_index: ', metric_index)
-                    # print('modulo index metric: ', metric_index % len(column_names))
-                    # print('modulo index value: ', (metric_index + 10) % len(header_list))
-
-                    # skip non relevant headers
-                    if metric_index in range(0,10):
-                        continue
-
-                    else:
-                        metric = header_list[metric_index]
-                        value = row[header_list[metric_index]]
-
-                        counter_test += 1
-
-                        # print('metric_index: ', metric_index)
-                        # print('Metric: ', metric)
-                        # print('Value: ', value)
-                        # print('-----')
-
-
-                        self.tree.insert("", tk.END, values=(metric, value))
-        print(counter_test)
+        # with open(hardcoded_file_path, newline='\n') as f:
+        #
+        #     reader = csv.DictReader(f, delimiter=',')
+        #
+        #     for index, row in enumerate(reader):
+        #
+        #         # print("ROWWW -- ",row)
+        #         # print('Index: ', index)
+        #         # print('-----')
+        #
+        #         for metric_index, item in enumerate(row):
+        #
+        #             # print('metric_index: ', metric_index)
+        #             # print('modulo index metric: ', metric_index % len(column_names))
+        #             # print('modulo index value: ', (metric_index + 10) % len(header_list))
+        #
+        #             # skip non relevant headers
+        #             if metric_index in range(0,10):
+        #                 continue
+        #
+        #             else:
+        #                 metric = header_list[metric_index]
+        #                 value = row[header_list[metric_index]]
+        #
+        #                 counter_test += 1
+        #
+        #                 # print('metric_index: ', metric_index)
+        #                 # print('Metric: ', metric)
+        #                 # print('Value: ', value)
+        #                 # print('-----')
+        #
+        #
+        #                 # TODO finish this
+        #                 # measuring_point_id =
+        #                 # metric_id =
+        #                 # file_id =
+        #                 # data_bool =
+        #                 # data_str =
+        #                 # data_int =
+        #                 # data_float =
+        #                 #
+        #                 # metric_value = (measuring_point_id,
+        #                 #                 metric_id,
+        #                 #                 file_id,
+        #                 #                 data_bool,
+        #                 #                 data_str,
+        #                 #                 data_int,
+        #                 #                 data_float)
+        #                 #
+        #                 #
+        #                 #
+        #                 # self.data_object.create_metric_value()
+        #
+        #
+        #
+        #
+        #                 self.tree.insert("", tk.END, values=(metric, value))
 
 
 

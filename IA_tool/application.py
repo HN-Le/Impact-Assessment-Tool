@@ -52,6 +52,7 @@ class Application(tk.Tk):
 
         # send path dict to data collection and data analysis
         self.data_collection_screen.send_dict_paths(self.path_model)
+        self.data_analysis_screen.send_dict_paths(self.path_model)
 
 
     def create_database(self, database):
