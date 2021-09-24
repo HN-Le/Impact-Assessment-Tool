@@ -39,10 +39,7 @@ class SQLModel:
         self.conn = self.create_connection(database)
 
         # list of project time points
-        self.measure_point_list = {"start_of_project",
-                                   "halfway_point_project",
-                                   "end_project",
-                                   "year_after_project_end"}
+        self.measure_point_list = ["start_of_project", "halfway_point_project", "end_project", "year_after_project_end"]
 
         # populate db
         self.define_sql_table(self.conn)
@@ -214,13 +211,8 @@ class SQLModel:
         sql = """ INSERT INTO metric_value(measuring_point_id, metric_id, file_id, data_bool, data_str, data_int, data_float)
                 VALUES (?,?,?,?,?,?,?) """
 
-        sql_check_file_id
-        # check whether there already has been a file
-        measuring_point_name = measuring_point[0]
-
-        cur.execute(sql, metric)
+        cur.execute(sql, metric_value)
         self.conn.commit()
-        print('New value added')
 
         return cur.lastrowid
 
@@ -363,6 +355,7 @@ class SQLModel:
 
     def populate_measure_point_query(self):
         for point in self.measure_point_list:
+
             cur = self.conn.cursor()
             cur.execute(""" SELECT project_id FROM project WHERE project_name = (?) """,
                         ((self.project),))
@@ -370,7 +363,7 @@ class SQLModel:
 
             measure_point = (point, int(project_id[0]))
 
-            # print('Measure_point_query: point - ', point)
+            print('Measure_point_query: point - ', point)
             # print('Measure_point_query: project_id - ', project_id)
             # print('Measure_point_query: project_name - ', ((self.project),))
             # print('Measure_point_query: measure_point -
@@ -428,6 +421,19 @@ class SQLModel:
 
         try:
             cur.execute(query, (parameter,))
+        except Error as e:
+            raise e
+        else:
+            self.conn.commit()
+
+    def empty_table(self):
+
+        cur = self.conn.cursor()
+
+        query = "DELETE FROM metric_value"
+
+        try:
+            cur.execute(query)
         except Error as e:
             raise e
         else:

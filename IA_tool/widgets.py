@@ -43,7 +43,6 @@ class FilePaths(tk.Frame):
     def get_dict(self, path_file):
         self.file_path_dict = path_file
 
-
 class MethodFragmentSelection(tk.Frame):
 
     def __init__(self, parent):
@@ -1079,8 +1078,8 @@ class DataCollection(tk.Frame):
     def get_dict_paths(self, data):
         self.dict_paths = data
 
-
 class DataAnalysis(tk.Frame):
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -1094,12 +1093,18 @@ class DataAnalysis(tk.Frame):
     def load_in_paths(self, dict):
         self.paths = dict
 
-    def load_into_database(self, dict):
+    def load_into_database(self, dict, frame):
 
+        # delete all rows in metric_values table
+        self.data_object.empty_table()
 
-        counter = 0
+        # txt variable to display statusmessage
+        self.status_load_data = tk.StringVar()
+        self.status_load_data.set("")
 
-        # check in the dict what the target is for each item
+        selected_file_counter = 0
+
+        # function to check in the dict what the target is for each item
         def target_check(item):
             if item.endswith('provider'):
                 return 'project_provider'
@@ -1113,6 +1118,7 @@ class DataAnalysis(tk.Frame):
             else:
                 return 'student'
 
+        # function to check datatype and clean accordingly
         def data_type_check(value):
 
             if isinstance(value, int) or isinstance(value, float):
@@ -1140,7 +1146,7 @@ class DataAnalysis(tk.Frame):
 
             # non valid paths
             if dict[item] == '':
-                print(item, ': No path')
+                print(item, ': No path selected')
 
             else:
                 # check which target group the file is for
@@ -1148,16 +1154,21 @@ class DataAnalysis(tk.Frame):
 
                 # extract the measuring point
                 if item.startswith('sop'):
-                    measuring_point_id = 0
-
-                elif item.startswith('hop'):
                     measuring_point_id = 1
 
-                elif item.startswith('eop'):
+                elif item.startswith('hop'):
                     measuring_point_id = 2
 
-                else:
+                elif item.startswith('eop'):
                     measuring_point_id = 3
+
+                else:
+                    measuring_point_id = 4
+
+
+
+
+
 
                 # print('file ID = ', file_id)
                 # print('Target: ', item)
@@ -1167,6 +1178,8 @@ class DataAnalysis(tk.Frame):
                 with open(dict[item], newline='\n') as f:
 
                     reader = csv.DictReader(f, delimiter=',')
+
+                    selected_file_counter += 1
 
                     # get header names
                     metric_list = reader.fieldnames
@@ -1205,30 +1218,66 @@ class DataAnalysis(tk.Frame):
                                 retrieve_metrics = self.data_object.query_with_par(sql_metrics, (metric_name, target_name))
 
                                 for metric_item in retrieve_metrics:
-                                    counter += 1
                                     metric_id = metric_item[0]
 
                                     metric_data_type = ((metric_item[5]).lower()).strip()
 
+                                    # TODO change name in tool (Whole number, decimal, etc..)
+                                    # TODO change in database to int
+                                    if metric_data_type == 'numerical' :
+                                        data_int = metric_value_data
+
+                                    elif metric_data_type == 'boolean' :
+                                        data_bool = metric_value_data
+
+                                    elif metric_data_type == 'float' :
+                                        data_float = metric_value_data
+
+                                    else:
+                                        data_str = metric_value_data
+
                                     print(metric_data_type)
 
-                                metric_value = (measuring_point_id,
-                                                metric_id,
-                                                file_id,
-                                                data_bool,
-                                                data_str,
-                                                data_int,
-                                                data_float)
+                                    metric_value = (measuring_point_id,
+                                                    metric_id,
+                                                    file_id,
+                                                    data_bool,
+                                                    data_str,
+                                                    data_int,
+                                                    data_float)
+
+                                    # Load into database
+
+                                    # Check if file_id is already present in database
+
+                                    # If yes, delete all rows with that file_id first
+                                    self.data_object.create_metric_value(metric_value)
 
                                 print('Metric_value DATABASE', metric_value)
                                 print('-----')
-        print(counter)
 
+        # TODO implement for everything
+        sql_test = "select * from metric"
+        test_sql_object = self.data_object.query_no_par(sql_test)
 
+        for item in test_sql_object:
+            options = item[7]
+            if options is not None:
+                option_list = options.split(";")
+                stripped_option_list = [s.strip() for s in option_list]
+                print(stripped_option_list)
 
-                #
-                #     # print('Metric ID: --- ', metric_id)
-                #     # print('Metric Name: --- ', metric_name)
+        # status message
+        tk.Label(frame,
+                 textvariable=self.status_load_data,
+                 font='Helvetica 12', foreground='red').grid(row=3, column=0,
+                                                             padx=(10, 0), pady=5,
+                                                             sticky='w')
+
+        self.status_load_data.set(str(selected_file_counter) + " file(s) were loaded in.")
+
+    def fill_table(self):
+        print('')
 
     def make_table(self, frame, timeframe, target):
 
@@ -1261,9 +1310,10 @@ class DataAnalysis(tk.Frame):
         self.scrollbarx.config(command=self.tree.xview)
         self.scrollbarx.pack(side="bottom", fill="both", expand='True')
 
+        # TODO adjust headings
         # make tree headings
-        self.tree.heading('Metric ID', text="Metric ID", anchor='w')
-        self.tree.heading('Metric Name', text="Metric Name", anchor='w')
+        self.tree.heading('Metric ID', text="Metric", anchor='w')
+        self.tree.heading('Metric Name', text="Min", anchor='w')
         self.tree.heading('Method ID', text="Method ID", anchor='w')
 
         # make tree columns
@@ -1275,43 +1325,30 @@ class DataAnalysis(tk.Frame):
         self.tree.pack(fill='both',
                        padx=10)
 
-        # open CSV and load in headers
-        with open(hardcoded_file_path, "rt") as f:
-            reader = csv.reader(f)
-            header = next(reader)
-            # print(header)
-
-        # clean column names
-        column_names = []
-
-        header_list = list(header)
-        # print('header list ---', header_list)
-
-
-        # for export_code in header_list:
-        #     column_names.append(export_code.replace("\n", '-'))
-
-        # print('Column Names --- ',column_names[0])
-
-        # load csv into database
-
-        # extract export code
-
-        # clean column name, Survey question: , lower/upper case, spacebars, dots
-
-        #         for index, value in enumerate(labels):
-        counter_test = 0
-
-        # test with metric table, show metric_id, metric_name and method_fragment_id
-        sql_metrics = "select * from metric"
-        retrieve_metrics = self.data_object.query_no_par(sql_metrics)
-
-        for metric in retrieve_metrics:
-            metric_id = metric[0]
-            metric_name = metric[1]
-            method_id = metric[2]
-
-            self.tree.insert("", tk.END, values=(metric_id, metric_name, method_id))
+        # # open CSV and load in headers
+        # with open(hardcoded_file_path, "rt") as f:
+        #     reader = csv.reader(f)
+        #     header = next(reader)
+        #     # print(header)
+        #
+        # # clean column names
+        # column_names = []
+        #
+        # header_list = list(header)
+        # # print('header list ---', header_list)
+        #
+        # counter_test = 0
+        #
+        # # test with metric table, show metric_id, metric_name and method_fragment_id
+        # sql_metrics = "select * from metric"
+        # retrieve_metrics = self.data_object.query_no_par(sql_metrics)
+        #
+        # for metric in retrieve_metrics:
+        #     metric_id = metric[0]
+        #     metric_name = metric[1]
+        #     method_id = metric[2]
+        #
+        #     self.tree.insert("", tk.END, values=(metric_id, metric_name, method_id))
 
         # with open(hardcoded_file_path, newline='\n') as f:
         #
@@ -1339,39 +1376,7 @@ class DataAnalysis(tk.Frame):
         #
         #                 counter_test += 1
         #
-        #                 # print('metric_index: ', metric_index)
-        #                 # print('Metric: ', metric)
-        #                 # print('Value: ', value)
-        #                 # print('-----')
-        #
-        #
-        #                 # measuring_point_id =
-        #                 # metric_id =
-        #                 # file_id =
-        #                 # data_bool =
-        #                 # data_str =
-        #                 # data_int =
-        #                 # data_float =
-        #                 #
-        #                 # metric_value = (measuring_point_id,
-        #                 #                 metric_id,
-        #                 #                 file_id,
-        #                 #                 data_bool,
-        #                 #                 data_str,
-        #                 #                 data_int,
-        #                 #                 data_float)
-        #                 #
-        #                 #
-        #                 #
-        #                 # self.data_object.create_metric_value()
-        #
-        #
-        #
-        #
         #                 self.tree.insert("", tk.END, values=(metric, value))
-
-
-
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):

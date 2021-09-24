@@ -486,7 +486,26 @@ class DataCollectionScreen(tk.Frame):
         self.dict_paths = dict
         self.data_collection.get_dict_paths(self.dict_paths)
 
+    def reset_status_messages(self):
+        self.provider_status_message_label_sop.set('')
+        self.provider_status_message_label_hop.set('')
+        self.provider_status_message_label_eop.set('')
+        self.provider_status_message_label_yap.set('')
 
+        self.leader_status_message_label_sop.set('')
+        self.leader_status_message_label_hop.set('')
+        self.leader_status_message_label_eop.set('')
+        self.leader_status_message_label_yap.set('')
+
+        self.teacher_status_message_label_sop.set('')
+        self.teacher_status_message_label_hop.set('')
+        self.teacher_status_message_label_eop.set('')
+        self.teacher_status_message_label_yap.set('')
+
+        self.student_status_message_label_sop.set('')
+        self.student_status_message_label_hop.set('')
+        self.student_status_message_label_eop.set('')
+        self.student_status_message_label_yap.set('')
 
     def show_project_start(self):
         # TODO split into multiple functions (sop, hop, eop, yap)
@@ -543,27 +562,6 @@ class DataCollectionScreen(tk.Frame):
             time_period = ['sop', 'hop', 'eop', 'yap']
             targets = ['provider', 'leader', 'teacher', 'student']
 
-            self.file_path_dict = { 'sop_provider' : '',
-                                    'sop_leader' : '',
-                                    'sop_teacher' : '',
-                                    'sop_student' : '',
-
-                                    'hop_leader': '',
-                                    'hop_provider': '',
-                                    'hop_teacher': '',
-                                    'hop_student': '',
-
-                                    'eop_provider': '',
-                                    'eop_leader': '',
-                                    'eop_teacher': '',
-                                    'eop_student': '',
-
-                                    'yap_provider': '',
-                                    'yap_leader': '',
-                                    'yap_teacher': '',
-                                    'yap_student': ''
-            }
-
             targets_with_period = ['sop_provider',
                                    'sop_leader',
                                    'sop_teacher',
@@ -595,6 +593,7 @@ class DataCollectionScreen(tk.Frame):
                                                   'status': False})
 
             def create_label(label_name, frame, row, column, color):
+
                 tk.Label(frame,
                          font='Helvetica 11', foreground=color,
                          textvariable=label_name).grid(row=row, column=column,
@@ -641,6 +640,7 @@ class DataCollectionScreen(tk.Frame):
                 else:
                     status_message_label.set("Select a CSV file first!")
                     file_name_label.set('')
+
                     self.dict_paths.update_path_dict(targets_with_period, index, '')
 
                     print('----')
@@ -690,11 +690,11 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message provider
-            provider_status_message_label_sop = tk.StringVar()
-            provider_status_message_label_sop.set("")
+            self.provider_status_message_label_sop = tk.StringVar()
+            self.provider_status_message_label_sop.set("")
 
             # place in GUI
-            create_label(label_name= provider_status_message_label_sop,
+            create_label(label_name= self.provider_status_message_label_sop,
                          frame=frame_project_sop,
                          row=5,
                          column=0,
@@ -712,7 +712,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label= provider_file_label_sop,
-                                                                       status_message_label= provider_status_message_label_sop,
+                                                                       status_message_label= self.provider_status_message_label_sop,
                                                                        file_opener_object= self.provider_object_sop,
                                                                        index= 0)
                                                          ] ).grid(row=3, column=0,
@@ -724,7 +724,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected= data_file_status_list[0]['status'],
-                                                                     status_message_label= provider_status_message_label_sop,
+                                                                     status_message_label= self.provider_status_message_label_sop,
                                                                      file_opener_object= self.provider_object_sop)
                                       ]).grid(row=3, column=1,
                                               padx=(10, 0), pady=5,
@@ -752,10 +752,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            leader_status_message_label_sop = tk.StringVar()
-            leader_status_message_label_sop.set("")
+            self.leader_status_message_label_sop = tk.StringVar()
+            self.leader_status_message_label_sop.set("")
 
-            create_label(label_name=leader_status_message_label_sop,
+            create_label(label_name=self.leader_status_message_label_sop,
                          frame=frame_project_sop,
                          row=9,
                          column=0,
@@ -772,7 +772,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label=leader_file_label_sop,
-                                                                       status_message_label=leader_status_message_label_sop,
+                                                                       status_message_label=self.leader_status_message_label_sop,
                                                                        file_opener_object=self.leader_object_sop,
                                                                        index=1)
                                                          ]).grid(row=7, column=0,
@@ -784,7 +784,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[1]['status'],
-                                                                     status_message_label=leader_status_message_label_sop,
+                                                                     status_message_label=self.leader_status_message_label_sop,
                                                                      file_opener_object=self.leader_object_sop)
                                                        ]).grid(row=7, column=1,
                                                                padx=(10, 0), pady=5,
@@ -813,10 +813,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            teacher_status_message_label_sop = tk.StringVar()
-            teacher_status_message_label_sop.set("")
+            self.teacher_status_message_label_sop = tk.StringVar()
+            self.teacher_status_message_label_sop.set("")
 
-            create_label(label_name=teacher_status_message_label_sop,
+            create_label(label_name=self.teacher_status_message_label_sop,
                          frame=frame_project_sop,
                          row=15,
                          column=0,
@@ -833,7 +833,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label=teacher_file_label_sop,
-                                                                       status_message_label=teacher_status_message_label_sop,
+                                                                       status_message_label=self.teacher_status_message_label_sop,
                                                                        file_opener_object=self.teacher_object_sop,
                                                                        index=2)
                                                          ]).grid(row=11, column=0,
@@ -845,7 +845,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[2]['status'],
-                                                                     status_message_label=teacher_status_message_label_sop,
+                                                                     status_message_label=self.teacher_status_message_label_sop,
                                                                      file_opener_object=self.teacher_object_sop)
                                                        ]).grid(row=11, column=1,
                                                        padx=(10, 0), pady=5,
@@ -873,10 +873,10 @@ class DataCollectionScreen(tk.Frame):
                         color='black')
 
             # label for status message community leader
-            student_status_message_label_sop = tk.StringVar()
-            student_status_message_label_sop.set("")
+            self.student_status_message_label_sop = tk.StringVar()
+            self.student_status_message_label_sop.set("")
 
-            create_label(label_name=student_status_message_label_sop,
+            create_label(label_name=self.student_status_message_label_sop,
                          frame=frame_project_sop,
                          row=20,
                          column=0,
@@ -893,7 +893,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label=student_file_label_sop,
-                                                                       status_message_label=student_status_message_label_sop,
+                                                                       status_message_label=self.student_status_message_label_sop,
                                                                        file_opener_object=self.student_object_sop,
                                                                        index=3,
                                                                        )]).grid(row=17, column=0,
@@ -905,7 +905,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[3]['status'],
-                                                                     status_message_label=student_status_message_label_sop,
+                                                                     status_message_label=self.student_status_message_label_sop,
                                                                      file_opener_object=self.student_object_sop)
                                                        ]).grid(row=17, column=1,
                                                        padx=(10, 0), pady=5,
@@ -944,11 +944,11 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message provider
-            provider_status_message_label_hop = tk.StringVar()
-            provider_status_message_label_hop.set("")
+            self.provider_status_message_label_hop = tk.StringVar()
+            self.provider_status_message_label_hop.set("")
 
             # place in GUI
-            create_label(label_name= provider_status_message_label_hop,
+            create_label(label_name= self.provider_status_message_label_hop,
                          frame=frame_project_hop,
                          row=5,
                          column=0,
@@ -966,7 +966,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label= provider_file_label_hop,
-                                                                       status_message_label= provider_status_message_label_hop,
+                                                                       status_message_label= self.provider_status_message_label_hop,
                                                                        file_opener_object= self.provider_object_hop,
                                                                        index= 4)
                                                          ]).grid(row=3, column=0,
@@ -978,7 +978,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected= data_file_status_list[4]['status'],
-                                                                     status_message_label= provider_status_message_label_hop,
+                                                                     status_message_label= self.provider_status_message_label_hop,
                                                                      file_opener_object= self.provider_object_hop)
                                       ]).grid(row=3, column=1,
                                               padx=(10, 0), pady=5,
@@ -1006,10 +1006,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            leader_status_message_label_hop = tk.StringVar()
-            leader_status_message_label_hop.set("")
+            self.leader_status_message_label_hop = tk.StringVar()
+            self.leader_status_message_label_hop.set("")
 
-            create_label(label_name=leader_status_message_label_hop,
+            create_label(label_name=self.leader_status_message_label_hop,
                          frame=frame_project_hop,
                          row=9,
                          column=0,
@@ -1027,7 +1027,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label=leader_file_label_hop,
-                                                                       status_message_label=leader_status_message_label_hop,
+                                                                       status_message_label=self.leader_status_message_label_hop,
                                                                        file_opener_object=self.leader_object_hop,
                                                                        index=5)
                                                          ]).grid(row=7, column=0,
@@ -1039,7 +1039,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[5]['status'],
-                                                                     status_message_label=leader_status_message_label_hop)
+                                                                     status_message_label=self.leader_status_message_label_hop)
                                                        ]).grid(row=7, column=1,
                                                                padx=(10, 0), pady=5,
                                                                sticky='w')
@@ -1067,10 +1067,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            teacher_status_message_label_hop = tk.StringVar()
-            teacher_status_message_label_hop.set("")
+            self.teacher_status_message_label_hop = tk.StringVar()
+            self.teacher_status_message_label_hop.set("")
 
-            create_label(label_name=teacher_status_message_label_hop,
+            create_label(label_name=self.teacher_status_message_label_hop,
                          frame=frame_project_hop,
                          row=15,
                          column=0,
@@ -1087,7 +1087,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label=teacher_file_label_hop,
-                                                                       status_message_label=teacher_status_message_label_hop,
+                                                                       status_message_label=self.teacher_status_message_label_hop,
                                                                        file_opener_object=self.teacher_object_hop,
                                                                        index=6)
                                                          ]).grid(row=11, column=0,
@@ -1099,7 +1099,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[6]['status'],
-                                                                     status_message_label=teacher_status_message_label_hop,
+                                                                     status_message_label=self.teacher_status_message_label_hop,
                                                                      file_opener_object=self.teacher_object_hop)
                                                        ]).grid(row=11, column=1,
                                                        padx=(10, 0), pady=5,
@@ -1127,10 +1127,10 @@ class DataCollectionScreen(tk.Frame):
                         color='black')
 
             # label for status message community leader
-            student_status_message_label_hop = tk.StringVar()
-            student_status_message_label_hop.set("")
+            self.student_status_message_label_hop = tk.StringVar()
+            self.student_status_message_label_hop.set("")
 
-            create_label(label_name=student_status_message_label_hop,
+            create_label(label_name=self.student_status_message_label_hop,
                          frame=frame_project_hop,
                          row=20,
                          column=0,
@@ -1147,7 +1147,7 @@ class DataCollectionScreen(tk.Frame):
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
                                         command=lambda: [validate_path(file_name_label=student_file_label_hop,
-                                                                       status_message_label=student_status_message_label_hop,
+                                                                       status_message_label=self.student_status_message_label_hop,
                                                                        file_opener_object=self.student_object_hop,
                                                                        index=7,
                                                                        )]).grid(row=17, column=0,
@@ -1159,7 +1159,7 @@ class DataCollectionScreen(tk.Frame):
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
                                       command=lambda: [show_csv_file(file_selected=data_file_status_list[7]['status'],
-                                                                     status_message_label=student_status_message_label_hop,
+                                                                     status_message_label=self.student_status_message_label_hop,
                                                                      file_opener_object=self.student_object_hop)
                                                        ]).grid(row=17, column=1,
                                                        padx=(10, 0), pady=5,
@@ -1198,11 +1198,11 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message provider
-            provider_status_message_label_eop = tk.StringVar()
-            provider_status_message_label_eop.set("")
+            self.provider_status_message_label_eop = tk.StringVar()
+            self.provider_status_message_label_eop.set("")
 
             # place in GUI
-            create_label(label_name=provider_status_message_label_eop,
+            create_label(label_name=self.provider_status_message_label_eop,
                          frame=frame_project_eop,
                          row=5,
                          column=0,
@@ -1220,7 +1220,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=provider_file_label_eop,
-                                                     status_message_label=provider_status_message_label_eop,
+                                                     status_message_label=self.provider_status_message_label_eop,
                                                      file_opener_object=self.provider_object_eop,
                                                      index=8)
                                        ]).grid(row=3, column=0,
@@ -1232,7 +1232,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[8]['status'],
-                                                     status_message_label=provider_status_message_label_eop,
+                                                     status_message_label=self.provider_status_message_label_eop,
                                                      file_opener_object=self.provider_object_eop)
                                        ]).grid(row=3, column=1,
                                                padx=(10, 0), pady=5,
@@ -1260,10 +1260,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            leader_status_message_label_eop = tk.StringVar()
-            leader_status_message_label_eop.set("")
+            self.leader_status_message_label_eop = tk.StringVar()
+            self.leader_status_message_label_eop.set("")
 
-            create_label(label_name=leader_status_message_label_eop,
+            create_label(label_name=self.leader_status_message_label_eop,
                          frame=frame_project_eop,
                          row=9,
                          column=0,
@@ -1280,7 +1280,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=leader_file_label_eop,
-                                                     status_message_label=leader_status_message_label_eop,
+                                                     status_message_label=self.leader_status_message_label_eop,
                                                      file_opener_object=self.leader_object_eop,
                                                      index=9)
                                        ]).grid(row=7, column=0,
@@ -1292,7 +1292,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[9]['status'],
-                                                     status_message_label=leader_status_message_label_eop,
+                                                     status_message_label=self.leader_status_message_label_eop,
                                                      file_opener_object=self.leader_object_eop)
                                        ]).grid(row=7, column=1,
                                                padx=(10, 0), pady=5,
@@ -1321,10 +1321,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            teacher_status_message_label_eop = tk.StringVar()
-            teacher_status_message_label_eop.set("")
+            self.teacher_status_message_label_eop = tk.StringVar()
+            self.teacher_status_message_label_eop.set("")
 
-            create_label(label_name=teacher_status_message_label_eop,
+            create_label(label_name=self.teacher_status_message_label_eop,
                          frame=frame_project_eop,
                          row=15,
                          column=0,
@@ -1341,7 +1341,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=teacher_file_label_eop,
-                                                     status_message_label=teacher_status_message_label_eop,
+                                                     status_message_label=self.teacher_status_message_label_eop,
                                                      file_opener_object=self.teacher_object_eop,
                                                      index=10)
                                        ]).grid(row=11, column=0,
@@ -1353,7 +1353,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[10]['status'],
-                                                     status_message_label=teacher_status_message_label_eop,
+                                                     status_message_label=self.teacher_status_message_label_eop,
                                                      file_opener_object=self.teacher_object_eop)
                                        ]).grid(row=11, column=1,
                                                padx=(10, 0), pady=5,
@@ -1381,10 +1381,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            student_status_message_label_eop = tk.StringVar()
-            student_status_message_label_eop.set("")
+            self.student_status_message_label_eop = tk.StringVar()
+            self.student_status_message_label_eop.set("")
 
-            create_label(label_name=student_status_message_label_eop,
+            create_label(label_name=self.student_status_message_label_eop,
                          frame=frame_project_eop,
                          row=20,
                          column=0,
@@ -1401,7 +1401,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=student_file_label_eop,
-                                                     status_message_label=student_status_message_label_eop,
+                                                     status_message_label=self.student_status_message_label_eop,
                                                      file_opener_object=self.student_object_eop,
                                                      index=11,
                                                      )]).grid(row=17, column=0,
@@ -1413,7 +1413,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[11]['status'],
-                                                     status_message_label=student_status_message_label_eop,
+                                                     status_message_label=self.student_status_message_label_eop,
                                                      file_opener_object=self.student_object_eop)
                                        ]).grid(row=17, column=1,
                                                padx=(10, 0), pady=5,
@@ -1452,11 +1452,11 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message provider
-            provider_status_message_label_yap = tk.StringVar()
-            provider_status_message_label_yap.set("")
+            self.provider_status_message_label_yap = tk.StringVar()
+            self.provider_status_message_label_yap.set("")
 
             # place in GUI
-            create_label(label_name=provider_status_message_label_yap,
+            create_label(label_name=self.provider_status_message_label_yap,
                          frame=frame_project_yap,
                          row=5,
                          column=0,
@@ -1474,7 +1474,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=provider_file_label_yap,
-                                                     status_message_label=provider_status_message_label_yap,
+                                                     status_message_label=self.provider_status_message_label_yap,
                                                      file_opener_object=self.provider_object_yap,
                                                      index=12)
                                        ]).grid(row=3, column=0,
@@ -1486,7 +1486,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[12]['status'],
-                                                     status_message_label=provider_status_message_label_yap,
+                                                     status_message_label=self.provider_status_message_label_yap,
                                                      file_opener_object=self.provider_object_yap)
                                        ]).grid(row=3, column=1,
                                                padx=(10, 0), pady=5,
@@ -1514,10 +1514,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            leader_status_message_label_yap = tk.StringVar()
-            leader_status_message_label_yap.set("")
+            self.leader_status_message_label_yap = tk.StringVar()
+            self.leader_status_message_label_yap.set("")
 
-            create_label(label_name=leader_status_message_label_yap,
+            create_label(label_name=self.leader_status_message_label_yap,
                          frame=frame_project_yap,
                          row=9,
                          column=0,
@@ -1534,7 +1534,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=leader_file_label_yap,
-                                                     status_message_label=leader_status_message_label_yap,
+                                                     status_message_label=self.leader_status_message_label_yap,
                                                      file_opener_object=self.leader_object_yap,
                                                      index=13)
                                        ]).grid(row=7, column=0,
@@ -1546,7 +1546,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[13]['status'],
-                                                     status_message_label=leader_status_message_label_yap,
+                                                     status_message_label=self.leader_status_message_label_yap,
                                                      file_opener_object=self.leader_object_yap)
                                        ]).grid(row=7, column=1,
                                                padx=(10, 0), pady=5,
@@ -1575,10 +1575,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            teacher_status_message_label_yap = tk.StringVar()
-            teacher_status_message_label_yap.set("")
+            self.teacher_status_message_label_yap = tk.StringVar()
+            self.teacher_status_message_label_yap.set("")
 
-            create_label(label_name=teacher_status_message_label_yap,
+            create_label(label_name=self.teacher_status_message_label_yap,
                          frame=frame_project_yap,
                          row=15,
                          column=0,
@@ -1595,7 +1595,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=teacher_file_label_yap,
-                                                     status_message_label=teacher_status_message_label_yap,
+                                                     status_message_label=self.teacher_status_message_label_yap,
                                                      file_opener_object=self.teacher_object_yap,
                                                      index=14)
                                        ]).grid(row=11, column=0,
@@ -1607,7 +1607,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[14]['status'],
-                                                     status_message_label=teacher_status_message_label_yap,
+                                                     status_message_label=self.teacher_status_message_label_yap,
                                                      file_opener_object=self.teacher_object_yap)
                                        ]).grid(row=11, column=1,
                                                padx=(10, 0), pady=5,
@@ -1635,10 +1635,10 @@ class DataCollectionScreen(tk.Frame):
                          color='black')
 
             # label for status message community leader
-            student_status_message_label_yap = tk.StringVar()
-            student_status_message_label_yap.set("")
+            self.student_status_message_label_yap = tk.StringVar()
+            self.student_status_message_label_yap.set("")
 
-            create_label(label_name=student_status_message_label_yap,
+            create_label(label_name=self.student_status_message_label_yap,
                          frame=frame_project_yap,
                          row=20,
                          column=0,
@@ -1655,7 +1655,7 @@ class DataCollectionScreen(tk.Frame):
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [validate_path(file_name_label=student_file_label_yap,
-                                                     status_message_label=student_status_message_label_yap,
+                                                     status_message_label=self.student_status_message_label_yap,
                                                      file_opener_object=self.student_object_yap,
                                                      index=15,
                                                      )]).grid(row=17, column=0,
@@ -1667,13 +1667,15 @@ class DataCollectionScreen(tk.Frame):
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
                       command=lambda: [show_csv_file(file_selected=data_file_status_list[15]['status'],
-                                                     status_message_label=student_status_message_label_yap,
+                                                     status_message_label=self.student_status_message_label_yap,
                                                      file_opener_object=self.student_object_yap)
                                        ]).grid(row=17, column=1,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
 
         else:
+            # reset all the red status messages when re opening window
+            self.reset_status_messages()
             self.start_project_window.deiconify()
 
     def hide_window(self, window):
@@ -1714,22 +1716,22 @@ class DataAnalysisScreen(tk.Frame):
 
         tk.Button(frame_load_data, text='Load in data',
                   width=18, height=1,
-                  command=lambda: [self.data_analysis_object.load_into_database(self.dict_paths.file_path_dict)]).grid(row=2, column=0,
+                  command=lambda: [self.data_analysis_object.load_into_database(self.dict_paths.file_path_dict, frame_load_data)]).grid(row=2, column=0,
                                             padx=(10,0), pady=5,
                                             sticky='w')
 
         # TODO add statusmessage for when loading is succesfull
 
-        # convert to string var and set init text
-        self.status_load_data = tk.StringVar()
-        self.status_load_data.set("STATUS MESSAGE")
-
-        # status message
-        tk.Label(frame_load_data,
-                 textvariable=self.status_load_data,
-                 font='Helvetica 12', foreground='red').grid(row=3, column=0,
-                                                                padx=(10,0), pady=5,
-                                                                sticky='w')
+        # # convert to string var and set init text
+        # self.status_load_data = tk.StringVar()
+        # self.status_load_data.set("STATUS MESSAGE")
+        #
+        # # status message
+        # tk.Label(frame_load_data,
+        #          textvariable=self.status_load_data,
+        #          font='Helvetica 12', foreground='red').grid(row=3, column=0,
+        #                                                         padx=(10,0), pady=5,
+        #                                                         sticky='w')
 
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
@@ -1885,11 +1887,8 @@ class DataAnalysisScreen(tk.Frame):
                                                padx=10)
 
 
-
-
-
-
         else:
+
             self.popup_window.deiconify()
 
 
