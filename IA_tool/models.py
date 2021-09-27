@@ -91,6 +91,7 @@ class SQLModel:
                                                  answer_options text,
                                                  target_name varchar(50),
                                                  user_made bool,
+                                                 data_type varchar(50),
                                                  FOREIGN KEY (method_fragment_id) REFERENCES method_fragment (method_fragment_id)
                                              );"""
 
@@ -181,8 +182,8 @@ class SQLModel:
 
         cur = self.conn.cursor()
 
-        sql = """ INSERT INTO metric(metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made) 
-                VALUES (?,?,?,?,?,?,?,?,?) """
+        sql = """ INSERT INTO metric(metric_name, method_fragment_id, metric_definition, metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made, data_type) 
+                VALUES (?,?,?,?,?,?,?,?,?,?) """
 
         # check whether it is already present in database
         metric_name = metric[0]
@@ -329,6 +330,7 @@ class SQLModel:
             multiple_answers = row['multiple_answers_possible']
             target_name = row['target']
             user_made = False
+            data_type = row['data_type']
 
             if multiple_answers == 'yes':
                 multiple_answers = True
@@ -343,7 +345,8 @@ class SQLModel:
             method_fragment_id = int(method_fragment_id[0][0])
 
             row = (metric_name, method_fragment_id, metric_definition,
-                   metric_question, metric_value_type, multiple_answers, answer_options, target_name, user_made)
+                   metric_question, metric_value_type, multiple_answers,
+                   answer_options, target_name, user_made, data_type)
 
             self.create_metric(row)
 
@@ -438,6 +441,7 @@ class SQLModel:
             raise e
         else:
             self.conn.commit()
+            print("DELETED")
 
 class pathModel:
 

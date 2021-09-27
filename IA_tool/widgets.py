@@ -8,6 +8,8 @@ from . import views as v
 import webbrowser
 from functools import partial
 import csv
+import statistics
+from collections import Counter
 
 class FileOpener(tk.Frame):
 
@@ -1104,6 +1106,15 @@ class DataAnalysis(tk.Frame):
 
         selected_file_counter = 0
 
+        # variables for the SQL query
+        self.measuring_point_id = None
+        self.metric_id = None
+        self.data_bool = None
+        self.data_str = None
+        self.data_int = None
+        self.data_float = None
+        self.target = None
+
         # function to check in the dict what the target is for each item
         def target_check(item):
             if item.endswith('provider'):
@@ -1121,6 +1132,8 @@ class DataAnalysis(tk.Frame):
         # function to check datatype and clean accordingly
         def data_type_check(value):
 
+
+
             if isinstance(value, int) or isinstance(value, float):
                 return value
 
@@ -1128,21 +1141,35 @@ class DataAnalysis(tk.Frame):
                 cleaned_value = (value.lower()).strip()
                 return cleaned_value
 
+        # reset all data values to None except the file in csv
+        def reset_data(type):
+            if type == 'data_int':
+                self.data_bool = None
+                self.data_str = None
+                self.data_float = None
+
+            elif type == 'data_bool':
+                self.data_str = None
+                self.data_float = None
+                self.data_int = None
+
+            elif type == 'data_float':
+                self.data_str = None
+                self.data_bool = None
+                self.data_int = None
+
+            else:
+                self.data_float = None
+                self.data_bool = None
+                self.data_int = None
+
         # loop through dict and extract the data from the valid paths
         for id, item in enumerate(dict):
             # print('Key: ', path)
             # print('Value: ',dict[path])
 
             # variables for the SQL query
-            measuring_point_id = None
-            metric_id = None
-            file_id = id
-            data_bool = None
-            data_str = None
-            data_int = None
-            data_float = None
-
-            target = None
+            self.file_id = id
 
             # non valid paths
             if dict[item] == '':
@@ -1150,25 +1177,20 @@ class DataAnalysis(tk.Frame):
 
             else:
                 # check which target group the file is for
-                target = target_check(item)
+                self.target = target_check(item)
 
                 # extract the measuring point
                 if item.startswith('sop'):
-                    measuring_point_id = 1
+                    self.measuring_point_id = 1
 
                 elif item.startswith('hop'):
-                    measuring_point_id = 2
+                    self.measuring_point_id = 2
 
                 elif item.startswith('eop'):
-                    measuring_point_id = 3
+                    self.measuring_point_id = 3
 
                 else:
-                    measuring_point_id = 4
-
-
-
-
-
+                    self.measuring_point_id = 4
 
                 # print('file ID = ', file_id)
                 # print('Target: ', item)
@@ -1203,69 +1225,74 @@ class DataAnalysis(tk.Frame):
                             # extract relevant data and save in database
                             else:
 
-                                metric_name = ((metric_list[metric_index]).lower()).strip()
-                                target_name = (target.lower()).strip()
+                                self.metric_name = ((metric_list[metric_index]).lower()).strip()
+                                self.target_name = (self.target.lower()).strip()
+
 
                                 # TODO check if it works with strings!
-                                metric_value_data = data_type_check(row[metric_list[metric_index]])
+                                self.metric_value_data = data_type_check(row[metric_list[metric_index]])
 
                                 print('-----')
-                                print('Metric: ', metric_name)
-                                print('Metric Value: ', metric_value_data)
-                                print('Target Name: ', target_name)
+                                print('Metric: ', self.metric_name)
+                                print('Metric Value: ', self.metric_value_data)
+                                print('Target Name: ', self.target_name)
 
                                 sql_metrics = "select * from metric where lower(metric_name) = (?) and lower(target_name) = (?)"
-                                retrieve_metrics = self.data_object.query_with_par(sql_metrics, (metric_name, target_name))
+                                retrieve_metrics = self.data_object.query_with_par(sql_metrics, (self.metric_name, self.target_name))
 
                                 for metric_item in retrieve_metrics:
-                                    metric_id = metric_item[0]
-
-                                    metric_data_type = ((metric_item[5]).lower()).strip()
+                                    self.metric_id = metric_item[0]
+                                    self.metric_data_type = metric_item[10]
 
                                     # TODO change name in tool (Whole number, decimal, etc..)
                                     # TODO change in database to int
-                                    if metric_data_type == 'numerical' :
-                                        data_int = metric_value_data
+                                    if self.metric_data_type == 'int' :
+                                        self.data_int = int(self.metric_value_data)
+                                        reset_data('data_int')
 
-                                    elif metric_data_type == 'boolean' :
-                                        data_bool = metric_value_data
+                                    elif self.metric_data_type == 'bool' :
+                                        self.data_bool = self.metric_value_data
+                                        reset_data('data_bool')
 
-                                    elif metric_data_type == 'float' :
-                                        data_float = metric_value_data
+                                    elif self.metric_data_type == 'float' :
+                                        if isinstance(self.metric_value_data, str):
+                                            self.metric_value_data = self.metric_value_data.replace(',', '')
+
+                                        self.data_float = float(self.metric_value_data)
+                                        reset_data('data_float')
 
                                     else:
-                                        data_str = metric_value_data
+                                        self.data_str = metric_value_data
+                                        reset_data('data_string')
 
-                                    print(metric_data_type)
 
-                                    metric_value = (measuring_point_id,
-                                                    metric_id,
-                                                    file_id,
-                                                    data_bool,
-                                                    data_str,
-                                                    data_int,
-                                                    data_float)
+                                    metric_value = (self.measuring_point_id,
+                                                    self.metric_id,
+                                                    self.file_id,
+                                                    self.data_bool,
+                                                    self.data_str,
+                                                    self.data_int,
+                                                    self.data_float)
 
                                     # Load into database
-
-                                    # Check if file_id is already present in database
-
-                                    # If yes, delete all rows with that file_id first
                                     self.data_object.create_metric_value(metric_value)
 
                                 print('Metric_value DATABASE', metric_value)
                                 print('-----')
 
         # TODO implement for everything
+
+        # retrieve metrics and answer options from database
         sql_test = "select * from metric"
         test_sql_object = self.data_object.query_no_par(sql_test)
 
+        # extract answer options and clean data
         for item in test_sql_object:
             options = item[7]
             if options is not None:
                 option_list = options.split(";")
                 stripped_option_list = [s.strip() for s in option_list]
-                print(stripped_option_list)
+                # print(stripped_option_list)
 
         # status message
         tk.Label(frame,
@@ -1276,8 +1303,116 @@ class DataAnalysis(tk.Frame):
 
         self.status_load_data.set(str(selected_file_counter) + " file(s) were loaded in.")
 
+        self.calculate_data()
+
+        # TODO FIX THIS
+        print(self.data_list)
+
     def fill_table(self):
         print('')
+
+    def calculate_data(self):
+
+        def create_table_row(metric_name, metric_entries, values_list, metric_type, data_type, data_list):
+
+            metric_min = None
+            metric_max = None
+            metric_average = None
+            metric_modus = None
+            metric_median = None
+
+
+            def caluculate_mode(value_list):
+                c = Counter(value_list)
+                return [k for k, v in c.items() if v == c.most_common(1)[0][1]]
+
+
+            if data_type == 'int' or data_type == 'float':
+                metric_min = min(values_list)
+                metric_max = max(values_list)
+                metric_average = round(statistics.mean(values_list),1)
+                metric_modus = caluculate_mode(values_list)
+                metric_median = round(statistics.median(values_list),1)
+
+                print('min: ', metric_min)
+                print('max: ', metric_max)
+                print('mean: ', metric_average)
+                print('modus: ', metric_modus)
+                print('median: ', metric_median, 1)
+                print('')
+
+            calculated_row = [metric_name, metric_entries, metric_min,
+                              metric_max, metric_average, metric_modus, metric_median]
+
+            print('TO BE INSERTED ROW: ', calculated_row)
+            print('')
+
+            self.data_list.append(calculated_row)
+
+        def data_type_index(data_type):
+            if data_type == 'bool':
+                return 4
+
+            elif data_type == 'int':
+                return 6
+
+            elif data_type == 'float':
+                return 7
+
+            else:
+                return 5
+
+        # list to hold data
+        self.data_list = []
+        metric_entries = 0
+
+        # select the unique metrics from metric_value database
+        sql_unique = "select distinct metric_id from metric_value"
+        retrieve_unique_metrics = self.data_object.query_no_par(sql_unique)
+
+        # loop through the unique metrics
+        for unique_metric in retrieve_unique_metrics:
+
+            values_list = []
+
+            metric_id = unique_metric[0]
+
+            # retrieve metric_name
+            sql_metric_name = "select * from metric where metric_id = (?)"
+            retrieve_metric_name = self.data_object.query_with_par(sql_metric_name, ((metric_id),))
+
+            metric_name = ((retrieve_metric_name[0][1]).lower()).strip()
+            metric_type = ((retrieve_metric_name[0][5]).lower()).strip()
+            data_type = retrieve_metric_name[0][10]
+
+            print('---Unique Metrics---')
+            print('Metric ID: ', metric_id)
+            print('Metric Name: ', metric_name)
+            print('Metric Type: ', metric_type )
+            print('Data Type: ', data_type)
+
+            # retrieve the rows from a unique metric
+            sql_collect_rows = "select * from metric_value where metric_id = (?)"
+            retrieve_collected_rows = self.data_object.query_with_par(sql_collect_rows, ((metric_id),))
+            
+            print('- Collected Rows')
+
+            # rows for every unique metric
+            for entry_counter, row in enumerate(retrieve_collected_rows):
+                metric_entries = entry_counter + 1
+
+                values_list.append(row[data_type_index(data_type)])
+                print('Row: ', entry_counter, '-', row)
+
+            print("# of rows: ", metric_entries)
+            print('Values List: ', values_list)
+            print("")
+
+            create_table_row(metric_name, metric_entries, values_list, metric_type, data_type, self.data_list)
+
+
+
+
 
     def make_table(self, frame, timeframe, target):
 
