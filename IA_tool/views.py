@@ -1849,7 +1849,7 @@ class DataAnalysisScreen(tk.Frame):
                                         pady=5,
                                         padx=10)
 
-            def validate_combobox_input():
+            def validate_combobox_input(state):
 
                 # print ('Timeframe: ', self.select_time_frame.get())
                 # print ('Target: ', self.select_target.get())
@@ -1864,16 +1864,37 @@ class DataAnalysisScreen(tk.Frame):
                     self.status_message_tables.set('Select a target!')
 
                 else:
-                    self.data_analysis_object.make_table(self.tab_tables,
-                                                         self.select_time_frame.get(),
-                                                         self.select_target.get())
+                    if state == 'new':
+                        self.data_analysis_object.make_table(self.tab_tables,
+                                                             self.select_time_frame.get(),
+                                                             self.select_target.get())
+
+                        # TODO add time frame and target parameters
+                        self.data_analysis_object.fill_table(self.data_analysis_object.tree)
+
+                        print('TREE CHILDREN NEW', self.data_analysis_object.tree.get_children())
+
+                    else:
+                        self.data_analysis_object.update_table(self.data_analysis_object.tree)
+                        print('TREE CHILDREN UPDATED', self.data_analysis_object.tree.get_children())
+
+
+
+
 
             tk.Button(self.tab_tables, text='Create table',
                       width=18, height=1,
-                      command=lambda: [validate_combobox_input()
+                      command=lambda: [validate_combobox_input('new')
                                        ]).pack(side='top',
                                                 pady=10,
                                                 padx=10)
+
+            tk.Button(self.tab_tables, text='Update table',
+                      width=18, height=1,
+                      command=lambda: [validate_combobox_input('update')
+                                       ]).pack(side='top',
+                                               pady=10,
+                                               padx=10)
 
             # convert to string var and set init text
             self.status_message_tables = tk.StringVar()

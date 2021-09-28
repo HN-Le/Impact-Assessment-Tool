@@ -1305,11 +1305,27 @@ class DataAnalysis(tk.Frame):
 
         self.calculate_data()
 
-        # TODO FIX THIS
-        print(self.data_list)
+    def fill_table(self, tree):
 
-    def fill_table(self):
-        print('')
+        for metric in self.data_list:
+            metric_name = metric[0]
+            amount = metric[1]
+            value_min = metric[2]
+            value_max = metric[3]
+            value_mean = metric[4]
+            value_modus = metric[5]
+            value_median = metric[6]
+
+            self.tree.insert("", tk.END, values=(metric_name, amount,
+                                                 value_min, value_max,
+                                                 value_mean, value_modus, value_median ))
+
+    def update_table(self, tree):
+
+        for i in tree.get_children():
+            tree.delete(i)
+
+        self.fill_table(self.tree)
 
     def calculate_data(self):
 
@@ -1321,11 +1337,9 @@ class DataAnalysis(tk.Frame):
             metric_modus = None
             metric_median = None
 
-
             def caluculate_mode(value_list):
                 c = Counter(value_list)
                 return [k for k, v in c.items() if v == c.most_common(1)[0][1]]
-
 
             if data_type == 'int' or data_type == 'float':
                 metric_min = min(values_list)
@@ -1338,7 +1352,7 @@ class DataAnalysis(tk.Frame):
                 print('max: ', metric_max)
                 print('mean: ', metric_average)
                 print('modus: ', metric_modus)
-                print('median: ', metric_median, 1)
+                print('median: ', metric_median)
                 print('')
 
             calculated_row = [metric_name, metric_entries, metric_min,
@@ -1410,21 +1424,9 @@ class DataAnalysis(tk.Frame):
 
             create_table_row(metric_name, metric_entries, values_list, metric_type, data_type, self.data_list)
 
-
-
-
-
     def make_table(self, frame, timeframe, target):
 
-        print('Paths --- ', self.paths_dict.file_path_dict)
-
-
-        #TODO unhardcode path
-        hardcoded_file_path = 'C:/Users/Tiny/Desktop/test 1 - csv.csv'
-
         #TODO only execute once
-
-        # make treeview frame
         TableMargin = tk.Frame(frame, width=1200, height=500)
         TableMargin.pack(side="top", fill="both", expand='True')
 
@@ -1433,7 +1435,13 @@ class DataAnalysis(tk.Frame):
 
         # make tree
         self.tree = ttk.Treeview(TableMargin,
-                                 columns=("Metric ID", "Metric Name", "Method ID"),
+                                 columns=("Metric Name",
+                                          "# of datapoints",
+                                          "Min",
+                                          "Max",
+                                          "Mean",
+                                          "Modus",
+                                          "Median"),
                                  selectmode="extended",
                                  yscrollcommand=self.scrollbary.set,
                                  xscrollcommand=self.scrollbarx.set,
@@ -1445,73 +1453,34 @@ class DataAnalysis(tk.Frame):
         self.scrollbarx.config(command=self.tree.xview)
         self.scrollbarx.pack(side="bottom", fill="both", expand='True')
 
-        # TODO adjust headings
         # make tree headings
-        self.tree.heading('Metric ID', text="Metric", anchor='w')
-        self.tree.heading('Metric Name', text="Min", anchor='w')
-        self.tree.heading('Method ID', text="Method ID", anchor='w')
+        self.tree.heading('Metric Name', text="Metric Name", anchor='w')
+        self.tree.heading('# of datapoints', text="# of datapoints", anchor='w')
+        self.tree.heading('Min', text="Min", anchor='w')
+        self.tree.heading('Max', text="Max", anchor='w')
+        self.tree.heading('Mean', text="Mean", anchor='w')
+        self.tree.heading('Modus', text="Modus", anchor='w')
+        self.tree.heading('Median', text="Median", anchor='w')
 
         # make tree columns
         self.tree.column('#0', stretch='no', minwidth=0, width=0)
         self.tree.column('#1', stretch='no', minwidth=0, width=400)
-        self.tree.column('#2', stretch='no', minwidth=0, width=400)
+        self.tree.column('#2', stretch='no', minwidth=0, width=120)
+        self.tree.column('#3', stretch='no', minwidth=0, width=120)
+        self.tree.column('#4', stretch='no', minwidth=0, width=120)
+        self.tree.column('#5', stretch='no', minwidth=0, width=120)
+        self.tree.column('#6', stretch='no', minwidth=0, width=200)
+        self.tree.column('#7', stretch='no', minwidth=0, width=200)
 
         # place tree
         self.tree.pack(fill='both',
                        padx=10)
 
-        # # open CSV and load in headers
-        # with open(hardcoded_file_path, "rt") as f:
-        #     reader = csv.reader(f)
-        #     header = next(reader)
-        #     # print(header)
-        #
-        # # clean column names
-        # column_names = []
-        #
-        # header_list = list(header)
-        # # print('header list ---', header_list)
-        #
-        # counter_test = 0
-        #
-        # # test with metric table, show metric_id, metric_name and method_fragment_id
-        # sql_metrics = "select * from metric"
-        # retrieve_metrics = self.data_object.query_no_par(sql_metrics)
-        #
-        # for metric in retrieve_metrics:
-        #     metric_id = metric[0]
-        #     metric_name = metric[1]
-        #     method_id = metric[2]
-        #
-        #     self.tree.insert("", tk.END, values=(metric_id, metric_name, method_id))
+        # if len(self.tree.get_children()) == 0:
+        #     print('NOPS')
 
-        # with open(hardcoded_file_path, newline='\n') as f:
-        #
-        #     reader = csv.DictReader(f, delimiter=',')
-        #
-        #     for index, row in enumerate(reader):
-        #
-        #         # print("ROWWW -- ",row)
-        #         # print('Index: ', index)
-        #         # print('-----')
-        #
-        #         for metric_index, item in enumerate(row):
-        #
-        #             # print('metric_index: ', metric_index)
-        #             # print('modulo index metric: ', metric_index % len(column_names))
-        #             # print('modulo index value: ', (metric_index + 10) % len(header_list))
-        #
-        #             # skip non relevant headers
-        #             if metric_index in range(0,10):
-        #                 continue
-        #
-        #             else:
-        #                 metric = header_list[metric_index]
-        #                 value = row[header_list[metric_index]]
-        #
-        #                 counter_test += 1
-        #
-        #                 self.tree.insert("", tk.END, values=(metric, value))
+
+
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
