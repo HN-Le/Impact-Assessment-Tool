@@ -1812,6 +1812,10 @@ class DataAnalysisScreen(tk.Frame):
             # hide window if closed
             self.popup_window.protocol("WM_DELETE_WINDOW", lambda arg='popup': self.hide_window(arg))
 
+            # prevent shrinking to widget size
+            self.tab_tables.pack_propagate(False)
+            # self.tab_visualisations.pack_propagate(False)
+
             # label
             tk.Label(self.tab_tables,
                      text= 'Select the time frame and target group',
@@ -1848,9 +1852,6 @@ class DataAnalysisScreen(tk.Frame):
             self.select_target.pack(side='top',
                                         pady=5,
                                         padx=10)
-
-            # check if tree is already created
-
 
             def validate_combobox_input(state):
 
@@ -1902,8 +1903,161 @@ class DataAnalysisScreen(tk.Frame):
                                                pady=(0, 5),
                                                padx=10)
 
+
+            # -----------------
+            self.vis_option_frame = ttk.Frame(self.tab_visualisations, width=200, height=600)
+            self.vis_option_frame.pack(side="left", fill="both")
+
+            # label
+            tk.Label(self.vis_option_frame,
+                     text='Select the target group',
+                     font='Helvetica 12').pack(side='top',
+                                               anchor='nw',
+                                               pady=(10, 5),
+                                               padx=10)
+
+            self.select_target_visualisations = ttk.Combobox(
+                self.vis_option_frame,
+                state="readonly",
+                values=["Project Provider",
+                        "Community School Leader",
+                        "Teacher",
+                        "Student"
+                        ])
+
+            self.select_target_visualisations.pack(side='top',
+                                                   anchor='nw',
+                                                    pady=5,
+                                                    padx=10)
+
+            tk.Label(self.vis_option_frame,
+                     text='Select the time frame(s)',
+                     font='Helvetica 12').pack(side='top',
+                                               anchor='nw',
+                                               pady=(10, 5),
+                                               padx=10)
+
+            var1 = tk.BooleanVar()
+            tk.Checkbutton(self.vis_option_frame,
+                           text="Start of project",
+                           variable=var1).pack(side='top',
+                                               padx = 10,
+                                               anchor='nw')
+
+            var2 = tk.BooleanVar()
+            tk.Checkbutton(self.vis_option_frame,
+                           text= "Halfway point of project",
+                           variable=var2).pack(side='top',
+                                               padx = 10,
+                                               anchor='nw')
+
+            var3 = tk.BooleanVar()
+            tk.Checkbutton(self.vis_option_frame,
+                           text="End of project",
+                           variable=var3).pack(side='top',
+                                               padx = 10,
+                                               anchor='nw')
+
+            var4 = tk.BooleanVar()
+            tk.Checkbutton(self.vis_option_frame,
+                           text="Year after end of project",
+                           variable=var4).pack(side='top',
+                                               padx = 10,
+                                               anchor='nw')
+
+
+            tk.Label(self.vis_option_frame,
+                     text='Select metric',
+                     font='Helvetica 12').pack(side='top',
+                                               anchor='nw',
+                                               pady=(10, 5),
+                                               padx=10)
+
+            self.select_metric = ttk.Combobox(
+                self.vis_option_frame,
+                state="readonly",
+                values=["metric 1",
+                        "metric 2",
+                        "metric 3",
+                        "metric 4"
+                        ])
+
+            self.select_metric.pack(side='top',
+                                   anchor='nw',
+                                   pady=5,
+                                   padx=10)
+
+            def validate_visualisation_options(target, point, metric):
+
+                message_list = []
+
+                def point_selected():
+                    for time_point in point:
+                        if time_point:
+                            return True
+
+                def status_message():
+                    message_string = 'Please select '
+                    for index, message in enumerate(message_list):
+
+                        if index is not (len(message_list)-1):
+                            message_string += message + ', '
+
+                        else:
+                            message_string += message
+
+                    message_string += '!'
+
+                    print(message_string)
+
+                if not target:
+                    message_list.append('target group')
+
+                if not point_selected():
+                    message_list.append('time frame')
+
+                if not metric:
+                    message_list.append('metric')
+
+                # only show status message if one or more boxes are not filled in
+                if not target or not point_selected() or not metric:
+                    status_message()
+
+                else:
+                    self.data_analysis_object.create_visualisations(self.select_target_visualisations.get(),
+                                                                    [var1.get(), var2.get(), var3.get(), var4.get()],
+                                                                    self.select_metric.get(),
+                                                                    self.visualisation_frame)
+
+
+
+
+            create_visualisations_button = tk.Button(self.vis_option_frame, text='Create visualisation',
+                                            width=18, height=1,
+                                            command=lambda: [validate_visualisation_options(self.select_target_visualisations.get(),
+                                                                                            [var1.get(), var2.get(), var3.get(), var4.get()],
+                                                                                            self.select_metric.get())
+                                                             ])
+
+            create_visualisations_button.pack(side='top',
+                                              anchor='nw',
+                                              pady=5,
+                                              padx=10)
+
+            self.visualisation_frame = ttk.Frame(self.tab_visualisations, width=1000, height=600)
+            self.visualisation_frame.pack(side="left",
+                                          fill="both", expand='true',
+                                          pady=10, padx=(100, 20))
+
+
+
+
+
+
+
         else:
             self.popup_window.deiconify()
+
 
 
 

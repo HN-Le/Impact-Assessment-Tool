@@ -4,7 +4,7 @@ import sys
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-package_list = ['pandas', 'numpy', 'tk', 'functools', 'openpyxl' ]
+package_list = ['pandas', 'numpy', 'tk', 'functools', 'openpyxl', 'matplotlib']
 
 for item in package_list:
     install(item)

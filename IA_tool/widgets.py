@@ -10,6 +10,10 @@ from functools import partial
 import csv
 import statistics
 from collections import Counter
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+NavigationToolbar2Tk)
 
 class FileOpener(tk.Frame):
 
@@ -1085,6 +1089,9 @@ class DataAnalysis(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
+        # list to hold data
+        self.data_list = []
+
     # get data
     def get_data_object(self, data):
         self.data_object = data
@@ -1378,8 +1385,7 @@ class DataAnalysis(tk.Frame):
             else:
                 return 5
 
-        # list to hold data
-        self.data_list = []
+
         metric_entries = 0
 
         # select the unique metrics from metric_value database
@@ -1481,8 +1487,64 @@ class DataAnalysis(tk.Frame):
         # if len(self.tree.get_children()) == 0:
         #     print('NOPS')
 
-    def create_visualisations(self):
-        print('TODO')
+    def create_visualisations(self, target_group, point, metric, frame):
+
+        # plt.plot([1, 2, 3, 4])
+        # plt.ylabel('some numbers')
+        # plt.show()
+
+        # TODO select the graph type based on the metric
+
+        # TODO create a function to update/refresh graph
+
+        # figure that contains the plot
+        figure_for_plot = Figure(figsize = (9, 5),
+                             dpi = 100)
+
+        plot_1 = figure_for_plot.add_subplot()
+
+        # test data
+        x = ['Monday','Tuesday','Wednesday','Thursday']
+        y = [1, 2, 3, 4]
+
+        # test labels
+        x_label = 'Day'
+        y_label = 'Rain in ml'
+        title_plot = 'My lovely test plot'
+
+        # test legend
+        legend_item_1 = ['start']
+
+        plot_1.set_xlabel(x_label)
+        plot_1.set_ylabel(y_label)
+        plot_1.set_title(title_plot)
+
+
+        plot_1.plot(x,y, label = 'start')
+
+        plot_1.legend(loc='best')
+
+
+        # make canvas with plot
+        canvas = FigureCanvasTkAgg(figure_for_plot, master = frame)
+
+        canvas.draw()
+
+        canvas.get_tk_widget().pack()
+
+        # create toolbar
+        toolbar = NavigationToolbar2Tk(canvas, frame)
+        toolbar.update()
+
+        # placing the toolbar on the Tkinter window
+        canvas.get_tk_widget().pack()
+
+        # print('--- create_visualisations')
+        # print('TARGET GROUP: ', target_group)
+        # print('POINT: ', point)
+        # print('METRIC: ', metric)
+        # print('')
+
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
