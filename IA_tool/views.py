@@ -1849,6 +1849,9 @@ class DataAnalysisScreen(tk.Frame):
                                         pady=5,
                                         padx=10)
 
+            # check if tree is already created
+
+
             def validate_combobox_input(state):
 
                 # print ('Timeframe: ', self.select_time_frame.get())
@@ -1878,23 +1881,15 @@ class DataAnalysisScreen(tk.Frame):
                         self.data_analysis_object.update_table(self.data_analysis_object.tree)
                         print('TREE CHILDREN UPDATED', self.data_analysis_object.tree.get_children())
 
-
-
-
-
-            tk.Button(self.tab_tables, text='Create table',
+            create_table_button = tk.Button(self.tab_tables, text='Create table',
                       width=18, height=1,
-                      command=lambda: [validate_combobox_input('new')
-                                       ]).pack(side='top',
+                      command=lambda: [validate_combobox_input('new'),
+                                       create_table_button.configure(command=lambda: [validate_combobox_input('update')])
+                                       ])
+
+            create_table_button.pack(side='top',
                                                 pady=10,
                                                 padx=10)
-
-            tk.Button(self.tab_tables, text='Update table',
-                      width=18, height=1,
-                      command=lambda: [validate_combobox_input('update')
-                                       ]).pack(side='top',
-                                               pady=10,
-                                               padx=10)
 
             # convert to string var and set init text
             self.status_message_tables = tk.StringVar()
@@ -1907,9 +1902,7 @@ class DataAnalysisScreen(tk.Frame):
                                                pady=(0, 5),
                                                padx=10)
 
-
         else:
-
             self.popup_window.deiconify()
 
 

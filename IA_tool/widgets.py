@@ -1318,13 +1318,15 @@ class DataAnalysis(tk.Frame):
 
             self.tree.insert("", tk.END, values=(metric_name, amount,
                                                  value_min, value_max,
-                                                 value_mean, value_modus, value_median ))
+                                                 value_mean, value_modus, value_median))
 
     def update_table(self, tree):
 
+        # empty treeview
         for i in tree.get_children():
             tree.delete(i)
 
+        # refill with updated data
         self.fill_table(self.tree)
 
     def calculate_data(self):
@@ -1479,8 +1481,8 @@ class DataAnalysis(tk.Frame):
         # if len(self.tree.get_children()) == 0:
         #     print('NOPS')
 
-
-
+    def create_visualisations(self):
+        print('TODO')
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
