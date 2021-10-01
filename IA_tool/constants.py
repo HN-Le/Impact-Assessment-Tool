@@ -18,3 +18,8 @@ class Size:
 
     listbox_width = 70
     listbox_height = 10
+
+    # hd sizes
+    hd_frame_width = 1280
+    hd_frame_height = 720
+

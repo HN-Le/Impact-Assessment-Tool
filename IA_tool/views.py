@@ -1714,61 +1714,61 @@ class DataAnalysisScreen(tk.Frame):
                                             padx=(10,0), pady=5,
                                             sticky='w')
 
+        # delete window and reset state every time load in data button is clicked
+        def adjusted_state_window():
+            self.popup_window = None
+
         tk.Button(frame_load_data, text='Load in data',
                   width=18, height=1,
-                  command=lambda: [self.data_analysis_object.load_into_database(self.dict_paths.file_path_dict, frame_load_data)]).grid(row=2, column=0,
+                  command=lambda: [self.data_analysis_object.delete_frame(self.popup_window), adjusted_state_window(),
+                                   self.data_analysis_object.load_into_database(self.dict_paths.file_path_dict, frame_load_data)]).grid(row=2, column=0,
                                             padx=(10,0), pady=5,
                                             sticky='w')
-
-        # TODO add statusmessage for when loading is succesfull
-
-        # # convert to string var and set init text
-        # self.status_load_data = tk.StringVar()
-        # self.status_load_data.set("STATUS MESSAGE")
-        #
-        # # status message
-        # tk.Label(frame_load_data,
-        #          textvariable=self.status_load_data,
-        #          font='Helvetica 12', foreground='red').grid(row=3, column=0,
-        #                                                         padx=(10,0), pady=5,
-        #                                                         sticky='w')
 
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
         frame_summary_data = ttk.LabelFrame(self, text="3.1 Summary Data",
-                                           width=1200, height=130)
+                                           width=1200, height=150)
         frame_summary_data.grid_propagate(0)
         frame_summary_data.grid(padx=(10, 0),
                                pady=(10, 0),
                                sticky='nsew')
 
+        self.status_message_summary_data = tk.StringVar()
+        self.status_message_summary_data.set("")
+
+        # status message
+        tk.Label(frame_summary_data,
+                 textvariable=self.status_message_summary_data,
+                 foreground='red',
+                 font='Helvetica 12').grid(row=3, column=0,
+                                           padx=(10, 0),
+                                           pady=5,
+                                           sticky='w')
+
+        # validation for file input
+        def data_files_selected(tab_index):
+            if not self.data_analysis_object.selected_file_counter:
+                self.status_message_summary_data.set('Please load in csv files!')
+            else:
+                self.status_message_summary_data.set("")
+                self.create_popup()
+                self.notebook_data_analysis.select(tab_index)
+
         tk.Button(frame_summary_data, text='Show tables',
                   width=15, height=1,
-                  command=lambda : [self.create_popup(), self.notebook_data_analysis.select(0)]).grid(row=1, column=0,
-                                            padx=(10,0), pady=(10,5),
-                                            sticky='w')
+                  command=lambda : [data_files_selected(0)]).grid(row=1, column=0,
+                                                                  padx=(10,0), pady=(10,5),
+                                                                  sticky='w')
 
         tk.Button(frame_summary_data, text='Show visualisations',
                   width=18, height=1,
-                  command=lambda: [self.create_popup(), self.notebook_data_analysis.select(1)]).grid(row=2, column=0,
-                                                                                                     padx=(10, 0),
-                                                                                                     pady=5,
-                                                                                                     sticky='w')
+                  command=lambda: [data_files_selected(1)]).grid(row=2, column=0,
+                                                                 padx=(10, 0),
+                                                                 pady=5,
+                                                                 sticky='w')
 
-        # ------------------------- Data Analysis: 3.2 Visualisations Frame
 
-        # frame_visualisations = ttk.LabelFrame(self, text="3.2 Visualisations ",
-        #                                     width=1200, height=200)
-        # frame_visualisations.grid_propagate(0)
-        # frame_visualisations.grid(padx=(10, 0),
-        #                         pady=(10, 0),
-        #                         sticky='nsew')
-        #
-        # tk.Button(frame_visualisations, text='Show visualisations',
-        #           width=18, height=1,
-        #           command=lambda: [self.create_popup(), self.notebook_data_analysis.select(1)]).grid(row=2, column=0,
-        #                                     padx=(10,0), pady=10,
-        #                                     sticky='w')
 
     # ------------------------- Data Analysis: Get data from SQL model
     def send_data_object(self, data):
@@ -1783,11 +1783,12 @@ class DataAnalysisScreen(tk.Frame):
 
     # ------------------------- Popup window
     def create_popup(self):
+
         # if there is not already a 'start of project' window
         if not self.popup_window:
             # create pop up window
             self.popup_window = tk.Toplevel()
-            self.popup_window.geometry('1200x600')
+            self.popup_window.geometry('1280x720')
 
             self.popup_window.wm_title('Data Analysis')
 
@@ -1796,11 +1797,11 @@ class DataAnalysisScreen(tk.Frame):
             self.notebook_data_analysis = ttk.Notebook(self.popup_window)
 
             # make tabs
-            self.tab_tables = ttk.Frame(self.popup_window, width=1200, height=600)
+            self.tab_tables = ttk.Frame(self.popup_window, width=c.Size.hd_frame_width, height=c.Size.hd_frame_height)
             self.tab_tables.pack(side="left", fill="both", expand=True)
 
 
-            self.tab_visualisations = ttk.Frame(self.popup_window, width=1200, height=600)
+            self.tab_visualisations = ttk.Frame(self.popup_window, width=c.Size.hd_frame_width, height=c.Size.hd_frame_height)
             self.tab_visualisations.pack(side="left", fill="both", expand=True)
 
             # add tabs to notebook
@@ -1816,27 +1817,68 @@ class DataAnalysisScreen(tk.Frame):
             self.tab_tables.pack_propagate(False)
             # self.tab_visualisations.pack_propagate(False)
 
+            sql_check_file_id = "select distinct file_id from metric_value"
+            retrieve_check_file_id = self.data_object.query_no_par(sql_check_file_id)
+
+            provider_id = [0, 4, 8,  12]
+            leader_id =   [1, 5, 9,  13]
+            teacher_id =  [2, 6, 10, 14]
+            student_id =  [3, 7, 11, 15]
+
+            self.time_option_list = []
+
+            time_option_dict = {
+                0: "Start of project",
+                1: "Halfway point of project",
+                2: "End of project",
+                3: "Year after end of project"
+            }
+
+            def get_target(event):
+
+                self.select_time_frame.set('')
+                self.time_option_list = []
+                self.input_target = event.widget.get()
+
+                # check in database which timeframe is present
+                for index, file_id in enumerate(retrieve_check_file_id):
+
+                    if file_id[0] in provider_id:
+                        if self.input_target == "Project Provider":
+                            self.time_option_list.append(time_option_dict[provider_id.index(file_id[0])])
+                            # print('INDEX if statement ---', index)
+
+                    if file_id[0] in leader_id:
+                        if self.input_target == "Community School Leader":
+                            self.time_option_list.append(time_option_dict[leader_id.index(file_id[0])])
+
+                    if file_id[0] in teacher_id:
+                        if self.input_target == "Teacher":
+                            self.time_option_list.append(time_option_dict[teacher_id.index(file_id[0])])
+
+                    if file_id[0] in student_id:
+                        if self.input_target == "Student":
+                            self.time_option_list.append(time_option_dict[student_id.index(file_id[0])])
+
+
+                    # print('file_id: ---', file_id[0])
+                    # print('time_option_list ---', self.time_option_list)
+
+
+
+            def change_time_frame_box():
+                if self.time_option_list:
+                    self.select_time_frame["values"] = self.time_option_list
+                else:
+                    self.select_time_frame["values"] = ["(No data available)"]
+
             # label
             tk.Label(self.tab_tables,
-                     text= 'Select the time frame and target group',
+                     text= 'Select the target group and time frame',
                      font='Helvetica 12').pack(side='top',
-                                                    pady=(10,5),
+                                                   anchor='nw',
+                                                    pady=5,
                                                     padx=10)
-            # combobox
-            self.select_time_frame = ttk.Combobox(
-                self.tab_tables,
-                state="readonly",
-                values=["Start of project",
-                        "Halfway point of project",
-                        "End of project",
-                        "Year after end of project"
-                        ])
-
-            # self.select_time_frame.current(0)
-
-            self.select_time_frame.pack(side='top',
-                                        pady=5,
-                                        padx=10)
 
             self.select_target = ttk.Combobox(
                 self.tab_tables,
@@ -1847,11 +1889,44 @@ class DataAnalysisScreen(tk.Frame):
                         "Student"
                         ])
 
-            # self.select_target.current(0)
+            self.select_target.bind("<<ComboboxSelected>>", get_target)
 
             self.select_target.pack(side='top',
+                                                   anchor='nw',
+                                                    pady=5,
+                                                    padx=10)
+
+            self.select_time_frame = ttk.Combobox(
+                self.tab_tables,
+                state="readonly",
+                values="",
+                postcommand=change_time_frame_box)
+
+            self.select_time_frame.pack(side='top',
+                                        anchor='nw',
                                         pady=5,
                                         padx=10)
+
+            def remap_target(target):
+                if target == "Project Provider":
+                    return 'provider'
+                elif target == "Community School Leader":
+                    return 'leader'
+                elif target == "Teacher":
+                    return 'teacher'
+                else:
+                    return 'student'
+
+            def remap_timeframe(time_frame):
+
+                if time_frame == "Start of project":
+                    return 'sop'
+                elif time_frame == "Halfway point of project":
+                    return 'hop'
+                elif time_frame == "End of project":
+                    return 'eop'
+                else:
+                    return 'yap'
 
             def validate_combobox_input(state):
 
@@ -1868,19 +1943,22 @@ class DataAnalysisScreen(tk.Frame):
                     self.status_message_tables.set('Select a target!')
 
                 else:
+                    # TODO fix for later
+                    input_key = remap_timeframe(self.select_time_frame.get()) + '_' + remap_target(self.select_target.get())
+                    value = self.dict_paths.file_path_dict[input_key]
+
+                    # calculate the table based on user input
+                    self.data_analysis_object.calculate_data(self.select_time_frame.get(), self.select_target.get())
+
                     if state == 'new':
                         self.data_analysis_object.make_table(self.tab_tables,
                                                              self.select_time_frame.get(),
                                                              self.select_target.get())
 
-                        # TODO add time frame and target parameters
                         self.data_analysis_object.fill_table(self.data_analysis_object.tree)
 
-                        print('TREE CHILDREN NEW', self.data_analysis_object.tree.get_children())
-
                     else:
-                        self.data_analysis_object.update_table(self.data_analysis_object.tree)
-                        print('TREE CHILDREN UPDATED', self.data_analysis_object.tree.get_children())
+                        self.data_analysis_object.update_table(self.data_analysis_object.tree, self.tab_tables)
 
             create_table_button = tk.Button(self.tab_tables, text='Create table',
                       width=18, height=1,
@@ -1889,8 +1967,9 @@ class DataAnalysisScreen(tk.Frame):
                                        ])
 
             create_table_button.pack(side='top',
-                                                pady=10,
-                                                padx=10)
+                                                   anchor='nw',
+                                                    pady=5,
+                                                    padx=10)
 
             # convert to string var and set init text
             self.status_message_tables = tk.StringVar()
@@ -1900,12 +1979,13 @@ class DataAnalysisScreen(tk.Frame):
             tk.Label(self.tab_tables,
                      textvariable=self.status_message_tables,
                      font='Helvetica 12', foreground='red').pack(side='top',
-                                               pady=(0, 5),
-                                               padx=10)
+                                                   anchor='nw',
+                                                    pady=5,
+                                                    padx=10)
 
 
             # -----------------
-            self.vis_option_frame = ttk.Frame(self.tab_visualisations, width=200, height=600)
+            self.vis_option_frame = ttk.Frame(self.tab_visualisations, width=200, height=c.Size.hd_frame_height)
             self.vis_option_frame.pack(side="left", fill="both")
 
             # label
@@ -1975,12 +2055,9 @@ class DataAnalysisScreen(tk.Frame):
 
             self.select_metric = ttk.Combobox(
                 self.vis_option_frame,
+                width=40,
                 state="readonly",
-                values=["metric 1",
-                        "metric 2",
-                        "metric 3",
-                        "metric 4"
-                        ])
+                values=self.data_analysis_object.unique_metrics)
 
             self.select_metric.pack(side='top',
                                    anchor='nw',
@@ -2044,10 +2121,11 @@ class DataAnalysisScreen(tk.Frame):
                                               pady=5,
                                               padx=10)
 
-            self.visualisation_frame = ttk.Frame(self.tab_visualisations, width=1000, height=600)
+            self.visualisation_frame = ttk.Frame(self.tab_visualisations, width=c.Size.hd_frame_width, height=c.Size.hd_frame_height)
             self.visualisation_frame.pack(side="left",
                                           fill="both", expand='true',
                                           pady=10, padx=(100, 20))
+
 
 
 

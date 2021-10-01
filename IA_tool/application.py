@@ -21,7 +21,7 @@ class Application(tk.Tk):
         # self.state('zoomed')
 
         # set min and max screen size
-        self.minsize(width=800, height=600)
+        self.minsize(width=1280, height=720)
         self.maxsize(width=1920, height=1080)
 
         # width = self.winfo_screenwidth()

@@ -1091,6 +1091,8 @@ class DataAnalysis(tk.Frame):
 
         # list to hold data
         self.data_list = []
+        self.unique_metrics = []
+        self.selected_file_counter = 0
 
     # get data
     def get_data_object(self, data):
@@ -1111,7 +1113,7 @@ class DataAnalysis(tk.Frame):
         self.status_load_data = tk.StringVar()
         self.status_load_data.set("")
 
-        selected_file_counter = 0
+        self.selected_file_counter = 0
 
         # variables for the SQL query
         self.measuring_point_id = None
@@ -1126,24 +1128,18 @@ class DataAnalysis(tk.Frame):
         def target_check(item):
             if item.endswith('provider'):
                 return 'project_provider'
-
             elif item.endswith('leader'):
                 return 'community_school_leader'
-
             elif item.endswith('teacher'):
                 return 'teacher'
-
             else:
                 return 'student'
 
         # function to check datatype and clean accordingly
         def data_type_check(value):
 
-
-
             if isinstance(value, int) or isinstance(value, float):
                 return value
-
             elif isinstance(value, str):
                 cleaned_value = (value.lower()).strip()
                 return cleaned_value
@@ -1180,7 +1176,8 @@ class DataAnalysis(tk.Frame):
 
             # non valid paths
             if dict[item] == '':
-                print(item, ': No path selected')
+                continue
+                # print(item, ': No path selected')
 
             else:
                 # check which target group the file is for
@@ -1208,12 +1205,10 @@ class DataAnalysis(tk.Frame):
 
                     reader = csv.DictReader(f, delimiter=',')
 
-                    selected_file_counter += 1
+                    self.selected_file_counter += 1
 
                     # get header names
                     metric_list = reader.fieldnames
-
-                    print('Metric List: ', metric_list)
 
                     # each survey in the csv file (1 row = 1 survey)
                     for index, row in enumerate(reader):
@@ -1223,7 +1218,7 @@ class DataAnalysis(tk.Frame):
                         # print('-----')
 
                         # loop through the non-header rows
-                        for metric_index, item in enumerate(row):
+                        for metric_index, new_item in enumerate(row):
 
                             # skip non relevant headers
                             if metric_index in range(0,10):
@@ -1231,28 +1226,39 @@ class DataAnalysis(tk.Frame):
 
                             # extract relevant data and save in database
                             else:
-
-                                self.metric_name = ((metric_list[metric_index]).lower()).strip()
+                                self.metric_question = ((metric_list[metric_index]).lower()).strip()
                                 self.target_name = (self.target.lower()).strip()
 
 
                                 # TODO check if it works with strings!
                                 self.metric_value_data = data_type_check(row[metric_list[metric_index]])
 
-                                print('-----')
-                                print('Metric: ', self.metric_name)
-                                print('Metric Value: ', self.metric_value_data)
-                                print('Target Name: ', self.target_name)
+                                # print(" METRIC NAME ", self.metric_name)
+                                # print(" METRIC VALUE DATA ",self.metric_value_data)
+                                # print("")
 
-                                sql_metrics = "select * from metric where lower(metric_name) = (?) and lower(target_name) = (?)"
-                                retrieve_metrics = self.data_object.query_with_par(sql_metrics, (self.metric_name, self.target_name))
+                                # print('-----')
+                                # print('Metric: ', self.metric_name)
+                                # print('Metric Value: ', self.metric_value_data)
+                                # print('Target Name: ', self.target_name)
+
+
+                                if ": " in self.metric_question:
+                                    self.trimmed_value = self.metric_question.split(": ")
+                                    if len(self.trimmed_value[1]) > 3:
+                                        self.metric_question = self.trimmed_value[1]
+                                        # print("Metric question ---", self.metric_question)
+                                        # print("Metric question trimmed ---", self.trimmed_value[1])
+
+
+                                sql_metrics = "select * from metric where lower(metric_question) = (?) and lower(target_name) = (?)"
+                                retrieve_metrics = self.data_object.query_with_par(sql_metrics, (self.metric_question, self.target_name))
 
                                 for metric_item in retrieve_metrics:
                                     self.metric_id = metric_item[0]
                                     self.metric_data_type = metric_item[10]
 
                                     # TODO change name in tool (Whole number, decimal, etc..)
-                                    # TODO change in database to int
                                     if self.metric_data_type == 'int' :
                                         self.data_int = int(self.metric_value_data)
                                         reset_data('data_int')
@@ -1269,7 +1275,7 @@ class DataAnalysis(tk.Frame):
                                         reset_data('data_float')
 
                                     else:
-                                        self.data_str = metric_value_data
+                                        self.data_str = self.metric_value_data
                                         reset_data('data_string')
 
 
@@ -1284,10 +1290,8 @@ class DataAnalysis(tk.Frame):
                                     # Load into database
                                     self.data_object.create_metric_value(metric_value)
 
-                                print('Metric_value DATABASE', metric_value)
-                                print('-----')
-
-        # TODO implement for everything
+                                # print('Metric_value DATABASE', metric_value)
+                                # print('-----')
 
         # retrieve metrics and answer options from database
         sql_test = "select * from metric"
@@ -1308,35 +1312,82 @@ class DataAnalysis(tk.Frame):
                                                              padx=(10, 0), pady=5,
                                                              sticky='w')
 
-        self.status_load_data.set(str(selected_file_counter) + " file(s) were loaded in.")
+        self.status_load_data.set(str(self.selected_file_counter) + " file(s) were loaded in.")
 
-        self.calculate_data()
+        # self.calculate_data()
 
     def fill_table(self, tree):
 
+        def replace_none_values(value):
+            if value:
+                return value
+            else:
+                return ""
+
         for metric in self.data_list:
-            metric_name = metric[0]
-            amount = metric[1]
-            value_min = metric[2]
-            value_max = metric[3]
-            value_mean = metric[4]
-            value_modus = metric[5]
-            value_median = metric[6]
+            metric_name = replace_none_values(metric[0])
+            amount = replace_none_values(metric[1])
+            value_min = replace_none_values(metric[2])
+            value_max = replace_none_values(metric[3])
+            value_mean = replace_none_values(metric[4])
+            value_modus = replace_none_values(metric[5])
+            value_median = replace_none_values(metric[6])
+
+            if isinstance(value_modus, list):
+                temp_list = ''
+                for item in value_modus:
+                    if temp_list:
+                        temp_list += ' - ' + str(item)
+                    else:
+                        temp_list = str(item)
+                value_modus = temp_list
+
 
             self.tree.insert("", tk.END, values=(metric_name, amount,
                                                  value_min, value_max,
                                                  value_mean, value_modus, value_median))
 
-    def update_table(self, tree):
+    def update_table(self, tree, frame):
 
         # empty treeview
         for i in tree.get_children():
             tree.delete(i)
 
-        # refill with updated data
-        self.fill_table(self.tree)
+        # empty in database !
+        frame.update()
 
-    def calculate_data(self):
+        # refill with updated data
+        self.fill_table(tree)
+
+    def calculate_data(self, time_frame, target):
+
+        self.data_list = []
+        self.unique_metrics = []
+
+        def remap_target(target):
+
+            if target == "Project Provider":
+                return 'project_provider'
+            elif target == "Community School Leader":
+                return 'community_school_leader'
+            elif target == "Teacher":
+                return 'teacher'
+            else:
+                return 'student'
+
+        def remap_timeframe(time_frame):
+
+            if time_frame == "Start of project":
+                return 1
+            elif time_frame == "Halfway point of project":
+                return 2
+            elif time_frame == "End of project":
+                return 3
+            else:
+                return 4
+
+        user_target = remap_target(target)
+        user_time_frame = remap_timeframe(time_frame)
 
         def create_table_row(metric_name, metric_entries, values_list, metric_type, data_type, data_list):
 
@@ -1346,7 +1397,7 @@ class DataAnalysis(tk.Frame):
             metric_modus = None
             metric_median = None
 
-            def caluculate_mode(value_list):
+            def caluculate_modus(value_list):
                 c = Counter(value_list)
                 return [k for k, v in c.items() if v == c.most_common(1)[0][1]]
 
@@ -1354,23 +1405,26 @@ class DataAnalysis(tk.Frame):
                 metric_min = min(values_list)
                 metric_max = max(values_list)
                 metric_average = round(statistics.mean(values_list),1)
-                metric_modus = caluculate_mode(values_list)
+                metric_modus = caluculate_modus(values_list)
                 metric_median = round(statistics.median(values_list),1)
 
-                print('min: ', metric_min)
-                print('max: ', metric_max)
-                print('mean: ', metric_average)
-                print('modus: ', metric_modus)
-                print('median: ', metric_median)
-                print('')
+            if data_type == 'string':
+                metric_modus = caluculate_modus(values_list)
+
+                # print('min: ', metric_min)
+                # print('max: ', metric_max)
+                # print('mean: ', metric_average)
+                # print('modus: ', metric_modus)
+                # print('median: ', metric_median)
+                # print('')
 
             calculated_row = [metric_name, metric_entries, metric_min,
                               metric_max, metric_average, metric_modus, metric_median]
 
-            print('TO BE INSERTED ROW: ', calculated_row)
-            print('')
-
+            # print('TO BE INSERTED ROW: ', calculated_row)
+            # print('')
             self.data_list.append(calculated_row)
+
 
         def data_type_index(data_type):
             if data_type == 'bool':
@@ -1395,7 +1449,6 @@ class DataAnalysis(tk.Frame):
         # loop through the unique metrics
         for unique_metric in retrieve_unique_metrics:
 
-            values_list = []
 
             metric_id = unique_metric[0]
 
@@ -1403,34 +1456,69 @@ class DataAnalysis(tk.Frame):
             sql_metric_name = "select * from metric where metric_id = (?)"
             retrieve_metric_name = self.data_object.query_with_par(sql_metric_name, ((metric_id),))
 
-            metric_name = ((retrieve_metric_name[0][1]).lower()).strip()
-            metric_type = ((retrieve_metric_name[0][5]).lower()).strip()
-            data_type = retrieve_metric_name[0][10]
+            metric_target_check = ((retrieve_metric_name[0][8]).lower()).strip()
 
-            print('---Unique Metrics---')
-            print('Metric ID: ', metric_id)
-            print('Metric Name: ', metric_name)
-            print('Metric Type: ', metric_type )
-            print('Data Type: ', data_type)
+            if metric_target_check == user_target:
 
+                metric_name = ((retrieve_metric_name[0][1]).lower()).strip()
+                metric_type = ((retrieve_metric_name[0][5]).lower()).strip()
+                data_type = retrieve_metric_name[0][10]
+
+                # add unique metrics in metrics_value db to list
+                self.unique_metrics.append((metric_name, metric_id, data_type, metric_type))
+
+                # print('---Unique Metrics---')
+                # print('Metric ID: ', metric_id)
+                # print('Metric Name: ', metric_name)
+                # print('Metric Type: ', metric_type )
+                # print('Data Type: ', data_type)
+                #
+                # print('METRIC ID? ', ((metric_id),)[0])
+                # print('USER TIME FRAME? ', ((user_time_frame),)[0] )
+
+            else:
+                continue
+
+        for metric in self.unique_metrics:
+
+            values_list = []
+            unique_metric_id = metric[1]
+
+            # print ('METRIC: ', metric)
             # retrieve the rows from a unique metric
-            sql_collect_rows = "select * from metric_value where metric_id = (?)"
-            retrieve_collected_rows = self.data_object.query_with_par(sql_collect_rows, ((metric_id),))
-            
-            print('- Collected Rows')
+            sql_collect_rows = "select * from metric_value where metric_id = (?) and measuring_point_id = (?)"
+            retrieve_collected_rows = self.data_object.query_with_par(sql_collect_rows, (((unique_metric_id),)[0],
+                                                                                         (((user_time_frame),)[0]))
+                                                                      )
+
+            # print('METRIC ', metric)
+            # print('METRIC ', unique_metric_id)
+            # print ('RETRIEVE COLLECTED ROWS ',retrieve_collected_rows)
 
             # rows for every unique metric
             for entry_counter, row in enumerate(retrieve_collected_rows):
                 metric_entries = entry_counter + 1
+                # print('Row: ', entry_counter, '-', row)
+                # print('data_type_index(data_type) ', data_type_index(metric[2]))
 
-                values_list.append(row[data_type_index(data_type)])
-                print('Row: ', entry_counter, '-', row)
+                if row[data_type_index(metric[2])] is not None:
+                    values_list.append(row[data_type_index(metric[2])])
 
-            print("# of rows: ", metric_entries)
-            print('Values List: ', values_list)
-            print("")
+            # print("# of rows: ", metric_entries)
+            # print("")
 
-            create_table_row(metric_name, metric_entries, values_list, metric_type, data_type, self.data_list)
+            if values_list:
+                create_table_row(metric[0], metric_entries, values_list, metric[3], metric[2], self.data_list)
+
+            else:
+                print('No data for this timeframe')
+                continue
+
+    def delete_frame(self, frame):
+
+        if frame is not None:
+            frame.destroy()
+
 
     def make_table(self, frame, timeframe, target):
 
@@ -1444,7 +1532,7 @@ class DataAnalysis(tk.Frame):
         # make tree
         self.tree = ttk.Treeview(TableMargin,
                                  columns=("Metric Name",
-                                          "# of datapoints",
+                                          "# of responses",
                                           "Min",
                                           "Max",
                                           "Mean",
@@ -1463,7 +1551,7 @@ class DataAnalysis(tk.Frame):
 
         # make tree headings
         self.tree.heading('Metric Name', text="Metric Name", anchor='w')
-        self.tree.heading('# of datapoints', text="# of datapoints", anchor='w')
+        self.tree.heading('# of responses', text="# of responses", anchor='w')
         self.tree.heading('Min', text="Min", anchor='w')
         self.tree.heading('Max', text="Max", anchor='w')
         self.tree.heading('Mean', text="Mean", anchor='w')
@@ -1489,55 +1577,60 @@ class DataAnalysis(tk.Frame):
 
     def create_visualisations(self, target_group, point, metric, frame):
 
-        # plt.plot([1, 2, 3, 4])
-        # plt.ylabel('some numbers')
-        # plt.show()
 
         # TODO select the graph type based on the metric
-
         # TODO create a function to update/refresh graph
+
+        # check what type of metric
 
         # figure that contains the plot
         figure_for_plot = Figure(figsize = (9, 5),
                              dpi = 100)
 
-        plot_1 = figure_for_plot.add_subplot()
+        # set the location of the subplots
+        plot_1 = figure_for_plot.add_subplot(1,2,1)
+        plot_2 = figure_for_plot.add_subplot(1,2,2)
 
-        # test data
-        x = ['Monday','Tuesday','Wednesday','Thursday']
-        y = [1, 2, 3, 4]
+        def create_line_graph():
+            # x =
+            # test data
+            x = ['Monday','Tuesday','Wednesday','Thursday']
+            y = [1, 2, 3, 4]
 
-        # test labels
-        x_label = 'Day'
-        y_label = 'Rain in ml'
-        title_plot = 'My lovely test plot'
+            # test labels
+            x_label = 'Day'
+            y_label = 'Rain in ml'
+            title_plot = 'My lovely test plot'
 
-        # test legend
-        legend_item_1 = ['start']
+            # test legend
+            legend_item_1 = ['start']
 
-        plot_1.set_xlabel(x_label)
-        plot_1.set_ylabel(y_label)
-        plot_1.set_title(title_plot)
+            plot_1.set_xlabel(x_label)
+            plot_1.set_ylabel(y_label)
+            plot_1.set_title(title_plot)
 
+            plot_1.plot(x,y, label = 'start')
+            plot_1.legend(loc='best')
 
-        plot_1.plot(x,y, label = 'start')
+            plot_2.set_xlabel(x_label)
+            plot_2.set_ylabel(y_label)
+            plot_2.set_title(title_plot)
 
-        plot_1.legend(loc='best')
+            plot_2.plot(x, y, label='start')
+            plot_2.legend(loc='best')
 
-
-        # make canvas with plot
+        # make canvas with plot and place
         canvas = FigureCanvasTkAgg(figure_for_plot, master = frame)
-
         canvas.draw()
-
         canvas.get_tk_widget().pack()
 
-        # create toolbar
+        # create toolbar and place
         toolbar = NavigationToolbar2Tk(canvas, frame)
         toolbar.update()
-
-        # placing the toolbar on the Tkinter window
         canvas.get_tk_widget().pack()
+
+        create_line_graph()
+
 
         # print('--- create_visualisations')
         # print('TARGET GROUP: ', target_group)

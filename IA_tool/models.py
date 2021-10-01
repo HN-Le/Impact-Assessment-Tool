@@ -171,7 +171,7 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, method_fragment)
             conn.commit()
-            print('New method fragment added')
+            # print('New method fragment added')
 
         # else:
         #     print('Method fragment found')
@@ -198,7 +198,7 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, metric)
             self.conn.commit()
-            print('New metric added')
+            # print('New metric added')
 
         # else:
         #     print('Metric found')
@@ -231,7 +231,7 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, ((project,)))
             conn.commit()
-            print('New project added')
+            # print('New project added')
 
         # else:
         #     print('Project found')
@@ -261,7 +261,7 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, measuring_point)
             self.conn.commit()
-            print('New measuring point added')
+            # print('New measuring point added')
 
         # else:
         #     print('Measuring point found')
@@ -275,7 +275,7 @@ class SQLModel:
         sql = """ INSERT INTO metric_target(increase, metric_target_value, interest_demographic, interest_scope, project_id, metric_id) 
                 VALUES (?,?,?,?,?,?) """
 
-        print('METRIC TARGET', metric_target)
+        # print('METRIC TARGET', metric_target)
 
         # check whether it is already present in database
         metric_id = metric_target[5]
@@ -293,15 +293,15 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, metric_target)
             self.conn.commit()
-            print('New metric target added')
+            # print('New metric target added')
 
         else:
-            print('Metric target found')
+            # print('Metric target found')
             sql = 'update metric_target set metric_target_value = (?), increase = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
             parameters = self.parameter
 
             # parameters = (metric_target[1], metric_target[0], metric_target[3], metric_id)
-            print('Metric_target| parameters: ', parameters)
+            # print('Metric_target| parameters: ', parameters)
             self.update_row_with_par(sql, parameters)
 
         return cur.lastrowid
@@ -366,7 +366,7 @@ class SQLModel:
 
             measure_point = (point, int(project_id[0]))
 
-            print('Measure_point_query: point - ', point)
+            # print('Measure_point_query: point - ', point)
             # print('Measure_point_query: project_id - ', project_id)
             # print('Measure_point_query: project_name - ', ((self.project),))
             # print('Measure_point_query: measure_point -
@@ -409,13 +409,13 @@ class SQLModel:
         cur = self.conn.cursor()
 
         try:
-            print('update_row parameters', parameter)
+            # print('update_row parameters', parameter)
             cur.execute(query, parameter)
         except Error as e:
             raise e
         else:
             self.conn.commit()
-            print('Row updated ------')
+            # print('Row updated ------')
 
 
     def delete_row_with_par(self, query, parameter):
@@ -452,8 +452,8 @@ class pathModel:
                                'sop_teacher': '',
                                'sop_student': '',
 
-                               'hop_leader': '',
                                'hop_provider': '',
+                               'hop_leader': '',
                                'hop_teacher': '',
                                'hop_student': '',
 
