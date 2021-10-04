@@ -775,7 +775,6 @@ class MethodFragmentSelection(tk.Frame):
     def get_data_object(self, data):
         self.data_object = data
 
-        # print("--- get_data_object - Check")
 
     def delete_frame(self, frame):
 
@@ -907,7 +906,7 @@ class MethodFragmentSelection(tk.Frame):
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
-                          text='    ' + 'Set metric target in %: ').pack(fill='both', pady=(0, 5))
+                          text='    ' + 'Set metric target: (must be >0 !)').pack(fill='both', pady=(0, 5))
 
                 user_target_input = tk.StringVar()
                 user_target = ttk.Entry(metric_frame,
@@ -1031,15 +1030,20 @@ class MethodFragmentSelection(tk.Frame):
         if self.metric_target_list[index].get() != '' and self.if_increase_list[index].get() != '':
 
             try:
+
                 metric_target_int = int(self.metric_target_list[index].get())
-                print('Metric target ------ ', metric_target_int)
+
+                if metric_target_int <= 0:
+                    self.status_message_list[index].set('Error, please only fill in numbers >0 for metric target!')
+                    raise ValueError('Not valid input! Target cannot be 0 or smaller than 0')
+
 
             except ValueError:
                 # self.status_message_remove_metric.set("Please only fill in numbers!")
                 self.status_message_list[index].set('Error, please only fill in numbers for metric target!')
                 return
 
-            if self.if_increase_list[index].get() == "Incease":
+            if self.if_increase_list[index].get() == "Increase":
                 isIncrease = True
             else:
                 isIncrease = False
@@ -1062,7 +1066,7 @@ class MethodFragmentSelection(tk.Frame):
             if interest_demographic == '':
                 interest_scope = None
 
-            # un hardcode project_id !
+            # TODO un hardcode project_id !
             target = (isIncrease, metric_target, interest_demographic, interest_scope, 1, metric_id)
             self.data_object.create_metric_target(target)
             self.status_message_list[index].set('')
@@ -1359,6 +1363,62 @@ class DataAnalysis(tk.Frame):
         # refill with updated data
         self.fill_table(tree)
 
+    def validate_vis_inputs(self, target, time_frame):
+
+        print("target: ---", target)
+        print("time_frame: ---", time_frame)
+
+        if target and time_frame:
+            self.visualisation_get_metrics(target, time_frame)
+
+
+    def visualisation_get_metrics(self, target, time_frame):
+
+        def remap_target(target):
+
+            if target == "Project Provider":
+                return 'project_provider'
+            elif target == "Community School Leader":
+                return 'community_school_leader'
+            elif target == "Teacher":
+                return 'teacher'
+            else:
+                return 'student'
+
+        unique_metric_ids = []
+        metrics_target = []
+        time_list = []
+
+        for index, time in enumerate(time_frame):
+            if time:
+                time_list.append(index + 1)
+
+        if time_list:
+
+            # select the unique metrics from metric_value database
+            sql_unique = "select distinct metric_id from metric_value where measuring_point_id in ({seq})".format(seq=','.join(['?'] * len(time_list)))
+            retrieve_unique_metrics = self.data_object.query_with_par(sql_unique, time_list)
+
+            for metric in retrieve_unique_metrics:
+                metric_id = metric[0]
+                unique_metric_ids.append(metric_id)
+
+            # retrieve from db if unique metric is in metric database
+            sql_metrics_id = "select * from metric where metric_id in ({seq})".format(seq=','.join(['?'] * len(unique_metric_ids)))
+            retrieve_metrics_target = self.data_object.query_with_par(sql_metrics_id, unique_metric_ids)
+
+            for metric in retrieve_metrics_target:
+                metric_id = metric[0]
+                metric_target = metric[8]
+                metric_name = metric[1]
+
+                if metric_target == remap_target(target):
+                    metrics_target.append(metric_name)
+
+            print('metrics_target ', metrics_target)
+            return metrics_target
+
+
     def calculate_data(self, time_frame, target):
 
         self.data_list = []
@@ -1424,7 +1484,6 @@ class DataAnalysis(tk.Frame):
             # print('TO BE INSERTED ROW: ', calculated_row)
             # print('')
             self.data_list.append(calculated_row)
-
 
         def data_type_index(data_type):
             if data_type == 'bool':
@@ -1522,7 +1581,6 @@ class DataAnalysis(tk.Frame):
 
     def make_table(self, frame, timeframe, target):
 
-        #TODO only execute once
         TableMargin = tk.Frame(frame, width=1200, height=500)
         TableMargin.pack(side="top", fill="both", expand='True')
 
@@ -1575,32 +1633,47 @@ class DataAnalysis(tk.Frame):
         # if len(self.tree.get_children()) == 0:
         #     print('NOPS')
 
-    def create_visualisations(self, target_group, point, metric, frame):
 
+
+    def create_visualisations(self, target_group, point, metric, frame, state):
+
+        print('target_group ---', target_group)
+        print('point ---', point)
+        print('metric ---', metric)
+
+        time_list = []
+
+        for index, time in enumerate(point):
+            if time:
+                time_list.append(index + 1)
+
+        print('time_list ---', time_list)
 
         # TODO select the graph type based on the metric
         # TODO create a function to update/refresh graph
 
-        # check what type of metric
 
         # figure that contains the plot
         figure_for_plot = Figure(figsize = (9, 5),
                              dpi = 100)
 
-        # set the location of the subplots
-        plot_1 = figure_for_plot.add_subplot(1,2,1)
-        plot_2 = figure_for_plot.add_subplot(1,2,2)
+        canvas = FigureCanvasTkAgg(figure_for_plot, master=frame)
 
-        def create_line_graph():
+        plot_1 = figure_for_plot.add_subplot()
+
+        def create_bar_chart():
             # x =
             # test data
+
             x = ['Monday','Tuesday','Wednesday','Thursday']
             y = [1, 2, 3, 4]
+
+            bar_chart = plot_1.bar(x, y, label = 'start')
 
             # test labels
             x_label = 'Day'
             y_label = 'Rain in ml'
-            title_plot = 'My lovely test plot'
+            title_plot = metric
 
             # test legend
             legend_item_1 = ['start']
@@ -1609,27 +1682,29 @@ class DataAnalysis(tk.Frame):
             plot_1.set_ylabel(y_label)
             plot_1.set_title(title_plot)
 
-            plot_1.plot(x,y, label = 'start')
             plot_1.legend(loc='best')
 
-            plot_2.set_xlabel(x_label)
-            plot_2.set_ylabel(y_label)
-            plot_2.set_title(title_plot)
+        def draw_chart():
+            # make canvas with plot and place
+            canvas.draw()
+            canvas.get_tk_widget().pack()
 
-            plot_2.plot(x, y, label='start')
-            plot_2.legend(loc='best')
+            # create toolbar and place
+            toolbar = NavigationToolbar2Tk(canvas, frame)
+            toolbar.update()
+            canvas.get_tk_widget().pack()
 
-        # make canvas with plot and place
-        canvas = FigureCanvasTkAgg(figure_for_plot, master = frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+        if state == 'new':
+            create_bar_chart()
+            draw_chart()
 
-        # create toolbar and place
-        toolbar = NavigationToolbar2Tk(canvas, frame)
-        toolbar.update()
-        canvas.get_tk_widget().pack()
+        if state == "updated":
+            canvas.get_tk_widget().destroy()
+            figure_for_plot.clf()
 
-        create_line_graph()
+            plot_1.clear()
+
+            frame.update()
 
 
         # print('--- create_visualisations')
@@ -1637,6 +1712,219 @@ class DataAnalysis(tk.Frame):
         # print('POINT: ', point)
         # print('METRIC: ', metric)
         # print('')
+
+class ImpactEvaluation(tk.Frame):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.tree_rows = []
+        self.row_list = []
+
+    def get_data_object(self, data):
+        self.data_object = data
+
+    def create_treeview(self, frame):
+        TableMargin = tk.Frame(frame, width=1200, height=500)
+        TableMargin.pack(side="top", fill="both", expand='True')
+
+        self.scrollbary = tk.Scrollbar(TableMargin, orient='vertical')
+        self.scrollbarx = tk.Scrollbar(TableMargin, orient='horizontal')
+
+        # make tree
+        self.tree = ttk.Treeview(TableMargin,
+                                 columns=("Metric Name",
+                                          "Target group",
+                                          "Demographic scope",
+                                          "Target for metric",
+                                          "Increase / Decrease",
+                                          "% of target reached"),
+                                 selectmode="extended",
+                                 yscrollcommand=self.scrollbary.set,
+                                 xscrollcommand=self.scrollbarx.set,
+                                 height=400)
+
+        self.scrollbary.config(command=self.tree.yview)
+        self.scrollbary.pack(side="right", fill="y")
+
+        self.scrollbarx.config(command=self.tree.xview)
+        self.scrollbarx.pack(side="bottom", fill="both", expand='True')
+
+        # make tree headings
+        self.tree.heading('Metric Name', text="Metric Name", anchor='w')
+        self.tree.heading('Target group', text="Target group", anchor='w')
+        self.tree.heading('Demographic scope', text="Demographic scope", anchor='w')
+        self.tree.heading('Target for metric', text="Target for metric", anchor='w')
+        self.tree.heading('Increase / Decrease', text="Increase / Decrease", anchor='w')
+        self.tree.heading('% of target reached', text="% of target reached", anchor='w')
+
+
+        # make tree columns
+        self.tree.column('#0', stretch='no', minwidth=0, width=0)
+        self.tree.column('#1', stretch='no', minwidth=0, width=400)
+        self.tree.column('#2', stretch='no', minwidth=0, width=120)
+        self.tree.column('#3', stretch='no', minwidth=0, width=150)
+        self.tree.column('#4', stretch='no', minwidth=0, width=150)
+        self.tree.column('#5', stretch='no', minwidth=0, width=150)
+        self.tree.column('#6', stretch='no', minwidth=0, width=150)
+
+        # place tree
+        self.tree.pack(fill='both',
+                       padx=10,
+                       pady=10)
+
+        self.make_rows()
+
+    def fill_tree(self, tree):
+        print("")
+
+
+    def remap_target_to_show(self, target):
+
+        if target == "project_provider":
+            return 'Project Provider'
+        elif target == "community_school_leader":
+            return 'Community School Leader'
+        elif target == "teacher":
+            return 'Teacher'
+        else:
+            return 'Student'
+
+    def remap_target(self, target):
+        if target == "Project Provider":
+            return 'project_provider'
+        elif target == "Community School Leader":
+            return 'community_school_leader'
+        elif target == "Teacher":
+            return 'teacher'
+        else:
+            return 'student'
+
+
+    def calculate_target_progress(self, metric_id):
+
+        values_list = []
+        average = 0
+
+        # look up the rows in db
+        sql_values = "select *  from metric_value where metric_id = (?)"
+        retrieve_values = self.data_object.query_with_par(sql_values, (metric_id,))
+
+        for item in retrieve_values:
+            if item[6]:
+                values_list.append(item[6])
+            elif item[7]:
+                values_list.append(item[7])
+            else:
+                continue
+
+        mean = statistics.mean(values_list)
+
+        if values_list:
+            return(mean)
+        else:
+            return(None)
+
+
+    def make_rows(self):
+
+        unique_ids = []
+        self.row_list = []
+
+        metric_id = None
+        metric_name = None
+        target_group = None
+        demo_scope = None
+        metric_target = None
+        increase_decrease = None
+        target_reached = None
+
+        # select the unique metrics from metric_value database
+        sql_unique = "select distinct metric_id from metric_value order by metric_id"
+        retrieve_unique_metrics = self.data_object.query_no_par(sql_unique)
+
+        for metric in retrieve_unique_metrics:
+            unique_ids.append(metric[0])
+
+        # get the metric name and target group from each unique id
+        sql_metrics = "select * from metric where metric_id in ({seq})".format(
+            seq=','.join(['?'] * len(unique_ids)))
+        retrieve_sql_metrics = self.data_object.query_with_par(sql_metrics, unique_ids)
+
+        for metric in retrieve_sql_metrics:
+
+            metric_id = None
+            metric_name = None
+            target_group = None
+            demo_scope = None
+            metric_target = None
+            increase_decrease = None
+            target_reached = None
+
+            metric_id = metric[0]
+            metric_name = metric[1]
+            target_group = metric[8]
+
+            target_mean = self.calculate_target_progress(metric_id)
+
+            # look in metric_target db
+            sql_targets = "select * from metric_target where metric_id = (?)"
+            retrieve_sql_targets = self.data_object.query_with_par(sql_targets, (metric_id,))
+
+            # if no metric_target
+            if not retrieve_sql_targets:
+                demo_scope = "all"
+                metric_target = "not specified"
+                increase_decrease = '-'
+                target_reached = '-'
+
+            else:
+                # if no metric_value
+                if retrieve_sql_targets[0][2] is None:
+
+                    metric_target = "not specified"
+                    increase_decrease = '-'
+                    target_reached = '-'
+
+                    if retrieve_sql_targets[0][4] == "":
+                        demo_scope = "all"
+                    else:
+                        demo_scope = retrieve_sql_targets[0][4]
+
+                else:
+
+                    if retrieve_sql_targets[0][4] == "":
+                        demo_scope = "all"
+                    else:
+                        demo_scope = retrieve_sql_targets[0][4]
+
+                    metric_target =retrieve_sql_targets[0][2]
+                    increase_decrease =retrieve_sql_targets[0][1]
+
+                    if min([target_mean, metric_target]) == 0:
+                        target_reached = '-'
+
+                    target_reached = (max([target_mean, metric_target]) / min([target_mean, metric_target])) * 100
+                    target_reached = round(target_reached, 1)
+
+                    # print("metric_target: ", metric_target)
+                    # print("target_mean: ", target_mean)
+                    # print("target_reached: ", target_reached)
+
+            self.row_list.append((metric_name,
+                            self.remap_target_to_show(target_group),
+                            demo_scope,
+                            metric_target,
+                            increase_decrease,
+                            target_reached))
+
+            self.tree.insert("", tk.END, values=(metric_name, self.remap_target_to_show(target_group),
+                                                 demo_scope, metric_target,
+                                                 increase_decrease, target_reached))
+        #
+        # for item in row_list:
+        #     print('Row: ---',item)
+
 
 
 # ref: https://blog.teclado.com/tkinter-scrollable-frames/

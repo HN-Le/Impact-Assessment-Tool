@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from . import widgets as w
 from . import constants as c
+from tkinter.scrolledtext import ScrolledText
 
 
 class ProjectPurposeScreen(tk.Frame):
@@ -1988,6 +1989,29 @@ class DataAnalysisScreen(tk.Frame):
             self.vis_option_frame = ttk.Frame(self.tab_visualisations, width=200, height=c.Size.hd_frame_height)
             self.vis_option_frame.pack(side="left", fill="both")
 
+            self.metric_option_list = []
+
+            def update_metric_list():
+                time_frame_list = [var1.get(), var2.get(), var3.get(), var4.get()]
+
+                self.metric_option_list = self.data_analysis_object.visualisation_get_metrics(self.select_target_visualisations.get(),
+                                                                                              time_frame_list)
+                if not self.metric_option_list:
+                    self.select_metric.set("")
+
+            def get_inputs(event):
+
+                self.select_metric.set('')
+                self.metric_option_list = []
+                self.input_target_vis = event.widget.get()
+
+                time_frame_list = [var1.get(), var2.get(), var3.get(), var4.get()]
+
+                if self.input_target_vis and any(time_frame_list):
+
+                    self.metric_option_list = self.data_analysis_object.visualisation_get_metrics(self.input_target_vis, time_frame_list)
+                    print("metric_option_list --- ", self.metric_option_list)
+
             # label
             tk.Label(self.vis_option_frame,
                      text='Select the target group',
@@ -2005,6 +2029,8 @@ class DataAnalysisScreen(tk.Frame):
                         "Student"
                         ])
 
+            self.select_target_visualisations.bind("<<ComboboxSelected>>", get_inputs)
+
             self.select_target_visualisations.pack(side='top',
                                                    anchor='nw',
                                                     pady=5,
@@ -2020,6 +2046,7 @@ class DataAnalysisScreen(tk.Frame):
             var1 = tk.BooleanVar()
             tk.Checkbutton(self.vis_option_frame,
                            text="Start of project",
+                           command=lambda : [update_metric_list()],
                            variable=var1).pack(side='top',
                                                padx = 10,
                                                anchor='nw')
@@ -2027,6 +2054,7 @@ class DataAnalysisScreen(tk.Frame):
             var2 = tk.BooleanVar()
             tk.Checkbutton(self.vis_option_frame,
                            text= "Halfway point of project",
+                           command=lambda : [update_metric_list()],
                            variable=var2).pack(side='top',
                                                padx = 10,
                                                anchor='nw')
@@ -2034,6 +2062,7 @@ class DataAnalysisScreen(tk.Frame):
             var3 = tk.BooleanVar()
             tk.Checkbutton(self.vis_option_frame,
                            text="End of project",
+                           command=lambda : [update_metric_list()],
                            variable=var3).pack(side='top',
                                                padx = 10,
                                                anchor='nw')
@@ -2041,10 +2070,10 @@ class DataAnalysisScreen(tk.Frame):
             var4 = tk.BooleanVar()
             tk.Checkbutton(self.vis_option_frame,
                            text="Year after end of project",
+                           command=lambda: [update_metric_list()],
                            variable=var4).pack(side='top',
                                                padx = 10,
                                                anchor='nw')
-
 
             tk.Label(self.vis_option_frame,
                      text='Select metric',
@@ -2053,18 +2082,32 @@ class DataAnalysisScreen(tk.Frame):
                                                pady=(10, 5),
                                                padx=10)
 
+
+            def change_visualisation_metric_option():
+
+                if self.metric_option_list:
+                    self.select_metric["values"] = self.metric_option_list
+                else:
+
+                    self.select_metric["values"] = ["(No data available)"]
+
+
+
             self.select_metric = ttk.Combobox(
                 self.vis_option_frame,
                 width=40,
                 state="readonly",
-                values=self.data_analysis_object.unique_metrics)
+                postcommand=change_visualisation_metric_option,
+                values='')
 
             self.select_metric.pack(side='top',
                                    anchor='nw',
                                    pady=5,
                                    padx=10)
 
-            def validate_visualisation_options(target, point, metric):
+
+
+            def validate_visualisation_options(target, point, metric, state):
 
                 message_list = []
 
@@ -2093,8 +2136,9 @@ class DataAnalysisScreen(tk.Frame):
                 if not point_selected():
                     message_list.append('time frame')
 
-                if not metric:
+                if not metric or metric == "(No data available)" :
                     message_list.append('metric')
+
 
                 # only show status message if one or more boxes are not filled in
                 if not target or not point_selected() or not metric:
@@ -2104,16 +2148,24 @@ class DataAnalysisScreen(tk.Frame):
                     self.data_analysis_object.create_visualisations(self.select_target_visualisations.get(),
                                                                     [var1.get(), var2.get(), var3.get(), var4.get()],
                                                                     self.select_metric.get(),
-                                                                    self.visualisation_frame)
+                                                                    self.visualisation_frame,
+                                                                    state)
 
 
 
+
+
+            self.figure_state = ''
 
             create_visualisations_button = tk.Button(self.vis_option_frame, text='Create visualisation',
                                             width=18, height=1,
                                             command=lambda: [validate_visualisation_options(self.select_target_visualisations.get(),
                                                                                             [var1.get(), var2.get(), var3.get(), var4.get()],
-                                                                                            self.select_metric.get())
+                                                                                            self.select_metric.get(), "new"),
+                                                             create_visualisations_button.configure(command=lambda: [validate_visualisation_options(self.select_target_visualisations.get(),
+                                                                                            [var1.get(), var2.get(), var3.get(), var4.get()],
+                                                                                            self.select_metric.get(), "updated")])
+
                                                              ])
 
             create_visualisations_button.pack(side='top',
@@ -2126,21 +2178,8 @@ class DataAnalysisScreen(tk.Frame):
                                           fill="both", expand='true',
                                           pady=10, padx=(100, 20))
 
-
-
-
-
-
-
-
         else:
             self.popup_window.deiconify()
-
-
-
-
-
-
 
     def hide_window(self, window):
 
@@ -2152,5 +2191,176 @@ class EvaluationScreen(tk.Frame):
 
     def __init__(self):
         tk.Frame.__init__(self)
-        tk.Label(self, text='Impact assessment content').pack()
+
+        global popup_window_metrics
+        self.popup_window_metrics = None
+
+        # make object
+        self.impact_evaluation = w.ImpactEvaluation(self)
+
+        self.frame_main_evaluate= ttk.LabelFrame(self, text="4.1 Evaluate metric results, goals and targets",
+                                             width=1200, height=700)
+        self.frame_main_evaluate.grid_propagate(0)
+        self.frame_main_evaluate.grid(padx=(10, 0),
+                                 sticky='nsew')
+
+        # metric results label
+        tk.Label(self.frame_main_evaluate,
+                 text='Metric results',
+                 font='Helvetica 12').grid(row=0, column=0,
+                                           columnspan=20,
+                                           sticky='w',
+                                           padx=(10, 0),
+                                           pady=(10, 0))
+
+        tk.Button(self.frame_main_evaluate,
+                  text='Show metric results',
+                  width=20,
+                  command=self.check_if_data_loaded).grid(row=1, column=0,
+                                   padx=(10, 0),
+                                   pady=5,
+                                   sticky='w'
+                                   )
+
+        # convert to string var and set init text
+        self.status_message_show_metrics = tk.StringVar()
+        self.status_message_show_metrics.set("")
+
+        tk.Label(self.frame_main_evaluate,
+                 textvariable=self.status_message_show_metrics,
+                 font='Helvetica 12',
+                 foreground='red').grid(row=2, column=0,
+                                           sticky='w',
+                                           padx=(10, 0),
+                                           pady=(5,0))
+
+        # --------------
+        # metric evaluation
+        tk.Label(self.frame_main_evaluate,
+                 text='Metric evaluation',
+                 font='Helvetica 12').grid(row=3, column=0,
+                                           sticky='w',
+                                           padx=(10, 0),
+                                           pady=(10, 0))
+
+
+        # create frame for entry box
+        self.frame_entry_box_metric = ttk.Frame(self.frame_main_evaluate,
+                                                     width=20, height=20)
+
+        self.frame_entry_box_metric.grid(row=4, column=0,
+                                         padx=(10, 0),
+                                         sticky='nsew')
+
+        self.entry_box_metric = ScrolledText(self.frame_entry_box_metric,
+                                             width=75, height=5).grid(row=0, column=0,
+                                                                           sticky='w',
+                                                                           padx=(10, 0))
+
+        # -----------------
+        # metric evaluation
+        tk.Label(self.frame_main_evaluate,
+                 text='Target and goal evaluation',
+                 font='Helvetica 12').grid(row=5, column=0,
+                                           sticky='w',
+                                           padx=(10, 0),
+                                           pady=(10, 0))
+
+
+        # create frame for entry box
+        self.frame_entry_box_target = ttk.Frame(self.frame_main_evaluate,
+                                                     width=20, height=20)
+
+        self.frame_entry_box_target.grid(row=6, column=0,
+                                         padx=(10, 0),
+                                         sticky='nsew')
+
+        self.entry_box_target = ScrolledText(self.frame_entry_box_target,
+                                             width=75, height=5).grid(row=0, column=0,
+                                                                           sticky='w',
+                                                                           padx=(10, 0))
+
+        # -----------------
+        # Evaluation questions
+        tk.Label(self.frame_main_evaluate,
+                 text='Evaluation questions',
+                 font='Helvetica 12 ').grid(row=7, column=0,
+                                           sticky='w',
+                                           padx=(10, 0),
+                                           pady=(10, 0))
+
+        # create frame for entry box
+        self.frame_entry_box_question = ttk.Frame(self.frame_main_evaluate,
+                                                width=20, height=20)
+
+        self.frame_entry_box_question.grid(row=8, column=0,
+                                         padx=(10, 0),
+                                         sticky='nsew')
+
+        tk.Label(self.frame_entry_box_question,
+                 text='Q1 - Is the impact desirable?',
+                 font='Helvetica 12 ').grid(row=0, column=0,
+                                            sticky='w',
+                                            padx=(10, 0),
+                                            pady=(10, 0))
+
+        self.entry_box_question_1 = ScrolledText(self.frame_entry_box_question,
+                                             width=75, height=5).grid(row=1, column=0,
+                                                                      sticky='w',
+                                                                      padx=(10, 0))
+
+        tk.Label(self.frame_entry_box_question,
+                 text='Q2 - What is the time of the impact? (Short/long term?)',
+                 font='Helvetica 12 ').grid(row=2, column=0,
+                                            sticky='w',
+                                            padx=(10, 0),
+                                            pady=(10, 0))
+
+        self.entry_box_question_2 = ScrolledText(self.frame_entry_box_question,
+                                                 width=75, height=5).grid(row=3, column=0,
+                                                                          sticky='w',
+                                                                          padx=(10, 0))
+
+    def check_if_data_loaded(self):
+
+        # check if database has entries
+        sql = "SELECT DISTINCT metric_id FROM metric_value"
+        retrieve_sql = self.data_object.query_no_par(sql)
+        if retrieve_sql:
+            self.metric_results_window()
+            self.status_message_show_metrics.set('')
+        else:
+            self.status_message_show_metrics.set('Please load data first!')
+
+    def metric_results_window(self):
+
+        if not self.popup_window_metrics:
+            # create pop up window
+            self.popup_window_metrics = tk.Toplevel()
+            self.popup_window_metrics.geometry('1280x720')
+
+            self.popup_window_metrics.wm_title('Overview of metric results, goals and targets')
+
+            # hide window if closed
+            self.popup_window_metrics.protocol("WM_DELETE_WINDOW", lambda arg='popup': self.hide_window(arg))
+
+            self.impact_evaluation.create_treeview(self.popup_window_metrics)
+
+        else:
+            self.popup_window_metrics.deiconify()
+
+    def send_data_object(self, data):
+        self.data_object = data
+        self.impact_evaluation.get_data_object(self.data_object)
+
+    def hide_window(self, window):
+
+        if window == "popup":
+            self.popup_window_metrics.withdraw()
+
+
+
+
+
+
 

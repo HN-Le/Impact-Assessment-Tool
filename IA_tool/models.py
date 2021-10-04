@@ -283,8 +283,8 @@ class SQLModel:
         # print("create_measuring_point: type ", type(measuring_point_name))
         # print("create_measuring_point: measuring_point_name ", measuring_point_name)
 
-        sql = "SELECT * FROM metric_target WHERE metric_id = ? "
-        cur.execute(sql, (((metric_id),)))
+        sql_check = "SELECT * FROM metric_target WHERE metric_id = ? "
+        cur.execute(sql_check, (((metric_id),)))
 
         entry = cur.fetchone()
 
@@ -297,12 +297,12 @@ class SQLModel:
 
         else:
             # print('Metric target found')
-            sql = 'update metric_target set metric_target_value = (?), increase = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
+            sql_update = 'update metric_target set metric_target_value = (?), increase = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
             parameters = self.parameter
 
             # parameters = (metric_target[1], metric_target[0], metric_target[3], metric_id)
             # print('Metric_target| parameters: ', parameters)
-            self.update_row_with_par(sql, parameters)
+            self.update_row_with_par(sql_update, parameters)
 
         return cur.lastrowid
 

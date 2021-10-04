@@ -23,3 +23,26 @@ class Size:
     hd_frame_width = 1280
     hd_frame_height = 720
 
+class DataTypes:
+    likert_6 = ['I need a lot of additional knowledge about the topic',
+                'I need some additional knowledge about the topic',
+                'I need some additional knowledge about the topic',
+                'I need a little additional knowledge about the topic',
+                'I have some knowledge about the topic',
+                'I have good knowledge about the topic',
+                'I have strong knowledge about the topic']
+
+    likert_7 = ['Strongly disagree',
+                'Disagree',
+                'Somewhat disagree',
+                'Neither agree or disagree',
+                'Somewhat agree',
+                'Agree',
+                'Strongly agree']
+
+
+
+
+
+
+

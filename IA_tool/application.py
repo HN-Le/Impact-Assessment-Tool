@@ -27,10 +27,10 @@ class Application(tk.Tk):
         # width = self.winfo_screenwidth()
         # height = self.winfo_screenheight()
 
-        width = 800
-        height = 800
+        width = 1200
+        height = 720
 
-        # self.geometry("{}x{}".format(width, height))
+        self.geometry("{}x{}".format(width, height))
 
         # Un hardcode it
         dirname = os.getcwd()
@@ -49,6 +49,7 @@ class Application(tk.Tk):
         # send data_model object to other functions
         self.project_purpose_screen.send_data_object(self.data_model)
         self.data_analysis_screen.send_data_object(self.data_model)
+        self.impact_assessment_screen.send_data_object(self.data_model)
 
         # send path dict to data collection and data analysis
         self.data_collection_screen.send_dict_paths(self.path_model)
@@ -65,18 +66,14 @@ class Application(tk.Tk):
         self.menuBar = Menu(master=self)
         self.filemenu = Menu(self.menuBar, tearoff=0)
         self.filemenu.add_command(label="New", command='')
+        self.filemenu.add_command(label="Load", command='')
+        self.filemenu.add_command(label="Save", command='')
         self.filemenu.add_command(label="Quit", command=self._quit)
         self.menuBar.add_cascade(label="File", menu=self.filemenu)
 
-        # menu item: data
-        self.data_menu = Menu(master=self)
-        self.data_menu = Menu(self.menuBar, tearoff=0)
-        self.data_menu.add_command(label="Tables")
-        self.data_menu.add_command(label="Graph")
-        self.menuBar.add_cascade(label="Data", menu=self.data_menu)
-
         # menu item: help
         self.help_menu = Menu(self.menuBar, tearoff=0)
+        self.help_menu.add_command(label="Documentation")
         self.help_menu.add_command(label="About")
         self.menuBar.add_cascade(label="Help", menu=self.help_menu)
 
