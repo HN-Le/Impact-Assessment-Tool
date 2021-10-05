@@ -15,10 +15,38 @@ class ProjectPurposeScreen(tk.Frame):
         self.project_goal_selected = False
         self.goal_model_selected = False
 
+        frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
+                                             width=c.Size.label_frame_width, height=80)
+        frame_project_docs.grid_propagate(0)
+        frame_project_docs.grid(padx=(10, 0),
+                                 pady=(10, 0),
+                                 sticky='nsew')
+
+        tk.Button(frame_project_docs,
+                  text='1.1 Project Goals',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=0,
+                             padx=(10, 0), pady=5,
+                             sticky='w')
+        tk.Button(frame_project_docs,
+                  text='1.2 Goal Model',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=1,
+                                   padx=(10, 0), pady=5,
+                                   sticky='w')
+        tk.Button(frame_project_docs,
+                  text='1.3 Method Fragments',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=2,
+                                   padx=(10, 0), pady=5,
+                                   sticky='w')
+
+
         frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals",
                                              width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_project_goals.grid_propagate(0)
         frame_project_goals.grid(padx=(10,0),
+                                 pady=(10, 0),
                                  sticky='nsew')
 
         label_project_goals = tk.Label(frame_project_goals,
@@ -94,6 +122,7 @@ class ProjectPurposeScreen(tk.Frame):
                                           width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_goal_model.grid_propagate(0)
         frame_goal_model.grid(padx=(10, 0),
+                              pady=(10, 0),
                               sticky='nsew')
 
         label_project_goals = tk.Label(frame_goal_model,
@@ -164,9 +193,10 @@ class ProjectPurposeScreen(tk.Frame):
         # -------------------------------------------------------------------------------------------
 
         frame_select_method_fragments = ttk.LabelFrame(self, text="1.3 Method Fragments",
-                                          width=c.Size.label_frame_width, height=300)
+                                          width=c.Size.label_frame_width, height=250)
         frame_select_method_fragments.grid_propagate(0)
         frame_select_method_fragments.grid(padx=(10, 0),
+                                           pady=(10, 0),
                               sticky='nsew')
 
         label_selected_method_fragments = tk.Label(frame_select_method_fragments,
@@ -282,11 +312,34 @@ class DataCollectionScreen(tk.Frame):
 
         self.sampling_selected = False
 
+        frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
+                                            width=c.Size.label_frame_width, height=80)
+        frame_project_docs.grid_propagate(0)
+        frame_project_docs.grid(padx=(10, 0),
+                                pady=(10, 0),
+                                sticky='nsew')
+
+        tk.Button(frame_project_docs,
+                  text='2.1 Sampling Strategy',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=0,
+                                   padx=(10, 0), pady=5,
+                                   sticky='w')
+
+        tk.Button(frame_project_docs,
+                  text='2.2 Data Collection',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=1,
+                                   padx=(10, 0), pady=5,
+                                   sticky='w')
+
         # --------- 2.1 Sampling strategy frame
         frame_sampling = ttk.LabelFrame(self, text="2.1 Sampling strategy",
                                                        width=1200, height=150)
         frame_sampling.grid_propagate(0)
-        frame_sampling.grid(padx=(10, 0), sticky='nsew')
+        frame_sampling.grid(padx=(10, 0),
+                            pady=(10, 0),
+                            sticky='nsew')
 
         label_sampling = tk.Label(frame_sampling,
                                   text='Determine sampling strategy')
@@ -307,26 +360,34 @@ class DataCollectionScreen(tk.Frame):
 
         # create label and place in gui
         self.project_label = tk.Label(frame_sampling,
-                                      textvariable=self.text_sampling_pdf).grid(row=3, column=0, sticky='w',
-                                                                                padx=(20, 0), columnspan=150)
+                                      textvariable=self.text_sampling_pdf,
+                                      foreground = "black")
+
+        self.project_label.grid(row=3, column=0,
+                                sticky='w',
+                                padx=(20, 0),
+                                columnspan=150)
 
         # functions if valid
         def sampling_show_functions():
             if self.sampling_selected:
+                self.project_label["foreground"] = "black"
                 self.data_collection_pdf.show_project_goals()
 
             else:
-                self.text_sampling_pdf.set("Select sampling strategy first!")
-                print('Select sampling strategy first!')
+                self.status_message_label.config(foreground="red")
+                self.status_message_txt.set("Select sampling strategy first!")
 
-        status_message_txt = tk.StringVar()
-        status_message_txt.set("")
-        status_message_label = tk.Label(frame_sampling,
+        self.status_message_txt = tk.StringVar()
+        self.status_message_txt.set("")
+        self.status_message_label = tk.Label(frame_sampling,
                                                 font='Helvetica 11', foreground='red',
-                                                textvariable=status_message_txt).grid(row=4, column=0,
-                                                                                              sticky='w',
-                                                                                              padx=(20, 0),
-                                                                                              columnspan=150)
+                                                textvariable=self.status_message_txt)
+
+        self.status_message_label.grid(row=4, column=0,
+                                  sticky='w',
+                                  padx=(20, 0),
+                                  columnspan=150)
 
         # check if valid link
         def sampling_strategy_select_functions():
@@ -335,7 +396,7 @@ class DataCollectionScreen(tk.Frame):
 
             if len(filename) > 10:
                 self.text_sampling_pdf.set(filename)
-                status_message_txt.set("")
+                self.status_message_txt.set("")
                 self.sampling_selected = True
             else:
                 self.sampling_selected = False
@@ -364,26 +425,11 @@ class DataCollectionScreen(tk.Frame):
 
         # --------- 2.2 Data collection frame
         frame_data_collection = ttk.LabelFrame(self, text="2.2 Data collection",
-                                        width=1200, height=700)
+                                        width=1200, height=400)
         frame_data_collection.grid_propagate(0)
         frame_data_collection.grid(padx=(10, 0),
+                                   pady=(10, 0),
                             sticky='nsew')
-
-        label_data_collection = tk.Label(frame_data_collection,
-                                  text='mWater Guide')
-
-        label_data_collection.grid(row=1, column=0, columnspan=100,
-                            padx=(20, 0),
-                            sticky='w')
-
-        button_show_2 = tk.Button(frame_data_collection,
-                                  text='Show',
-                                  width=c.Size.button_width, height=c.Size.button_height,
-                                  command='')
-
-        button_show_2.grid(row=2, column=0,
-                           padx=(10, 0), pady=(5, 10),
-                           sticky='w')
 
         # header
         label_date = tk.Label(frame_data_collection,
@@ -1696,8 +1742,26 @@ class DataAnalysisScreen(tk.Frame):
         # create new instance of DataAnalysis class
         self.data_analysis_object = w.DataAnalysis(self)
 
+        frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
+                                            width=c.Size.label_frame_width, height=80)
+        frame_project_docs.grid_propagate(0)
+        frame_project_docs.grid(padx=(10, 0),
+                                pady=(10, 0),
+                                sticky='nsew')
 
-        # save file paths
+        tk.Button(frame_project_docs,
+                  text='Load Data',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=0,
+                                   padx=(10, 0), pady=5,
+                                   sticky='w')
+
+        tk.Button(frame_project_docs,
+                  text='3.1 Summary Data',
+                  width=20, height=c.Size.button_height,
+                  command="").grid(row=0, column=1,
+                                   padx=(10, 0), pady=5,
+                                   sticky='w')
 
         # ------------------------- Data Analysis: Load all data files
 
@@ -2202,6 +2266,7 @@ class EvaluationScreen(tk.Frame):
                                              width=1200, height=700)
         self.frame_main_evaluate.grid_propagate(0)
         self.frame_main_evaluate.grid(padx=(10, 0),
+                                      pady=(10, 0),
                                  sticky='nsew')
 
         # metric results label
@@ -2217,7 +2282,7 @@ class EvaluationScreen(tk.Frame):
                   text='Show metric results',
                   width=20,
                   command=self.check_if_data_loaded).grid(row=1, column=0,
-                                   padx=(10, 0),
+                                   padx=(5, 0),
                                    pady=5,
                                    sticky='w'
                                    )
@@ -2231,8 +2296,7 @@ class EvaluationScreen(tk.Frame):
                  font='Helvetica 12',
                  foreground='red').grid(row=2, column=0,
                                            sticky='w',
-                                           padx=(10, 0),
-                                           pady=(5,0))
+                                           padx=(10, 0))
 
         # --------------
         # metric evaluation
@@ -2241,7 +2305,7 @@ class EvaluationScreen(tk.Frame):
                  font='Helvetica 12').grid(row=3, column=0,
                                            sticky='w',
                                            padx=(10, 0),
-                                           pady=(10, 0))
+                                           pady=(5, 0))
 
 
         # create frame for entry box
