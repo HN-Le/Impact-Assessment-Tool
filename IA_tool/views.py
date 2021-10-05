@@ -4,6 +4,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from . import widgets as w
 from . import constants as c
+import os
+import webbrowser
 from tkinter.scrolledtext import ScrolledText
 
 
@@ -15,6 +17,13 @@ class ProjectPurposeScreen(tk.Frame):
         self.project_goal_selected = False
         self.goal_model_selected = False
 
+        dirname = os.getcwd()
+        filename_docs_project_goals = os.path.join(dirname, 'docs', 'project_goals.pdf')
+        filename_docs_goal_model = os.path.join(dirname, 'docs', 'goal_model.pdf')
+        filename_docs_method_frag = os.path.join(dirname, 'docs', 'method_fragments.pdf')
+
+
+
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
                                              width=c.Size.label_frame_width, height=80)
         frame_project_docs.grid_propagate(0)
@@ -25,19 +34,20 @@ class ProjectPurposeScreen(tk.Frame):
         tk.Button(frame_project_docs,
                   text='1.1 Project Goals',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=0,
+                  command=lambda: [webbrowser.open(filename_docs_project_goals) ]).grid(row=0, column=0,
                              padx=(10, 0), pady=5,
                              sticky='w')
+
         tk.Button(frame_project_docs,
                   text='1.2 Goal Model',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=1,
+                  command=lambda: [webbrowser.open(filename_docs_goal_model) ]).grid(row=0, column=1,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
         tk.Button(frame_project_docs,
                   text='1.3 Method Fragments',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=2,
+                  command=lambda: [webbrowser.open(filename_docs_method_frag) ]).grid(row=0, column=2,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
@@ -312,6 +322,9 @@ class DataCollectionScreen(tk.Frame):
 
         self.sampling_selected = False
 
+        dirname = os.getcwd()
+        filename_docs_sampling_strategy = os.path.join(dirname, 'docs', 'sampling_strategy.pdf')
+
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
                                             width=c.Size.label_frame_width, height=80)
         frame_project_docs.grid_propagate(0)
@@ -322,7 +335,7 @@ class DataCollectionScreen(tk.Frame):
         tk.Button(frame_project_docs,
                   text='2.1 Sampling Strategy',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=0,
+                  command=lambda: [webbrowser.open(filename_docs_sampling_strategy)]).grid(row=0, column=0,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
@@ -1750,7 +1763,7 @@ class DataAnalysisScreen(tk.Frame):
                                 sticky='nsew')
 
         tk.Button(frame_project_docs,
-                  text='Load Data',
+                  text='Loading in Data',
                   width=20, height=c.Size.button_height,
                   command="").grid(row=0, column=0,
                                    padx=(10, 0), pady=5,
@@ -2293,7 +2306,6 @@ class EvaluationScreen(tk.Frame):
 
         tk.Label(self.frame_main_evaluate,
                  textvariable=self.status_message_show_metrics,
-                 font='Helvetica 12',
                  foreground='red').grid(row=2, column=0,
                                            sticky='w',
                                            padx=(10, 0))
