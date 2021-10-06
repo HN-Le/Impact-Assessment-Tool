@@ -1763,14 +1763,14 @@ class DataAnalysisScreen(tk.Frame):
                                 sticky='nsew')
 
         tk.Button(frame_project_docs,
-                  text='Loading in Data',
+                  text='3.1 Loading in Data',
                   width=20, height=c.Size.button_height,
                   command="").grid(row=0, column=0,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
         tk.Button(frame_project_docs,
-                  text='3.1 Summary Data',
+                  text='3.2 Summary Data',
                   width=20, height=c.Size.button_height,
                   command="").grid(row=0, column=1,
                                    padx=(10, 0), pady=5,
@@ -1778,7 +1778,7 @@ class DataAnalysisScreen(tk.Frame):
 
         # ------------------------- Data Analysis: Load all data files
 
-        frame_load_data = ttk.LabelFrame(self, text="Load All Data",
+        frame_load_data = ttk.LabelFrame(self, text="3.1 Load All Data",
                                             width=1200, height=150)
         frame_load_data.grid_propagate(0)
         frame_load_data.grid(padx=(10, 0),
@@ -1787,8 +1787,7 @@ class DataAnalysisScreen(tk.Frame):
 
         # status message
         tk.Label(frame_load_data,
-                 text='Load all data for data analysis',
-                 font='Helvetica 12').grid(row=1, column=0,
+                 text='Load all data for data analysis').grid(row=1, column=0,
                                             padx=(10,0), pady=5,
                                             sticky='w')
 
@@ -1805,7 +1804,7 @@ class DataAnalysisScreen(tk.Frame):
 
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
-        frame_summary_data = ttk.LabelFrame(self, text="3.1 Summary Data",
+        frame_summary_data = ttk.LabelFrame(self, text="3.2 Summary Data",
                                            width=1200, height=150)
         frame_summary_data.grid_propagate(0)
         frame_summary_data.grid(padx=(10, 0),
@@ -1834,7 +1833,7 @@ class DataAnalysisScreen(tk.Frame):
                 self.notebook_data_analysis.select(tab_index)
 
         tk.Button(frame_summary_data, text='Show tables',
-                  width=15, height=1,
+                  width=18, height=1,
                   command=lambda : [data_files_selected(0)]).grid(row=1, column=0,
                                                                   padx=(10,0), pady=(10,5),
                                                                   sticky='w')
@@ -1856,8 +1855,6 @@ class DataAnalysisScreen(tk.Frame):
     def send_dict_paths(self, dict):
         self.dict_paths = dict
         self.data_analysis_object.get_paths_dict(self.dict_paths)
-
-
 
     # ------------------------- Popup window
     def create_popup(self):
@@ -2272,132 +2269,180 @@ class EvaluationScreen(tk.Frame):
         global popup_window_metrics
         self.popup_window_metrics = None
 
+
         # make object
         self.impact_evaluation = w.ImpactEvaluation(self)
 
         self.frame_main_evaluate= ttk.LabelFrame(self, text="4.1 Evaluate metric results, goals and targets",
                                              width=1200, height=700)
-        self.frame_main_evaluate.grid_propagate(0)
-        self.frame_main_evaluate.grid(padx=(10, 0),
-                                      pady=(10, 0),
-                                 sticky='nsew')
+        # self.frame_main_evaluate.grid_propagate(0)
+        # self.frame_main_evaluate.grid(padx=(10, 0),
+        #                               pady=(10, 0),
+        #                          sticky='nsew')
 
-        # metric results label
-        tk.Label(self.frame_main_evaluate,
-                 text='Metric results',
-                 font='Helvetica 12').grid(row=0, column=0,
-                                           columnspan=20,
-                                           sticky='w',
-                                           padx=(10, 0),
-                                           pady=(10, 0))
+        self.frame_main_evaluate.pack(side="left", fill="both", expand=True)
 
-        tk.Button(self.frame_main_evaluate,
+        self.scrollable_labelframe = w.ScrollableFrame(self.frame_main_evaluate)
+
+        show_results_button = tk.Button(self.scrollable_labelframe.scrollable_frame,
                   text='Show metric results',
                   width=20,
-                  command=self.check_if_data_loaded).grid(row=1, column=0,
-                                   padx=(5, 0),
-                                   pady=5,
-                                   sticky='w'
-                                   )
+                  command=lambda: [self.check_if_data_loaded(0), self.check_if_data_loaded(1)])
+
+        show_results_button.pack()
 
         # convert to string var and set init text
         self.status_message_show_metrics = tk.StringVar()
         self.status_message_show_metrics.set("")
 
-        tk.Label(self.frame_main_evaluate,
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
                  textvariable=self.status_message_show_metrics,
-                 foreground='red').grid(row=2, column=0,
-                                           sticky='w',
-                                           padx=(10, 0))
+                 foreground='red').pack()
 
         # --------------
         # metric evaluation
-        tk.Label(self.frame_main_evaluate,
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
                  text='Metric evaluation',
-                 font='Helvetica 12').grid(row=3, column=0,
-                                           sticky='w',
-                                           padx=(10, 0),
-                                           pady=(5, 0))
+                 font='Helvetica 12').pack()
 
 
         # create frame for entry box
-        self.frame_entry_box_metric = ttk.Frame(self.frame_main_evaluate,
+        self.frame_entry_box_metric = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
                                                      width=20, height=20)
 
-        self.frame_entry_box_metric.grid(row=4, column=0,
-                                         padx=(10, 0),
-                                         sticky='nsew')
+        self.frame_entry_box_metric.pack()
 
         self.entry_box_metric = ScrolledText(self.frame_entry_box_metric,
-                                             width=75, height=5).grid(row=0, column=0,
-                                                                           sticky='w',
-                                                                           padx=(10, 0))
+                                             width=75, height=5).pack()
 
         # -----------------
         # metric evaluation
-        tk.Label(self.frame_main_evaluate,
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
                  text='Target and goal evaluation',
-                 font='Helvetica 12').grid(row=5, column=0,
-                                           sticky='w',
-                                           padx=(10, 0),
-                                           pady=(10, 0))
+                 font='Helvetica 12').pack()
 
 
         # create frame for entry box
-        self.frame_entry_box_target = ttk.Frame(self.frame_main_evaluate,
+        self.frame_entry_box_target = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
                                                      width=20, height=20)
 
-        self.frame_entry_box_target.grid(row=6, column=0,
-                                         padx=(10, 0),
-                                         sticky='nsew')
+        self.frame_entry_box_target.pack()
 
         self.entry_box_target = ScrolledText(self.frame_entry_box_target,
-                                             width=75, height=5).grid(row=0, column=0,
-                                                                           sticky='w',
-                                                                           padx=(10, 0))
+                                             width=75, height=5).pack()
 
         # -----------------
         # Evaluation questions
-        tk.Label(self.frame_main_evaluate,
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
                  text='Evaluation questions',
-                 font='Helvetica 12 ').grid(row=7, column=0,
-                                           sticky='w',
-                                           padx=(10, 0),
-                                           pady=(10, 0))
+                 font='Helvetica 12 ').pack()
+
+        # --- Q1
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
+                 text='Q1 - Is the impact desirable?',
+                 font='Helvetica 12 ').pack()
 
         # create frame for entry box
-        self.frame_entry_box_question = ttk.Frame(self.frame_main_evaluate,
+        self.frame_entry_box_question_1 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
                                                 width=20, height=20)
+        self.frame_entry_box_question_1.pack()
+        self.entry_box_question_1 = ScrolledText(self.frame_entry_box_question_1,
+                                                 width=75, height=5)
+        self.entry_box_question_1 .pack()
 
-        self.frame_entry_box_question.grid(row=8, column=0,
-                                         padx=(10, 0),
-                                         sticky='nsew')
-
-        tk.Label(self.frame_entry_box_question,
-                 text='Q1 - Is the impact desirable?',
-                 font='Helvetica 12 ').grid(row=0, column=0,
-                                            sticky='w',
-                                            padx=(10, 0),
-                                            pady=(10, 0))
-
-        self.entry_box_question_1 = ScrolledText(self.frame_entry_box_question,
-                                             width=75, height=5).grid(row=1, column=0,
-                                                                      sticky='w',
-                                                                      padx=(10, 0))
-
-        tk.Label(self.frame_entry_box_question,
+        # --- Q2
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
                  text='Q2 - What is the time of the impact? (Short/long term?)',
-                 font='Helvetica 12 ').grid(row=2, column=0,
-                                            sticky='w',
-                                            padx=(10, 0),
-                                            pady=(10, 0))
+                 font='Helvetica 12 ').pack()
 
-        self.entry_box_question_2 = ScrolledText(self.frame_entry_box_question,
-                                                 width=75, height=5).grid(row=3, column=0,
-                                                                          sticky='w',
-                                                                          padx=(10, 0))
+        self.frame_entry_box_question_2 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
+                                                    width=20, height=20)
+        self.frame_entry_box_question_2.pack()
 
-    def check_if_data_loaded(self):
+        self.entry_box_question_2 = ScrolledText(self.frame_entry_box_question_2,
+                                                 width=75, height=5)
+        self.entry_box_question_2.pack()
+
+        # --- Q3
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
+                 text='Q3 - Is the impact sustainable over time?',
+                 font='Helvetica 12 ').pack()
+
+        self.frame_entry_box_question_3 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
+                                                    width=20, height=20)
+        self.frame_entry_box_question_3.pack()
+
+        self.entry_box_question_3 = ScrolledText(self.frame_entry_box_question_3,
+                                                 width=75, height=5)
+        self.entry_box_question_3.pack()
+
+        self.scrollable_labelframe.pack(side="left", fill="both", expand=True)
+
+        # --- Q4
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
+                 text='Q4 - What is the severity of the impact?',
+                 font='Helvetica 12 ').pack()
+
+        self.frame_entry_box_question_4 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
+                                                    width=20, height=20)
+        self.frame_entry_box_question_4.pack()
+
+        self.entry_box_question_4 = ScrolledText(self.frame_entry_box_question_4,
+                                                 width=75, height=5)
+        self.entry_box_question_4.pack()
+
+        self.scrollable_labelframe.pack(side="left", fill="both", expand=True)
+
+        # --- Q5
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
+                 text='Q5 - What is the number of beneficiaries of the impact?',
+                 font='Helvetica 12 ').pack()
+
+        self.frame_entry_box_question_5 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
+                                                    width=20, height=20)
+        self.frame_entry_box_question_5.pack()
+
+        self.entry_box_question_5 = ScrolledText(self.frame_entry_box_question_5,
+                                                 width=75, height=5)
+        self.entry_box_question_5.pack()
+
+        self.scrollable_labelframe.pack(side="left", fill="both", expand=True)
+
+        # --- Q6
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
+                 text='Q6 - What is the level of impact on different individuals in the community?',
+                 font='Helvetica 12 ').pack()
+
+        self.frame_entry_box_question_6 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
+                                                    width=20, height=20)
+        self.frame_entry_box_question_6.pack()
+
+        self.entry_box_question_6 = ScrolledText(self.frame_entry_box_question_6,
+                                                 width=75, height=5)
+        self.entry_box_question_6.pack()
+
+        self.scrollable_labelframe.pack(side="left", fill="both", expand=True)
+
+        # --- Q7
+        tk.Label(self.scrollable_labelframe.scrollable_frame,
+                 text='Q7 - Is the impact in line with the goals of the development project?',
+                 font='Helvetica 12 ').pack()
+
+        self.frame_entry_box_question_7 = ttk.Frame(self.scrollable_labelframe.scrollable_frame,
+                                                    width=20, height=20)
+        self.frame_entry_box_question_7.pack()
+
+        self.entry_box_question_7 = ScrolledText(self.frame_entry_box_question_7,
+                                                 width=75, height=5)
+        self.entry_box_question_7.pack()
+
+        self.scrollable_labelframe.pack(side="left", fill="both", expand=True)
+
+    def check_if_data_loaded(self, update):
+
+        if update:
+            self.impact_evaluation.refresh_tree()
+
 
         # check if database has entries
         sql = "SELECT DISTINCT metric_id FROM metric_value"
@@ -2419,6 +2464,12 @@ class EvaluationScreen(tk.Frame):
 
             # hide window if closed
             self.popup_window_metrics.protocol("WM_DELETE_WINDOW", lambda arg='popup': self.hide_window(arg))
+
+            # add refresh button
+            tk.Button(self.popup_window_metrics,
+                      text='Refresh',
+                      width=20, height=c.Size.button_height,
+                      command=self.impact_evaluation.refresh_tree).pack(pady=(10,0))
 
             self.impact_evaluation.create_treeview(self.popup_window_metrics)
 
