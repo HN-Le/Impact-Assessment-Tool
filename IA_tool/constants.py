@@ -23,6 +23,10 @@ class Size:
     hd_frame_width = 1280
     hd_frame_height = 720
 
+    # textbox frame sizes
+    txt_box_width = 100
+    txt_box_height = 10
+
 class DataTypes:
     likert_6 = ['I need a lot of additional knowledge about the topic',
                 'I need some additional knowledge about the topic',
