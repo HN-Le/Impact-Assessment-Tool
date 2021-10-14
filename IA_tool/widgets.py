@@ -9,6 +9,7 @@ import webbrowser
 from functools import partial
 import csv
 import statistics
+import numpy as np
 from collections import Counter
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -491,10 +492,10 @@ class MethodFragmentSelection(tk.Frame):
                 data_type = remap_data_type(combobox_data_type.get())
 
                 if question_type_input.get() == "Multiple_choice" or question_type_input.get() == "Scale":
-                    answer_options == answer_options_box.get()
+                    answer_options == (answer_options_box.get()).strip()
 
-                metric = (metric_name, method_fragment_id,
-                          metric_definition, metric_question,
+                metric = ((metric_name).strip(), method_fragment_id,
+                          metric_definition, (metric_question.strip()),
                           metric_value_type, multiple_answers,
                           answer_options, target_name, user_made, data_type)
 
@@ -1043,11 +1044,17 @@ class MethodFragmentSelection(tk.Frame):
 
                 self.metric_id_list.append(metric[0])
                 self.button_id_list.append(button)
-                self.user_metric_defintion_text.append(user_metric_definition_input)
-                self.demo_scope_list.append(user_demo_scope_input)
                 self.metric_target_list.append(user_target_input)
                 self.if_increase_list.append(combobox)
                 self.status_message_list.append(status_message)
+
+                if user_metric_definition_input:
+                    self.user_metric_defintion_text.append((user_metric_definition_input).strip())
+                    self.demo_scope_list.append((user_demo_scope_input).strip())
+                else:
+                    self.user_metric_defintion_text.append(user_metric_definition_input)
+                    self.demo_scope_list.append(user_demo_scope_input)
+
 
                 counter += 1
 
@@ -1418,13 +1425,13 @@ class DataAnalysis(tk.Frame):
         # refill with updated data
         self.fill_table(tree)
 
-    def validate_vis_inputs(self, target, time_frame):
-
-        print("target: ---", target)
-        print("time_frame: ---", time_frame)
-
-        if target and time_frame:
-            self.visualisation_get_metrics(target, time_frame)
+    # def validate_vis_inputs(self, target, time_frame):
+    #
+    #     print("target: ---", target)
+    #     print("time_frame: ---", time_frame)
+    #
+    #     if target and time_frame:
+    #         self.visualisation_get_metrics(target, time_frame)
 
 
     def visualisation_get_metrics(self, target, time_frame):
@@ -1466,29 +1473,29 @@ class DataAnalysis(tk.Frame):
                 metric_id = metric[0]
                 metric_target = metric[8]
                 metric_name = metric[1]
+                metric_data_type = metric[5]
 
-                if metric_target == remap_target(target):
+                if metric_target == remap_target(target) and metric_data_type != 'String':
                     metrics_target.append(metric_name)
 
-            print('metrics_target ', metrics_target)
+            # print('metrics_target ', metrics_target)
             return metrics_target
 
+    def remap_target(self, target):
+
+        if target == "Project Provider":
+            return 'project_provider'
+        elif target == "Community School Leader":
+            return 'community_school_leader'
+        elif target == "Teacher":
+            return 'teacher'
+        else:
+            return 'student'
 
     def calculate_data(self, time_frame, target):
 
         self.data_list = []
         self.unique_metrics = []
-
-        def remap_target(target):
-
-            if target == "Project Provider":
-                return 'project_provider'
-            elif target == "Community School Leader":
-                return 'community_school_leader'
-            elif target == "Teacher":
-                return 'teacher'
-            else:
-                return 'student'
 
         def remap_timeframe(time_frame):
 
@@ -1501,7 +1508,7 @@ class DataAnalysis(tk.Frame):
             else:
                 return 4
 
-        user_target = remap_target(target)
+        user_target = self.remap_target(target)
         user_time_frame = remap_timeframe(time_frame)
 
         def create_table_row(metric_name, metric_entries, values_list, metric_type, data_type, data_list):
@@ -1625,14 +1632,12 @@ class DataAnalysis(tk.Frame):
                 create_table_row(metric[0], metric_entries, values_list, metric[3], metric[2], self.data_list)
 
             else:
-                print('No data for this timeframe')
                 continue
 
     def delete_frame(self, frame):
 
         if frame is not None:
             frame.destroy()
-
 
     def make_table(self, frame, timeframe, target):
 
@@ -1688,78 +1693,304 @@ class DataAnalysis(tk.Frame):
         # if len(self.tree.get_children()) == 0:
         #     print('NOPS')
 
+    def create_canvas_frame(self, frame):
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
 
+        # create toolbar and place
+        toolbar = NavigationToolbar2Tk(self.canvas, frame)
+        toolbar.update()
+        self.canvas.get_tk_widget().pack()
 
-    def create_visualisations(self, target_group, point, metric, frame, state):
+    def remap_data_type(self, data_type):
+        if data_type == 'float':
+            return 7
+        elif data_type == 'int':
+            return 6
+        elif data_type == 'bool':
+            return 4
+        else:
+            return 5
+
+    def create_visualisations(self, target_group, point, metric, frame):
 
         print('target_group ---', target_group)
         print('point ---', point)
         print('metric ---', metric)
+        print("")
 
         time_list = []
+        value_list_sop = []
+        value_list_hop = []
+        value_list_eop = []
+        value_list_yap = []
+        score_list = []
+
+        value_list_all = [value_list_sop,
+                          value_list_hop,
+                          value_list_eop,
+                          value_list_yap]
 
         for index, time in enumerate(point):
             if time:
                 time_list.append(index + 1)
 
-        print('time_list ---', time_list)
-
         # TODO select the graph type based on the metric
-        # TODO create a function to update/refresh graph
+
+        cleaned_target = self.remap_target(target_group)
+
+        # -------------------
+        # retrieve data from db
+        sql_data = "select * from metric where lower(target_name) = (?) and lower(metric_name) = (?)"
+        retrieve_sql_data = self.data_object.query_with_par(sql_data, (cleaned_target, (metric).lower()))
+
+        metric_id = retrieve_sql_data[0][0]
+        metric_question_type = retrieve_sql_data[0][5]
+        metric_data_type = retrieve_sql_data[0][10]
+        metric_question = retrieve_sql_data[0][4]
+
+        figure_for_plot = Figure(figsize=(12, 4.2), dpi=100)
+        self.canvas = FigureCanvasTkAgg(figure_for_plot, master=frame)
+
+        if metric_question_type == 'Likert_6' or metric_question_type == "Likert_7":
+            self.plot_figure_1 = figure_for_plot.add_subplot(1,2,1, polar=True)
+            self.plot_figure_2 = figure_for_plot.add_subplot(1,2,2, polar=True)
+
+        else:
+            self.plot_figure = figure_for_plot.add_subplot()
+
+        print("Metric ID ", metric_id)
+
+        for time_unit in time_list:
+            sql_metric = "select * from metric_value where metric_id = (?) and measuring_point_id = (?)"
+            retrieve_metrics = self.data_object.query_with_par(sql_metric, (metric_id, time_unit))
+
+            print("retrieve_metrics ", retrieve_metrics)
+
+            for item in retrieve_metrics:
+                data_value = item[self.remap_data_type(metric_data_type)]
+                value_list_all[(time_unit - 1)].append(data_value)
+
+        # -------------------
+        # scoring likert scales
+        def score_likert(list, isLikert_7):
+            score = 0
+
+            score_1 = score_2 = score_3 = score_4 = score_5 = score_6 = score_7 = 0
+
+            score_list_6 = [score_1, score_2, score_3, score_4, score_5, score_6]
+            score_list_7 = [score_1, score_2, score_3, score_4, score_5, score_6, score_7]
+
+            for point in list:
+                print("point: ", point)
+
+                if isLikert_7:
+                    score_list_7[c.DataTypes.likert_7_score[point]-1] += c.DataTypes.likert_7_score[point]
+                else:
+                    score_list_6[c.DataTypes.likert_6_score[point]-1] += c.DataTypes.likert_6_score[point]
+
+            print('score_list_7: ', score_list_7)
+
+            if isLikert_7:
+                return score_list_7
+            else:
+                return score_list_6
+
+        # -------------------
+        # numerical data
+        def create_bar_chart(y_values):
+
+            x = ['Start','Halfway','End','Year after']
+            y = []
+            width = 0.4
 
 
-        # figure that contains the plot
-        figure_for_plot = Figure(figsize = (9, 5),
-                             dpi = 100)
+            for time_frame in y_values:
+                if time_frame :
+                    rounded_mean = round(statistics.mean(time_frame), 1)
+                    y.append(rounded_mean)
+                else:
+                    y.append(0)
 
-        canvas = FigureCanvasTkAgg(figure_for_plot, master=frame)
+            self.plot_figure.bar(x, y, width)
 
-        plot_1 = figure_for_plot.add_subplot()
+            long_label = metric.replace("(", "\n(")
 
-        def create_bar_chart():
-            # x =
-            # test data
+            x_label = 'Time frame'
+            y_label = "Average " + long_label.lower()
+            title_plot = "Average " + metric.lower() + "\n per time frame"
 
-            x = ['Monday','Tuesday','Wednesday','Thursday']
-            y = [1, 2, 3, 4]
+            # text with y values
+            for i, value in enumerate(y):
+                if not value:
+                    self.plot_figure.text(i, value, str(value), color='black', fontweight='bold')
+                else:
+                    self.plot_figure.text(i, 0.9 * value, str(value), color='white', fontweight='bold')
 
-            bar_chart = plot_1.bar(x, y, label = 'start')
+            self.plot_figure.set_xlabel(x_label)
+            self.plot_figure.set_ylabel(y_label)
+            self.plot_figure.set_title(title_plot)
 
-            # test labels
-            x_label = 'Day'
-            y_label = 'Rain in ml'
-            title_plot = metric
+        # bool data
+        def create_stacked_bar_chart_bool(y_values):
 
-            # test legend
-            legend_item_1 = ['start']
+            x = ['Start','Halfway','End','Year after']
+            y1 = []
+            y2 = []
+            width = 0.35
 
-            plot_1.set_xlabel(x_label)
-            plot_1.set_ylabel(y_label)
-            plot_1.set_title(title_plot)
+            for item in y_values:
+                if item:
+                    counter = Counter(item)
+                    y1.append(counter['yes'])
+                    y2.append(counter['no'])
+                else:
+                    y1.append(0)
+                    y2.append(0)
 
-            plot_1.legend(loc='best')
+            self.plot_figure.bar(x, y1, width, label='Yes')
+            self.plot_figure.bar(x, y2, width, bottom=y1, label='No')
 
-        def draw_chart():
-            # make canvas with plot and place
-            canvas.draw()
-            canvas.get_tk_widget().pack()
+            y_label = metric
+            title = metric_question
 
-            # create toolbar and place
-            toolbar = NavigationToolbar2Tk(canvas, frame)
-            toolbar.update()
-            canvas.get_tk_widget().pack()
+            # text with y values
+            for i, value in enumerate(y1):
+                if not value:
+                    self.plot_figure.text(i, value, str(value), color='black', fontweight='bold')
+                else:
+                    self.plot_figure.text(i, 0.9 * value, str(value), color='white', fontweight='bold')
 
-        if state == 'new':
-            create_bar_chart()
-            draw_chart()
+            # text with y values
+            for i, value in enumerate(y2):
+                if not value:
+                    self.plot_figure.text(i, value + y1[i], str(value), color='black', fontweight='bold')
+                else:
+                    self.plot_figure.text(i, 0.9 * (value + y1[i]), str(value), color='white', fontweight='bold')
 
-        if state == "updated":
-            canvas.get_tk_widget().destroy()
-            figure_for_plot.clf()
+            self.plot_figure.set_ylabel(y_label)
+            self.plot_figure.set_title(title)
+            self.plot_figure.legend()
 
-            plot_1.clear()
+        # likert data
+        def create_radar_chart(y_values):
 
-            frame.update()
+            categories = []
+            y = []
+
+            isLikert_7 = True
+
+            if metric_question_type.lower() == 'likert_7':
+                categories = c.DataTypes.likert_7
+            else:
+                isLikert_7 = False
+                categories = c.DataTypes.likert_6
+
+            categories = [*categories, categories[0]]
+
+            for item in categories:
+                item.replace("","")
+
+            for item in y_values:
+                if item:
+                    score = score_likert(item, isLikert_7)
+                    y.append(score)
+                else:
+                    if isLikert_7:
+                        y.append([0, 0, 0, 0, 0, 0, 0])
+                    else:
+                        y.append([0, 0, 0, 0, 0, 0])
+
+            value_counter_left = 0
+            value_counter_right = 0
+
+            for index, item in enumerate(y):
+
+                item = [*item, item[0]]
+                counter = Counter(item)
+
+                if index == 0 or index == 1:
+                    if counter[0] != 8:
+                        label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(item))
+
+                        self.plot_figure_1.set_xticks(label_loc)
+                        self.plot_figure_1.set_xticklabels(categories)
+
+                        self.plot_figure_1.plot(label_loc, item)
+                        self.plot_figure_1.fill(label_loc, item, color='deepskyblue', alpha=0.1)
+
+                        value_counter_left += 1
+
+                    else:
+                        if index == 1:
+                            if value_counter_left:
+                                continue
+                            else:
+                                figure_for_plot.delaxes(figure_for_plot.axes[0])
+
+                else:
+                    if counter[0] != 8:
+                        label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(item))
+
+                        self.plot_figure_2.set_xticks(label_loc)
+                        self.plot_figure_2.set_xticklabels(categories)
+
+                        self.plot_figure_2.plot(label_loc, item)
+                        self.plot_figure_2.fill(label_loc, item, color='deepskyblue', alpha=0.1)
+
+                        value_counter_right += 1
+
+                    else:
+                        if index == 3:
+                            if value_counter_right:
+                                continue
+                            else:
+                                figure_for_plot.delaxes(figure_for_plot.axes[1])
+
+        # scale data
+        def create_horizontal_chart():
+            print("horizontal bar chart (scale)")
+
+        # multiple choice data
+        def create_stacked_bar_chart_mc():
+
+            # check for when there are multiple answers
+            print("stacked bar chart (MC)")
+
+        # -------------------
+
+        self.create_canvas_frame(frame)
+
+        if (metric_question_type.lower()) == "numerical":
+            create_bar_chart(value_list_all)
+
+        elif (metric_question_type.lower()) == "boolean":
+            create_stacked_bar_chart_bool(value_list_all)
+
+        elif metric_question_type.lower().startswith("likert"):
+            create_radar_chart(value_list_all)
+
+        elif (metric_question_type.lower()) == "scale":
+            create_horizontal_chart()
+
+        elif (metric_question_type.lower()) == "multiple_choice":
+            create_stacked_bar_chart_mc()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         # print('--- create_visualisations')

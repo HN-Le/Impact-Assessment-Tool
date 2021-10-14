@@ -1884,13 +1884,13 @@ class DataAnalysisScreen(tk.Frame):
             self.notebook_data_analysis.add(self.tab_tables, text='Summary Tables')
             self.notebook_data_analysis.add(self.tab_visualisations, text='Visualisations')
 
-            self.notebook_data_analysis.pack(side="left", fill="both")
+            self.notebook_data_analysis.pack(side="left", fill="both", expand='true')
 
             # hide window if closed
             self.popup_window.protocol("WM_DELETE_WINDOW", lambda arg='popup': self.hide_window(arg))
 
             # prevent shrinking to widget size
-            self.tab_tables.pack_propagate(False)
+            # self.tab_tables.pack_propagate(False)
             # self.tab_visualisations.pack_propagate(False)
 
             sql_check_file_id = "select distinct file_id from metric_value"
@@ -1993,6 +1993,16 @@ class DataAnalysisScreen(tk.Frame):
                 else:
                     return 'student'
 
+            def remap_target_sql(target):
+                if target == "Project Provider":
+                    return 'project_provider'
+                elif target == "Community School Leader":
+                    return 'community_school_leader'
+                elif target == "Teacher":
+                    return 'teacher'
+                else:
+                    return 'student'
+
             def remap_timeframe(time_frame):
 
                 if time_frame == "Start of project":
@@ -2061,8 +2071,31 @@ class DataAnalysisScreen(tk.Frame):
 
 
             # -----------------
-            self.vis_option_frame = ttk.Frame(self.tab_visualisations, width=200, height=c.Size.hd_frame_height)
-            self.vis_option_frame.pack(side="left", fill="both")
+            self.visualisation_frame = ttk.Frame(self.tab_visualisations, width=1000, height=300)
+            self.visualisation_frame.pack(side="bottom",
+                                          pady=0, padx=(10, 20))
+
+            self.survey_question = tk.StringVar()
+            self.survey_question.set('')
+
+            tk.Label(self.tab_visualisations,
+                     textvariable=self.survey_question,
+                     font='Helvetica 12',
+                     foreground = 'mediumpurple').pack(side='bottom',
+                                                pady=(10, 5),
+                                                padx=10)
+
+            self.vis_option_1_frame = ttk.Frame(self.tab_visualisations, width=150, height=10)
+            self.vis_option_1_frame.pack(side="left", fill="both")
+
+            self.vis_option_2_frame = ttk.Frame(self.tab_visualisations, width=150, height=10)
+            self.vis_option_2_frame.pack(side="left", fill="both")
+
+            self.vis_option_3_frame = ttk.Frame(self.tab_visualisations, width=200, height=10)
+            self.vis_option_3_frame.pack(side="left", fill="both")
+
+            self.vis_option_4_frame = ttk.Frame(self.tab_visualisations, width=150, height=10)
+            self.vis_option_4_frame.pack(side="left", fill="both")
 
             self.metric_option_list = []
 
@@ -2085,18 +2118,17 @@ class DataAnalysisScreen(tk.Frame):
                 if self.input_target_vis and any(time_frame_list):
 
                     self.metric_option_list = self.data_analysis_object.visualisation_get_metrics(self.input_target_vis, time_frame_list)
-                    print("metric_option_list --- ", self.metric_option_list)
 
             # label
-            tk.Label(self.vis_option_frame,
+            tk.Label(self.vis_option_1_frame,
                      text='Select the target group',
-                     font='Helvetica 12').pack(side='top',
+                     font='Helvetica 12').pack(
                                                anchor='nw',
                                                pady=(10, 5),
                                                padx=10)
 
             self.select_target_visualisations = ttk.Combobox(
-                self.vis_option_frame,
+                self.vis_option_1_frame,
                 state="readonly",
                 values=["Project Provider",
                         "Community School Leader",
@@ -2106,53 +2138,53 @@ class DataAnalysisScreen(tk.Frame):
 
             self.select_target_visualisations.bind("<<ComboboxSelected>>", get_inputs)
 
-            self.select_target_visualisations.pack(side='top',
+            self.select_target_visualisations.pack(
                                                    anchor='nw',
                                                     pady=5,
                                                     padx=10)
 
-            tk.Label(self.vis_option_frame,
+            tk.Label(self.vis_option_2_frame,
                      text='Select the time frame(s)',
-                     font='Helvetica 12').pack(side='top',
+                     font='Helvetica 12').pack(
                                                anchor='nw',
                                                pady=(10, 5),
                                                padx=10)
 
             var1 = tk.BooleanVar()
-            tk.Checkbutton(self.vis_option_frame,
+            tk.Checkbutton(self.vis_option_2_frame,
                            text="Start of project",
                            command=lambda : [update_metric_list()],
-                           variable=var1).pack(side='top',
+                           variable=var1).pack(
                                                padx = 10,
                                                anchor='nw')
 
             var2 = tk.BooleanVar()
-            tk.Checkbutton(self.vis_option_frame,
+            tk.Checkbutton(self.vis_option_2_frame,
                            text= "Halfway point of project",
                            command=lambda : [update_metric_list()],
-                           variable=var2).pack(side='top',
+                           variable=var2).pack(
                                                padx = 10,
                                                anchor='nw')
 
             var3 = tk.BooleanVar()
-            tk.Checkbutton(self.vis_option_frame,
+            tk.Checkbutton(self.vis_option_2_frame,
                            text="End of project",
                            command=lambda : [update_metric_list()],
-                           variable=var3).pack(side='top',
+                           variable=var3).pack(
                                                padx = 10,
                                                anchor='nw')
 
             var4 = tk.BooleanVar()
-            tk.Checkbutton(self.vis_option_frame,
+            tk.Checkbutton(self.vis_option_2_frame,
                            text="Year after end of project",
                            command=lambda: [update_metric_list()],
-                           variable=var4).pack(side='top',
+                           variable=var4).pack(
                                                padx = 10,
                                                anchor='nw')
 
-            tk.Label(self.vis_option_frame,
+            tk.Label(self.vis_option_3_frame,
                      text='Select metric',
-                     font='Helvetica 12').pack(side='top',
+                     font='Helvetica 12').pack(
                                                anchor='nw',
                                                pady=(10, 5),
                                                padx=10)
@@ -2166,21 +2198,20 @@ class DataAnalysisScreen(tk.Frame):
 
                     self.select_metric["values"] = ["(No data available)"]
 
-
-
             self.select_metric = ttk.Combobox(
-                self.vis_option_frame,
+                self.vis_option_3_frame,
                 width=40,
                 state="readonly",
                 postcommand=change_visualisation_metric_option,
                 values='')
 
-            self.select_metric.pack(side='top',
+            self.select_metric.pack(
                                    anchor='nw',
                                    pady=5,
                                    padx=10)
 
-
+            self.status_message_vis = tk.StringVar()
+            self.status_message_vis.set('')
 
             def validate_visualisation_options(target, point, metric, state):
 
@@ -2202,8 +2233,7 @@ class DataAnalysisScreen(tk.Frame):
                             message_string += message
 
                     message_string += '!'
-
-                    print(message_string)
+                    self.status_message_vis.set(message_string)
 
                 if not target:
                     message_list.append('target group')
@@ -2214,25 +2244,42 @@ class DataAnalysisScreen(tk.Frame):
                 if not metric or metric == "(No data available)" :
                     message_list.append('metric')
 
-
                 # only show status message if one or more boxes are not filled in
                 if not target or not point_selected() or not metric:
                     status_message()
 
-                else:
-                    self.data_analysis_object.create_visualisations(self.select_target_visualisations.get(),
-                                                                    [var1.get(), var2.get(), var3.get(), var4.get()],
-                                                                    self.select_metric.get(),
-                                                                    self.visualisation_frame,
-                                                                    state)
+                if not message_list:
+
+                    sql_target = remap_target_sql(self.select_target_visualisations.get())
+                    sql_metric = self.select_metric.get()
+
+                    sql = 'select metric_question from metric where target_name = (?) and metric_name = (?)'
+                    retrieve_question = self.data_object.query_with_par(sql, (sql_target, sql_metric))
+
+                    metric_question = retrieve_question[0][0]
+
+                    self.survey_question.set('Survey Question: ' + metric_question)
+                    self.status_message_vis.set('')
+
+                    if state == 'new':
+                        self.data_analysis_object.create_visualisations(self.select_target_visualisations.get(),
+                                                                        [var1.get(), var2.get(), var3.get(),
+                                                                         var4.get()],
+                                                                        self.select_metric.get(),
+                                                                        self.visualisation_frame
+                                                                        )
+                    else:
+                        self.visualisation_frame = self.refresh_vis_tab(self.tab_visualisations, self.visualisation_frame)
+
+                        self.data_analysis_object.create_visualisations(self.select_target_visualisations.get(),
+                                                                        [var1.get(), var2.get(), var3.get(),
+                                                                         var4.get()],
+                                                                        self.select_metric.get(),
+                                                                        self.visualisation_frame
+                                                                        )
 
 
-
-
-
-            self.figure_state = ''
-
-            create_visualisations_button = tk.Button(self.vis_option_frame, text='Create visualisation',
+            create_visualisations_button = tk.Button(self.vis_option_4_frame, text='Create visualisation',
                                             width=18, height=1,
                                             command=lambda: [validate_visualisation_options(self.select_target_visualisations.get(),
                                                                                             [var1.get(), var2.get(), var3.get(), var4.get()],
@@ -2243,15 +2290,17 @@ class DataAnalysisScreen(tk.Frame):
 
                                                              ])
 
-            create_visualisations_button.pack(side='top',
+            create_visualisations_button.pack(
                                               anchor='nw',
                                               pady=5,
                                               padx=10)
 
-            self.visualisation_frame = ttk.Frame(self.tab_visualisations, width=c.Size.hd_frame_width, height=c.Size.hd_frame_height)
-            self.visualisation_frame.pack(side="left",
-                                          fill="both", expand='true',
-                                          pady=10, padx=(100, 20))
+            tk.Label(self.vis_option_4_frame,
+                     textvariable=self.status_message_vis,
+                     foreground='red').pack(
+                                               anchor='nw',
+                                               pady=(10, 5),
+                                               padx=10)
 
         else:
             self.popup_window.deiconify()
@@ -2260,6 +2309,25 @@ class DataAnalysisScreen(tk.Frame):
 
         if window == "popup":
             self.popup_window.withdraw()
+
+
+    def refresh_vis_tab(self, main_frame, frame_to_delete):
+
+        # empty out widgets in frame
+        for widget in frame_to_delete.winfo_children():
+            widget.destroy()
+
+
+        # frame_to_delete.destroy()
+        #
+        # self.visualisation_frame = ttk.Frame(main_frame, width=1000, height=300)
+        #
+        # self.visualisation_frame.pack(side="bottom",
+        #                               pady=10, padx=(100, 20))
+
+        return frame_to_delete
+
+
 
 
 class EvaluationScreen(tk.Frame):
