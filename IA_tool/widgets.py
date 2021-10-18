@@ -1,6 +1,7 @@
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import font as tkFont
 from . import constants as c
 from tkinter import filedialog
 from . import models as m
@@ -605,6 +606,18 @@ class MethodFragmentSelection(tk.Frame):
 
         self.create_list(target_key)
 
+    # Copy paste a cleaned line from the listbox
+    def copy_from_listbox(self, listbox, event):
+        selection = listbox.curselection()
+        text_selection = listbox.get(selection)
+
+        # 20 char survey
+
+        # cleaned_selection = text_selection.replace('','')
+
+
+        print("SELECTION: ", text_selection)
+
     def create_list(self, target_key):
 
         # todo rewrite to link with db
@@ -623,7 +636,11 @@ class MethodFragmentSelection(tk.Frame):
 
         self.community_list = tk.Listbox(self.frame_survey_questions, yscrollcommand=scrollbar_v_community_list.set,
                                          xscrollcommand=scrollbar_h_community_list.set,
+                                         activestyle='none',
                                          width=140, height=15)
+
+        # bind copy past function to listbox
+        self.community_list.bind("<Control-Key-c>", lambda x: self.copy_from_listbox(self.community_list, x))
 
         scrollbar_v_community_list.grid(row=6, column=1, sticky='ns')
         scrollbar_h_community_list.grid(row=7, column=0, sticky='we')
@@ -640,6 +657,35 @@ class MethodFragmentSelection(tk.Frame):
         self.metric_counter_label = tk.StringVar()
         self.metric_counter_label.set('')
 
+        # ---------------- txt
+        # 10 , 30
+        txt_metric = 'Metric:'
+        txt_question = 'Survey question:'
+        txt_type = 'Question type (for mWater):'
+        txt_items = 'Question items (for mWater):'
+        txt_choices = 'Question choices (for mWater):'
+        txt_format = 'Answer format (for mWater):'
+
+        pre_pad = ' ' * 5
+        txt_list = [txt_metric, txt_question, txt_type, txt_items, txt_choices, txt_format]
+
+        # Get the listbox font
+        listFont = tkFont.Font(font=self.community_list.cget("font"))
+        spaceLength = listFont.measure(" ")
+        spacing = 15 * spaceLength
+
+        len_txt = [listFont.measure(s) for s in txt_list]
+        longestLength = max(len_txt)
+
+        spacesToAdd_list = []
+        for item in len_txt:
+            neededSpacing = longestLength + spacing - item
+            spacesToAdd = int(round(neededSpacing / spaceLength))
+            spacesToAdd_list.append(spacesToAdd)
+
+
+
+
         # Listbox with all the survey questions per target group
         for index, value in enumerate(self.checkbox_list):
 
@@ -652,22 +698,60 @@ class MethodFragmentSelection(tk.Frame):
             sql_retrieve_metrics = "select * from metric where method_fragment_id=(?) and target_name=(?)"
             retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, (retrieve_method_frag_id[0][0], target_key))
 
-            # provider_metric_counter =
-            # leader_metric_counter =
-            # teacher_metric_counter =
-            # student_metric_counter =
-
             metric_counter = metric_counter + len(retrieve_metrics)
 
-            print('metric_counter ------ ', metric_counter)
+            # TODO sort based on question type (likert/num/bool)
+
+
 
             for metric_index, metric in enumerate(retrieve_metrics):
 
-                self.community_list.insert(tk.END, ' ' + 'Survey question:   ' + str(metric[4]))
-                self.community_list.insert(tk.END, '                ' + 'Metric:   ' + str(metric[1]))
-                self.community_list.insert(tk.END, '                   ' + 'Type:   ' + str(metric[5]))
-                self.community_list.insert(tk.END, '                   ' + 'Code:   ' + str(metric[2]))
+                metric_name = metric[1]
+                question = metric[4]
+                multiple_answers = metric[6]
+                question_type = metric[5].lower()
+                data_type = metric[10]
+                items_list = []
+
+                if multiple_answers:
+                    type = c.DataTypes.mWater_types['multiple_choice_multi']
+                else:
+                    type = c.DataTypes.mWater_types[question_type]
+
+                choices_all = metric[7]
+                if choices_all:
+                    choices = [x.strip() for x in choices_all.split(';')]
+                    items = len(choices)
+                    items_list = []
+                    for item in range(items):
+                        items_list.append(item)
+
+
+                if data_type == 'float' or data_type == 'int':
+                    format = c.DataTypes.mWater_formats[data_type]
+
+                elif question_type == 'string':
+                    format = c.DataTypes.mWater_formats[data_type]
+
+                # if metric_index == 0:
+                #     self.community_list.insert(tk.END, '\n')
+
+                self.community_list.insert(tk.END, pre_pad + txt_metric + spacesToAdd_list[0] * " " + str(metric_name))
+                self.community_list.insert(tk.END, pre_pad + txt_question + spacesToAdd_list[1] * " " + str(question))
+                self.community_list.insert(tk.END, pre_pad + txt_type + spacesToAdd_list[2] * " " + str(type))
+
+                if question_type == 'scale':
+                    self.community_list.insert(tk.END, pre_pad + txt_items + spacesToAdd_list[3] * " " + str(';   '.join(map(str,items_list))))
+
+                if choices_all:
+                    self.community_list.insert(tk.END, pre_pad + txt_choices + spacesToAdd_list[4] * " " + str(';   '.join(map(str,choices))))
+
+                # also if text question
+                if question_type == 'numerical':
+                    self.community_list.insert(tk.END, pre_pad + txt_format + spacesToAdd_list[5] * " " + str(format))
+
                 self.community_list.insert(tk.END, '\n')
+
 
         self.metric_counter_label.set("Amount of questions:  " + str(metric_counter))
 
@@ -1049,8 +1133,8 @@ class MethodFragmentSelection(tk.Frame):
                 self.status_message_list.append(status_message)
 
                 if user_metric_definition_input:
-                    self.user_metric_defintion_text.append((user_metric_definition_input).strip())
-                    self.demo_scope_list.append((user_demo_scope_input).strip())
+                    self.user_metric_defintion_text.append(str(user_metric_definition_input).strip())
+                    self.demo_scope_list.append(str(user_demo_scope_input).strip())
                 else:
                     self.user_metric_defintion_text.append(user_metric_definition_input)
                     self.demo_scope_list.append(user_demo_scope_input)
@@ -1785,9 +1869,9 @@ class DataAnalysis(tk.Frame):
                 print("point: ", point)
 
                 if isLikert_7:
-                    score_list_7[c.DataTypes.likert_7_score[point]-1] += c.DataTypes.likert_7_score[point]
+                    score_list_7[(c.DataTypes.likert_7).index(point)] += c.DataTypes.likert_7_score[point]
                 else:
-                    score_list_6[c.DataTypes.likert_6_score[point]-1] += c.DataTypes.likert_6_score[point]
+                    score_list_6[(c.DataTypes.likert_6).index(point)]  += c.DataTypes.likert_6_score[point]
 
             print('score_list_7: ', score_list_7)
 
@@ -1795,6 +1879,16 @@ class DataAnalysis(tk.Frame):
                 return score_list_7
             else:
                 return score_list_6
+
+        def get_label_time(index):
+            if index == 0:
+                return 'Start of project'
+            elif index == 1:
+                return 'Halfway of project'
+            elif index == 2:
+                return 'End of project'
+            else:
+                return 'Year after end of project'
 
         # -------------------
         # numerical data
@@ -1868,6 +1962,7 @@ class DataAnalysis(tk.Frame):
                 else:
                     self.plot_figure.text(i, 0.9 * (value + y1[i]), str(value), color='white', fontweight='bold')
 
+            self.plot_figure.set_xlabel([0,1,2,3])
             self.plot_figure.set_ylabel(y_label)
             self.plot_figure.set_title(title)
             self.plot_figure.legend()
@@ -1877,19 +1972,19 @@ class DataAnalysis(tk.Frame):
 
             categories = []
             y = []
+            color_line_list = ['tab:blue', 'tab:green', 'tab:red', 'tab:purple']
+            color_fill_list = ['deepskyblue', 'mediumseagreen', 'lightcoral', 'mediumpurple']
 
             isLikert_7 = True
 
             if metric_question_type.lower() == 'likert_7':
-                categories = c.DataTypes.likert_7
+                categories = c.DataTypes.likert_7_show
             else:
                 isLikert_7 = False
-                categories = c.DataTypes.likert_6
+                categories = c.DataTypes.likert_6_show
 
             categories = [*categories, categories[0]]
 
-            for item in categories:
-                item.replace("","")
 
             for item in y_values:
                 if item:
@@ -1914,10 +2009,13 @@ class DataAnalysis(tk.Frame):
                         label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(item))
 
                         self.plot_figure_1.set_xticks(label_loc)
-                        self.plot_figure_1.set_xticklabels(categories)
+                        self.plot_figure_1.set_xticklabels(categories, size = 9)
 
-                        self.plot_figure_1.plot(label_loc, item)
-                        self.plot_figure_1.fill(label_loc, item, color='deepskyblue', alpha=0.1)
+                        self.plot_figure_1.set_yticks(np.arange(0, (max(item) + 10)))
+
+                        self.plot_figure_1.plot(label_loc, item, color=color_line_list[index], label = get_label_time(index))
+                        self.plot_figure_1.fill(label_loc, item, color=color_fill_list[index], alpha=0.1)
+
 
                         value_counter_left += 1
 
@@ -1933,10 +2031,12 @@ class DataAnalysis(tk.Frame):
                         label_loc = np.linspace(start=0, stop=2 * np.pi, num=len(item))
 
                         self.plot_figure_2.set_xticks(label_loc)
-                        self.plot_figure_2.set_xticklabels(categories)
+                        self.plot_figure_2.set_xticklabels(categories, size = 9)
 
-                        self.plot_figure_2.plot(label_loc, item)
-                        self.plot_figure_2.fill(label_loc, item, color='deepskyblue', alpha=0.1)
+                        self.plot_figure_2.set_yticks(np.arange(0, (max(item) + 10)))
+
+                        self.plot_figure_2.plot(label_loc, item, color = color_line_list[index], label = get_label_time(index))
+                        self.plot_figure_2.fill(label_loc, item, color=color_fill_list[index], alpha=0.1)
 
                         value_counter_right += 1
 
@@ -1947,6 +2047,8 @@ class DataAnalysis(tk.Frame):
                             else:
                                 figure_for_plot.delaxes(figure_for_plot.axes[1])
 
+            figure_for_plot.legend(prop={'size': 8})
+
         # scale data
         def create_horizontal_chart():
             print("horizontal bar chart (scale)")
@@ -1954,8 +2056,44 @@ class DataAnalysis(tk.Frame):
         # multiple choice data
         def create_stacked_bar_chart_mc():
 
-            # check for when there are multiple answers
-            print("stacked bar chart (MC)")
+            x = ['Start', 'Halfway', 'End', 'Year after']
+            y1 = []
+            y2 = []
+            width = 0.35
+
+            for item in y_values:
+                if item:
+                    counter = Counter(item)
+                    y1.append(counter['yes'])
+                    y2.append(counter['no'])
+                else:
+                    y1.append(0)
+                    y2.append(0)
+
+            self.plot_figure.bar(x, y1, width, label='Yes')
+            self.plot_figure.bar(x, y2, width, bottom=y1, label='No')
+
+            y_label = metric
+            title = metric_question
+
+            # text with y values
+            for i, value in enumerate(y1):
+                if not value:
+                    self.plot_figure.text(i, value, str(value), color='black', fontweight='bold')
+                else:
+                    self.plot_figure.text(i, 0.9 * value, str(value), color='white', fontweight='bold')
+
+            # text with y values
+            for i, value in enumerate(y2):
+                if not value:
+                    self.plot_figure.text(i, value + y1[i], str(value), color='black', fontweight='bold')
+                else:
+                    self.plot_figure.text(i, 0.9 * (value + y1[i]), str(value), color='white', fontweight='bold')
+
+            self.plot_figure.set_xlabel([0, 1, 2, 3])
+            self.plot_figure.set_ylabel(y_label)
+            self.plot_figure.set_title(title)
+            self.plot_figure.legend()
 
         # -------------------
 
@@ -2010,7 +2148,9 @@ class ImpactEvaluation(tk.Frame):
     def get_data_object(self, data):
         self.data_object = data
 
+    # evaluation treeview
     def create_treeview(self, frame):
+
         TableMargin = tk.Frame(frame, width=1200, height=500)
         TableMargin.pack(side="top", fill="both", expand='True')
 
@@ -2029,7 +2169,9 @@ class ImpactEvaluation(tk.Frame):
                                  selectmode="extended",
                                  yscrollcommand=self.scrollbary.set,
                                  xscrollcommand=self.scrollbarx.set,
-                                 height=400)
+                                 height=400
+                                 )
+
 
         self.scrollbary.config(command=self.tree.yview)
         self.scrollbary.pack(side="right", fill="y")
@@ -2098,24 +2240,49 @@ class ImpactEvaluation(tk.Frame):
             print('Please load in data')
 
 
-    def calculate_target_progress(self, metric_id):
+    def calculate_target_mean(self, metric_id):
 
         values_list = []
         average = 0
+        data_bool = data_str = data_int = data_float = False
 
         # look up the rows in db
         sql_values = "select *  from metric_value where metric_id = (?)"
         retrieve_values = self.data_object.query_with_par(sql_values, (metric_id,))
 
+        # check data_type
+        if retrieve_values[0][4]:
+            data_bool = True
+        elif retrieve_values[0][5]:
+            data_str = True
+        elif retrieve_values[0][6]:
+            data_int = True
+        elif retrieve_values[0][7]:
+            data_float = True
+
+        # skip string
         for item in retrieve_values:
             if item[6]:
                 values_list.append(item[6])
             elif item[7]:
                 values_list.append(item[7])
+            elif item[4]:
+                values_list.append(item[4])
+            elif item[5]:
+                values_list.append(item[5])
             else:
                 continue
 
-        mean = statistics.mean(values_list)
+        # if int or float type
+        if data_int or data_float:
+            mean = statistics.mean(values_list)
+
+        elif data_str:
+            print('To Fix')
+        elif data_bool:
+            print('To Fix')
+
+        # print("values_list, ", values_list)
 
         if values_list:
             return(mean)
@@ -2168,7 +2335,7 @@ class ImpactEvaluation(tk.Frame):
             metric_name = metric[1]
             target_group = metric[8]
 
-            target_mean = self.calculate_target_progress(metric_id)
+            target_mean = self.calculate_target_mean(metric_id)
 
             # look in metric_target db
             sql_targets = "select * from metric_target where metric_id = (?)"
@@ -2224,6 +2391,8 @@ class ImpactEvaluation(tk.Frame):
                             increase_decrease,
                             round(target_mean, 1),
                             target_reached))
+
+            print('self.row_list: ',self.row_list)
 
             self.tree.insert("", tk.END, values=(metric_name, self.remap_target_to_show(target_group),
                                                  demo_scope, metric_target,

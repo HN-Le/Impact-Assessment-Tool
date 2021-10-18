@@ -12,6 +12,8 @@ class Application(tk.Tk):
 
     def __init__(self):
         tk.Tk.__init__(self)
+
+        self.style_app()
         self.setup_menu()
         self.setup_screen()
         self.config(menu=self.menuBar)
@@ -55,9 +57,32 @@ class Application(tk.Tk):
         self.data_collection_screen.send_dict_paths(self.path_model)
         self.data_analysis_screen.send_dict_paths(self.path_model)
 
-
     def create_database(self, database):
         self.data_model = m.SQLModel(database)
+
+    def style_app(self):
+        # styling
+        style = ttk.Style()
+        print('style names: ', style.theme_names())
+        style.theme_use('winnative')
+        style.configure("Treeview.Heading",
+                        background="#c0d2ed",
+                        foreground="black",
+                        font=('Helvetica', 12))
+
+        # normal labelframe style
+        style.configure("TLabelframe.Label",
+                        foreground="#4085f5")
+
+        # documentation header style
+        style.configure("Doc.TLabelframe.Label",
+                        font=('lucida', 13),
+                        foreground="#234987")
+
+        # combobox background
+        style.map('TCombobox', fieldbackground=[('readonly', 'white')])
+        style.map('TCombobox', selectbackground=[('readonly', 'white')])
+        style.map('TCombobox', selectforeground=[('readonly', 'black')])
 
     def create_path_dict(self):
         self.path_model = m.pathModel()
@@ -90,12 +115,7 @@ class Application(tk.Tk):
         notebook.add(self.data_analysis_screen, text='3- Data analysis')
         notebook.add(self.impact_assessment_screen, text='4- Evaluation')
 
-        notebook.grid(row=1, column=1, sticky='E', padx=5, pady=5, ipadx=5, ipady=5)
-
-
-
-
-
+        notebook.grid(row=1, column=1, sticky='E', padx=10, pady=(5,10), ipadx=5, ipady=5)
 
     # Exit GUI cleanly
     def _quit(self):

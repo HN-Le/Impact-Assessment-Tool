@@ -26,7 +26,10 @@ class ProjectPurposeScreen(tk.Frame):
 
 
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
-                                             width=c.Size.label_frame_width, height=80)
+                                            width=c.Size.label_frame_width,
+                                            height=80,
+                                            style="Doc.TLabelframe")
+
         frame_project_docs.grid_propagate(0)
         frame_project_docs.grid(padx=(10, 0),
                                  pady=(10, 0),
@@ -327,7 +330,10 @@ class DataCollectionScreen(tk.Frame):
         filename_docs_sampling_strategy = os.path.join(dirname, 'docs', 'sampling_strategy.pdf')
 
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
-                                            width=c.Size.label_frame_width, height=80)
+                                            width=c.Size.label_frame_width,
+                                            height=80,
+                                            style="Doc.TLabelframe")
+
         frame_project_docs.grid_propagate(0)
         frame_project_docs.grid(padx=(10, 0),
                                 pady=(10, 0),
@@ -1757,7 +1763,10 @@ class DataAnalysisScreen(tk.Frame):
         self.data_analysis_object = w.DataAnalysis(self)
 
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
-                                            width=c.Size.label_frame_width, height=80)
+                                            width=c.Size.label_frame_width,
+                                            height=80,
+                                            style="Doc.TLabelframe")
+
         frame_project_docs.grid_propagate(0)
         frame_project_docs.grid(padx=(10, 0),
                                 pady=(10, 0),
@@ -2292,7 +2301,7 @@ class DataAnalysisScreen(tk.Frame):
 
             create_visualisations_button.pack(
                                               anchor='nw',
-                                              pady=5,
+                                              pady=(40,5),
                                               padx=10)
 
             tk.Label(self.vis_option_4_frame,
@@ -2343,7 +2352,9 @@ class EvaluationScreen(tk.Frame):
         self.impact_evaluation = w.ImpactEvaluation(self)
 
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
-                                            width=c.Size.label_frame_width, height=80)
+                                            width=c.Size.label_frame_width,
+                                            height=80,
+                                            style="Doc.TLabelframe")
 
         frame_project_docs.pack(padx=(10, 0), pady = (10, 0),
                                       side="top", fill="both")

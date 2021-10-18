@@ -28,7 +28,14 @@ class Size:
     txt_box_height = 10
 
 class DataTypes:
-    likert_6 = ['I need a lot\nof additional\nknowledge about the topic',
+    likert_6 = ['I need a lot of additional knowledge about the topic',
+                'I need some additional knowledge about the topic',
+                'I need a little additional knowledge about the topic',
+                'I have some knowledge about the topic',
+                'I have good knowledge about the topic',
+                'I have strong knowledge about the topic']
+
+    likert_6_show = ['I need a lot\nof additional\nknowledge about the topic',
                 'I need some\nadditional knowledge\nabout the topic',
                 'I need a little\nadditional knowledge\nabout the topic',
                 'I have some\nknowledge about\nthe topic',
@@ -36,13 +43,21 @@ class DataTypes:
                 'I have strong\nknowledge about\nthe topic']
 
     likert_6_score = {'I need a lot of additional knowledge about the topic' : 1,
-                    'I need some additional knowledge about the topic' : 2,
-                    'I need a little additional knowledge about the topic' : 3,
-                    'I have some knowledge about the topic' : 4,
-                    'I have good knowledge about the topic' : 5,
-                    'I have strong knowledge about the topic' : 6}
+                    'I need some additional knowledge about the topic' : 1,
+                    'I need a little additional knowledge about the topic' : 1,
+                    'I have some knowledge about the topic' : 1,
+                    'I have good knowledge about the topic' : 1,
+                    'I have strong knowledge about the topic' : 1}
 
-    likert_7 = ['strongly\ndisagree',
+    likert_7 = ['strongly disagree',
+                'disagree',
+                'somewhat disagree',
+                'neither agree or disagree',
+                'somewhat agree',
+                'agree',
+                'strongly agree']
+
+    likert_7_show = ['strongly\ndisagree',
                 'disagree',
                 'somewhat\ndisagree',
                 'neither agree\nor disagree',
@@ -51,12 +66,25 @@ class DataTypes:
                 'strongly\nagree']
 
     likert_7_score = {'strongly disagree' : 1,
-                    'disagree' : 2,
-                    'somewhat disagree' : 3,
-                    'neither agree or disagree' : 4,
-                    'somewhat agree' : 5,
-                    'agree' : 6,
-                    'strongly agree' : 7}
+                    'disagree' : 1,
+                    'somewhat disagree' : 1,
+                    'neither agree or disagree' : 1,
+                    'somewhat agree' : 1,
+                    'agree' : 1,
+                    'strongly agree' : 1}
+
+    mWater_types = {"multiple_choice" : 'Radio Button Question',
+                    "multiple_choice_multi": 'Multi-check Question',
+                    'boolean' : 'Radio Button Question',
+                    'likert_6' : 'Radio Button Question',
+                    'likert_7' : 'Radio Button Question',
+                    'numerical' : 'Number Question',
+                    'scale' : 'Likert Question',
+                    'string' : 'Tekst Question'}
+
+    mWater_formats = {'int' : 'Whole number',
+                      'float' : 'Decimal number',
+                      'string': 'Single line of text'}
 
 
 
