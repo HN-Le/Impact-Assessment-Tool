@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
+import pyperclip
 
 class FileOpener(tk.Frame):
 
@@ -608,15 +609,29 @@ class MethodFragmentSelection(tk.Frame):
 
     # Copy paste a cleaned line from the listbox
     def copy_from_listbox(self, listbox, event):
+
+        # self.info_window.clipboard_clear()
+
         selection = listbox.curselection()
         text_selection = listbox.get(selection)
 
-        # 20 char survey
+        cleaned_selection = [x.strip() for x in text_selection.split(':')]
+        value = cleaned_selection[1]
 
-        # cleaned_selection = text_selection.replace('','')
+        pyperclip.copy(value)
+        pyperclip.paste()
+
+        print("Value: ", pyperclip.paste())
+
+        # self.info_window.clipboard_append('CLIPBOARD')
+        #
+        # print("Clipboard: ", self.info_window.clipboard_get())
+        # self.info_window.update()
+        #
 
 
-        print("SELECTION: ", text_selection)
+
+
 
     def create_list(self, target_key):
 
@@ -631,6 +646,8 @@ class MethodFragmentSelection(tk.Frame):
                                               pady=(10, 0),
                                               sticky='w')
 
+
+
         scrollbar_v_community_list = tk.Scrollbar(self.frame_survey_questions)
         scrollbar_h_community_list = tk.Scrollbar(self.frame_survey_questions)
 
@@ -640,12 +657,12 @@ class MethodFragmentSelection(tk.Frame):
                                          width=140, height=15)
 
         # bind copy past function to listbox
-        self.community_list.bind("<Control-Key-c>", lambda x: self.copy_from_listbox(self.community_list, x))
+        self.community_list.bind("<Control-Key-q>", lambda x: self.copy_from_listbox(self.community_list, x))
 
-        scrollbar_v_community_list.grid(row=6, column=1, sticky='ns')
-        scrollbar_h_community_list.grid(row=7, column=0, sticky='we')
+        scrollbar_v_community_list.grid(row=7, column=1, sticky='ns')
+        scrollbar_h_community_list.grid(row=8, column=0, sticky='we')
 
-        self.community_list.grid(row=6, column=0,
+        self.community_list.grid(row=7, column=0,
                                  padx=(10, 0),
                                  pady=2,
                                  sticky='nswe')
@@ -682,9 +699,6 @@ class MethodFragmentSelection(tk.Frame):
             neededSpacing = longestLength + spacing - item
             spacesToAdd = int(round(neededSpacing / spaceLength))
             spacesToAdd_list.append(spacesToAdd)
-
-
-
 
         # Listbox with all the survey questions per target group
         for index, value in enumerate(self.checkbox_list):
@@ -757,7 +771,7 @@ class MethodFragmentSelection(tk.Frame):
 
         tk.Label(self.frame_survey_questions,
                  textvariable= self.metric_counter_label,
-                 font='Helvetica 11').grid(row=10, column=0,
+                 font='Helvetica 11').grid(row=11, column=0,
                                                padx=(20, 0),
                                                pady=(0,10),
                                                sticky='w')
@@ -767,9 +781,10 @@ class MethodFragmentSelection(tk.Frame):
                                         height=c.Size.button_height,
                                         command=lambda: [self.notebook_summary.select(0)])
 
-        button_go_to_add_metrics.grid(row=11, column=0,
-                                 padx=(10, 0),
-                                 sticky='w')
+        button_go_to_add_metrics.grid(row=12, column=0,
+                                      padx=(20, 0),
+                                      pady=(5,10),
+                                      sticky='w')
 
     def make_summary_tabs(self):
 
@@ -819,11 +834,12 @@ class MethodFragmentSelection(tk.Frame):
 
         if refresh == False:
             self.frame_survey_questions = ttk.LabelFrame(self.tab_questions, text="Survey questions",
-                                                         width=1200, height=600)
+                                                         width=1200, height=720)
 
-            self.frame_survey_questions.grid_propagate(0)
+            # self.frame_survey_questions.grid_propagate(0)
             self.frame_survey_questions.grid(padx=5, pady=5,
                                              sticky='e')
+
 
 
             self.create_list('project_provider')
@@ -837,12 +853,21 @@ class MethodFragmentSelection(tk.Frame):
                         "Student"
                         ])
 
+
             self.combobox_target_survey.current(0)
 
-            self.combobox_target_survey.grid(row=5, column=0, padx=(20, 0), pady=(0,10),
+            self.combobox_target_survey.grid(row=5, column=0, padx=(20, 0),
                                              sticky='w')
 
             self.combobox_target_survey.bind("<<ComboboxSelected>>", self.get_target)
+
+            tk.Label(self.frame_survey_questions,
+                     text='To copy the value:     ctrl + q\nTo paste the value:    ctrl + v',
+                     foreground="#234987").grid(row=6, column=0,
+                                                padx=10,
+                                                pady=5,
+                                                sticky='w')
+
         else:
             self.create_list('')
 
