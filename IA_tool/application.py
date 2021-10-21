@@ -178,10 +178,14 @@ class Application(tk.Tk):
         if f is None:
             return
 
-        #get file path of new file
+        #get file path and dir of new file
         self.file_path = f.name
+        self.file_dir = (self.file_path.rsplit("/", 1))[0]
+        self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
+        # self.file_name = self.file_name + ' - DATABASE'
 
-        print('f: ', f)
+        # print('self.file_path  ', self.file_path)
+        # print('self.file_dir  ', self.file_dir)
 
         # delete select project screen
         self.project_screen.destroy()
@@ -189,10 +193,19 @@ class Application(tk.Tk):
         self.setup_menu()
         self.create_main_screen()
 
-        # Un hardcode it
-        dirname = os.getcwd()
-        name_db = 'test2.db'
-        self.database = os.path.join(dirname, 'data', 'sql', name_db)
+        # # Un hardcode it
+        # dirname = os.getcwd()
+        # name_db = 'test2.db'
+        # self.database = os.path.join(dirname, 'data', 'sql', name_db)
+
+        file_extention = '.db'
+        db_file_path = self.file_dir + '/' + self.file_name + file_extention
+
+        # overwrite old db (file name should be identical to db name!)
+        if os.path.isfile(db_file_path):
+            os.remove(db_file_path)
+
+        self.database = self.file_dir + '/' + self.file_name + file_extention
 
         # create db and send data to views
         self.send_data()
