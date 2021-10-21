@@ -586,6 +586,20 @@ class DataCollectionScreen(tk.Frame):
             self.start_project_window = tk.Toplevel()
             self.start_project_window.wm_title('Load data')
 
+            width = 1280
+            height = 600
+            position_left = 150
+            position_right = 150
+
+            self.start_project_window.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
+            # set size window fixed
+            self.start_project_window.resizable(0, 0)
+
+            width_tab = 1280
+            height_tab = 600
+
+
             # width =  self.start_project_window.winfo_screenwidth()
             # height =  self.start_project_window.winfo_screenheight()
             #
@@ -596,20 +610,20 @@ class DataCollectionScreen(tk.Frame):
             self.notebook_data_collection = ttk.Notebook(self.start_project_window)
 
             # make tabs
-            self.tab_sop = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_sop = ttk.Frame(self.start_project_window, width=width_tab, height=height_tab)
             self.tab_sop.grid(row=0, column=0,
                                   padx=(10, 0),
                                   sticky='nsew')
 
-            self.tab_hop = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_hop = ttk.Frame(self.start_project_window, width=width_tab, height=height_tab)
             self.tab_hop.grid(padx=(10, 0),
                                     sticky='nsew')
 
-            self.tab_eop = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_eop = ttk.Frame(self.start_project_window, width=width_tab, height=height_tab)
             self.tab_eop.grid(padx=(10, 0),
                               sticky='nsew')
 
-            self.tab_yap = ttk.Frame(self.start_project_window, width=1200, height=600)
+            self.tab_yap = ttk.Frame(self.start_project_window, width=width_tab, height=height_tab)
             self.tab_yap.grid(padx=(10, 0),
                               sticky='nsew')
 
@@ -1740,6 +1754,10 @@ class DataCollectionScreen(tk.Frame):
                                                padx=(10, 0), pady=5,
                                                sticky='w')
 
+            # focus on window
+            window_obj = w.Window()
+            window_obj.focus_window(self.start_project_window)
+
         else:
             # reset all the red status messages when re opening window
             self.reset_status_messages()
@@ -1873,10 +1891,17 @@ class DataAnalysisScreen(tk.Frame):
         if not self.popup_window:
             # create pop up window
             self.popup_window = tk.Toplevel()
-            self.popup_window.geometry('1280x720')
+
+            width = 1280
+            height = 720
+            position_left = 150
+            position_right = 150
+            self.popup_window.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
+            # set size window fixed
+            self.popup_window.resizable(0, 0)
 
             self.popup_window.wm_title('Data Analysis')
-
 
             # make notebook
             self.notebook_data_analysis = ttk.Notebook(self.popup_window)
@@ -2311,6 +2336,10 @@ class DataAnalysisScreen(tk.Frame):
                                                pady=(10, 5),
                                                padx=10)
 
+            # focus on window
+            window_obj = w.Window()
+            window_obj.focus_window(self.popup_window)
+
         else:
             self.popup_window.deiconify()
 
@@ -2608,7 +2637,16 @@ class EvaluationScreen(tk.Frame):
         if not self.popup_window_metrics:
             # create pop up window
             self.popup_window_metrics = tk.Toplevel()
-            self.popup_window_metrics.geometry('1280x720')
+
+            width = 1280
+            height = 720
+            position_left = 150
+            position_right = 150
+
+            self.popup_window_metrics.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
+            # set size window fixed
+            self.popup_window_metrics.resizable(0, 0)
 
             self.popup_window_metrics.wm_title('Overview of metric results, goals and targets')
 
@@ -2622,6 +2660,10 @@ class EvaluationScreen(tk.Frame):
                       command=self.impact_evaluation.refresh_tree).pack(pady=(10,0))
 
             self.impact_evaluation.create_treeview(self.popup_window_metrics)
+
+            # focus on window
+            window_obj = w.Window()
+            window_obj.focus_window(self.popup_window_metrics)
 
         else:
             self.popup_window_metrics.deiconify()

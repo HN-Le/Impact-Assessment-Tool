@@ -52,6 +52,15 @@ class FilePaths(tk.Frame):
     def get_dict(self, path_file):
         self.file_path_dict = path_file
 
+class Window(tk.Frame):
+
+    def focus_window(self, window):
+        window.lift()
+        window.focus_force()
+        window.grab_set()
+        window.grab_release()
+
+
 class MethodFragmentSelection(tk.Frame):
 
     def __init__(self, parent):
@@ -86,15 +95,23 @@ class MethodFragmentSelection(tk.Frame):
             self.selection_window = tk.Toplevel()
             self.selection_window.wm_title('Select Method Fragments')
 
-            width =  self.selection_window.winfo_screenwidth()
-            height =  self.selection_window.winfo_screenheight()
+            width = 720
+            height = 400
+            position_left = 150
+            position_right = 150
+
+            self.selection_window.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
+            # set size window fixed
+            self.selection_window.resizable(0, 0)
 
             # self.selection_window.geometry('%sx%s' % (int(width-100), int(height)))
 
             self.selection_window.protocol("WM_DELETE_WINDOW", lambda arg='method_fragment': self.hide_window(arg))
 
             frame_method_fragments= ttk.LabelFrame( self.selection_window, text="1.3 - Select method fragments",
-                                                 width=1200, height=400)
+                                                 width=700, height=380)
+
             frame_method_fragments.grid_propagate(0)
             frame_method_fragments.grid(padx=(10, 0),
                                      sticky='nsew')
@@ -127,6 +144,10 @@ class MethodFragmentSelection(tk.Frame):
                                  pady=2,
                                  sticky='w')
 
+            # focus on window
+            window_obj = Window()
+            window_obj.focus_window(self.selection_window)
+
         else:
             self.selection_window.deiconify()
 
@@ -146,8 +167,15 @@ class MethodFragmentSelection(tk.Frame):
             self.info_window = tk.Toplevel()
             self.info_window.wm_title('Summary')
 
-            width = self.info_window.winfo_screenwidth()
-            height = self.info_window.winfo_screenheight()
+            width = 1280
+            height = 700
+            position_left = 150
+            position_right = 150
+
+            self.info_window.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
+            # set size window fixed
+            self.info_window.resizable(0, 0)
 
             # self.info_window.geometry('%sx%s' % (int(width-100), int(height)))
 
@@ -159,6 +187,10 @@ class MethodFragmentSelection(tk.Frame):
 
             # go to metric tab
             self.notebook_summary.select(0)
+
+            # focus on window
+            window_obj = Window()
+            window_obj.focus_window(self.info_window)
 
 
         else:
@@ -971,10 +1003,15 @@ class MethodFragmentSelection(tk.Frame):
         self.add_metric_window = tk.Toplevel()
         self.add_metric_window.wm_title('Add metric definitions')
 
-        # set dimensions window
-        width = 1200
-        height = 800
-        self.add_metric_window.geometry("{}x{}".format(width, height))
+        width = 900
+        height = 720
+        position_left = 150
+        position_right = 150
+
+        self.add_metric_window.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
+        # set size window fixed
+        self.add_metric_window.resizable(0, 0)
 
         # make frame scrollable
         self.scrollable_add_metric_frame = ScrollableFrame(self.add_metric_window)
@@ -1000,7 +1037,7 @@ class MethodFragmentSelection(tk.Frame):
             # print("show_summary_metrics: type of VALUE: ", type(value[0]))
 
             # make frame
-            metric_frame = ttk.Frame(self.scrollable_add_metric_frame.scrollable_frame, width=1200, height=800)
+            metric_frame = ttk.Frame(self.scrollable_add_metric_frame.scrollable_frame, width=width, height=height)
 
             # retrieve method fragment id from checked methods fragments
             sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
@@ -1024,7 +1061,6 @@ class MethodFragmentSelection(tk.Frame):
                 # print(' ID: retrieve_metrics[0] -------------- ', metric[0])
                 # print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
                 # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
-
                 # print('retrieve_metric_target ------', metric[0])
 
 
@@ -1178,6 +1214,10 @@ class MethodFragmentSelection(tk.Frame):
         # put scrollable frame in window
         self.scrollable_add_metric_frame.pack(fill="both", expand='true')
 
+        # focus on window
+        window_obj = Window()
+        window_obj.focus_window(self.add_metric_window)
+
     def reset_user_def(self, index):
 
         self.user_metric_defintion_text[index].set('')
@@ -1281,6 +1321,10 @@ class DataAnalysis(tk.Frame):
 
     def load_into_database(self, dict, frame):
 
+        print('load_into_database - CHECK')
+        # print('dict - value' , dict)
+
+
         # delete all rows in metric_values table
         self.data_object.empty_table()
 
@@ -1343,8 +1387,9 @@ class DataAnalysis(tk.Frame):
 
         # loop through dict and extract the data from the valid paths
         for id, item in enumerate(dict):
-            # print('Key: ', path)
-            # print('Value: ',dict[path])
+
+            # print('Key: ', item)
+            # print('Value: ', dict[item])
 
             # variables for the SQL query
             self.file_id = id
@@ -1371,7 +1416,7 @@ class DataAnalysis(tk.Frame):
                 else:
                     self.measuring_point_id = 4
 
-                # print('file ID = ', file_id)
+                # print('file ID = ', self.file_id)
                 # print('Target: ', item)
                 # print('Path: ', dict[item])
 
@@ -2416,8 +2461,6 @@ class ImpactEvaluation(tk.Frame):
                             increase_decrease,
                             round(target_mean, 1),
                             target_reached))
-
-            print('self.row_list: ',self.row_list)
 
             self.tree.insert("", tk.END, values=(metric_name, self.remap_target_to_show(target_group),
                                                  demo_scope, metric_target,
