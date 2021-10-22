@@ -1,22 +1,20 @@
 
 import os
+import pickle
+
 import pandas as pd
 from sqlite3 import Error
 import sqlite3
 import numpy as np
 
-
 class surveyModel:
 
     def __init__(self):
-        # HARDCODED, CHANGE LATER!
         dirname = os.getcwd()
         filename = os.path.join(dirname, 'data', 'method_fragments', 'master_list.xlsx')
 
         self.raw_data = pd.read_excel(filename)
         self.dataframe = pd.DataFrame(self.raw_data)
-
-
 
     def show_relevant_fragments(self, df, item, target):
 
@@ -447,7 +445,16 @@ class pathModel:
 
     def __init__(self):
 
-        self.file_path_dict = {'sop_provider': '',
+        self.user_doc_file_paths = {'project_goals' : '',
+                                    'goal_model' : '',
+                                    'sampling_strategy' : ''}
+
+        self.user_project_dates = {'date_sop': '',
+                                   'date_hop': '',
+                                   'date_eop': '',
+                                   'date_yap': ''}
+
+        self.dc_file_paths = {'sop_provider': '',
                                'sop_leader': '',
                                'sop_teacher': '',
                                'sop_student': '',
@@ -466,10 +473,78 @@ class pathModel:
                                'yap_leader': '',
                                'yap_teacher': '',
                                'yap_student': ''
-                               }
+                              }
 
-    def update_path_dict(self, targets_with_period, index, file_path):
+    def update_user_doc_path_dict(self, doc, file_path):
+        self.user_doc_file_paths[doc] = file_path
 
-        self.file_path_dict[targets_with_period[index]] = file_path
+    def update_dc_path_dict(self, targets_with_period, index, file_path):
+        self.dc_file_paths[targets_with_period[index]] = file_path
+
+
+class appDataModel:
+
+    def __init__(self):
+        print('appDataModel')
+
+    def get_file_name(self, filename):
+        self.file_name = filename
+
+    def save_to_file(self):
+
+        try:
+            data = {'project_goals_path' : self.pp_dict['project_goals'],
+                    'goal_model_path' : self.pp_dict['goal_model'],
+                    'selected_method_fragments' : self.method_fragments,
+                    'isSelected' : self.method_fragments_bool,
+                    'sampling_strategy_path' : self.pp_dict['sampling_strategy'],
+                    'date_sop' : self.data_collection_dict_dates['date_sop'],
+                    'date_hop' : self.data_collection_dict_dates['date_hop'],
+                    'date_eop' : self.data_collection_dict_dates['date_eop'],
+                    'date_yap' : self.data_collection_dict_dates['date_yap'],
+                    'data_collection_paths' : self.data_collection_dict_paths,
+                    'state': '',
+                    'selected_file_counter' : self.selected_file_counter}
+
+            with open(self.file_name, 'wb') as f:
+                pickle.dump(data, f)
+
+        except Exception as e:
+            print ("error saving state:", str(e))
+
+
+        print(data)
+        # print('project_purpose', project_purpose)
+        # print('data_collection', data_collection)
+        # print('data_collection_paths', data_collection_paths)
+        # print('data_analysis_loading', data_analysis_loading)
+
+    def load_from_file(self):
+        try:
+            with open(self.file_name, "rb") as f:
+                data = pickle.load(f)
+
+            print(data)
+
+        except Exception as e:
+            print
+            "error loading saved state:", str(e)
+
+    def get_project_purpose(self, dict, method_frags):
+        self.pp_dict = dict
+        self.method_fragments = method_frags
+
+        if self.method_fragments:
+            self.method_fragments_bool = True
+        else:
+            self.method_fragments_bool = False
+
+    def get_data_collection(self, dict_date, dict_paths):
+        self.data_collection_dict_dates = dict_date
+        self.data_collection_dict_paths = dict_paths
+
+    def get_data_analysis(self, counter):
+
+        self.selected_file_counter = counter
 
 

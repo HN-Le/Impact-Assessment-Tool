@@ -11,19 +11,27 @@ from tkinter.scrolledtext import ScrolledText
 
 class ProjectPurposeScreen(tk.Frame):
 
+
     def __init__(self):
         tk.Frame.__init__(self)
 
         self.project_goal_selected = False
         self.goal_model_selected = False
 
+        self.create_doc()
+        self.create_project_goals_section()
+        self.create_goal_model_section()
+        self.create_method_fragment_section()
+
+        # ---- get path dics
+        # print('save_file_object', self.save_file_object)
+
+    def create_doc(self):
+        # load in documentation
         dirname = os.getcwd()
         filename_docs_project_goals = os.path.join(dirname, 'docs', 'project_goals.pdf')
         filename_docs_goal_model = os.path.join(dirname, 'docs', 'goal_model.pdf')
         filename_docs_method_frag = os.path.join(dirname, 'docs', 'method_fragments.pdf')
-
-
-
 
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
                                             width=c.Size.label_frame_width,
@@ -32,43 +40,43 @@ class ProjectPurposeScreen(tk.Frame):
 
         frame_project_docs.grid_propagate(0)
         frame_project_docs.grid(padx=(10, 0),
-                                 pady=(10, 0),
-                                 sticky='nsew')
+                                pady=(10, 0),
+                                sticky='nsew')
 
         tk.Button(frame_project_docs,
                   text='1.1 Project Goals',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_project_goals) ]).grid(row=0, column=0,
-                             padx=(10, 0), pady=5,
-                             sticky='w')
+                  command=lambda: [webbrowser.open(filename_docs_project_goals)]).grid(row=0, column=0,
+                                                                                       padx=(10, 0), pady=5,
+                                                                                       sticky='w')
 
         tk.Button(frame_project_docs,
                   text='1.2 Goal Model',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_goal_model) ]).grid(row=0, column=1,
-                                   padx=(10, 0), pady=5,
-                                   sticky='w')
+                  command=lambda: [webbrowser.open(filename_docs_goal_model)]).grid(row=0, column=1,
+                                                                                    padx=(10, 0), pady=5,
+                                                                                    sticky='w')
         tk.Button(frame_project_docs,
                   text='1.3 Method Fragments',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_method_frag) ]).grid(row=0, column=2,
-                                   padx=(10, 0), pady=5,
-                                   sticky='w')
+                  command=lambda: [webbrowser.open(filename_docs_method_frag)]).grid(row=0, column=2,
+                                                                                     padx=(10, 0), pady=5,
+                                                                                     sticky='w')
 
-
+    def create_project_goals_section(self):
         frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals",
                                              width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_project_goals.grid_propagate(0)
-        frame_project_goals.grid(padx=(10,0),
+        frame_project_goals.grid(padx=(10, 0),
                                  pady=(10, 0),
                                  sticky='nsew')
 
         label_project_goals = tk.Label(frame_project_goals,
-                         text='Identify project goals')
+                                       text='Identify project goals')
 
         label_project_goals.grid(row=0, column=0,
-                   padx=(10, 0), columnspan=2,
-                   sticky='n')
+                                 padx=(10, 0), columnspan=2,
+                                 sticky='n')
 
         # make object
         self.project_pdf = w.FileOpener(self)
@@ -79,13 +87,14 @@ class ProjectPurposeScreen(tk.Frame):
 
         # create label and place in gui
         self.project_label = tk.Label(frame_project_goals,
-                 textvariable=self.text_project_pdf).grid(row=3, column=0, sticky='w', padx=(20, 0), columnspan=150)
+                                      textvariable=self.text_project_pdf).grid(row=3, column=0, sticky='w',
+                                                                               padx=(20, 0), columnspan=150)
 
         # create button with actions
         button_upload_1 = tk.Button(frame_project_goals,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                    command= lambda: [select_goal_select_functions()])
+                                    command=lambda: [select_goal_select_functions()])
 
         # place upload button
         button_upload_1.grid(row=2, column=0,
@@ -94,16 +103,18 @@ class ProjectPurposeScreen(tk.Frame):
 
         def select_goal_select_functions():
 
-            self.project_pdf.get_file_path()
+            file_path = self.project_pdf.get_file_path()
             filename = self.project_pdf.return_file_name()
 
             if len(filename) > 10:
                 self.text_project_pdf.set(filename)
                 self.project_goal_selected = True
                 status_message_project_txt.set("")
+                self.dict_paths.update_user_doc_path_dict('project_goals', file_path)
             else:
                 self.project_goal_selected = False
                 self.text_project_pdf.set('')
+                self.dict_paths.update_user_doc_path_dict('project_goals', '')
 
         status_message_project_txt = tk.StringVar()
         status_message_project_txt.set("")
@@ -127,11 +138,10 @@ class ProjectPurposeScreen(tk.Frame):
                                   command=select_goal_show_functions)
 
         button_show_1.grid(row=2, column=1,
-                         padx=(10, 0), pady=5,
-                         sticky='w')
+                           padx=(10, 0), pady=5,
+                           sticky='w')
 
-        # -------------------------------------------------------------------------------------------
-
+    def create_goal_model_section(self):
         frame_goal_model = ttk.LabelFrame(self, text="1.2 Goal Model",
                                           width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_goal_model.grid_propagate(0)
@@ -155,22 +165,22 @@ class ProjectPurposeScreen(tk.Frame):
 
         # create label and place in gui
         self.project_goals_label = tk.Label(frame_goal_model,
-                                      textvariable=self.text_goal_pdf).grid(row=4, column=0, sticky='w', padx=(20, 0), columnspan=150)
+                                            textvariable=self.text_goal_pdf).grid(row=4, column=0, sticky='w',
+                                                                                  padx=(20, 0), columnspan=150)
 
         def goal_model_select_functions():
-            self.goal_pdf.get_file_path()
+            file_path = self.goal_pdf.get_file_path()
             filename = self.goal_pdf.return_file_name()
-
-            print('Filename length: -----', len(filename))
 
             if len(filename) > 10:
                 self.text_goal_pdf.set(filename)
                 status_message_project_model_txt.set("")
                 self.goal_model_selected = True
+                self.dict_paths.update_user_doc_path_dict('goal_model', file_path)
             else:
                 self.goal_model_selected = False
                 self.text_goal_pdf.set('')
-
+                self.dict_paths.update_user_doc_path_dict('goal_model', '')
 
         def goal_model_show_functions():
             if self.goal_model_selected:
@@ -184,15 +194,16 @@ class ProjectPurposeScreen(tk.Frame):
                                     command=lambda: [goal_model_select_functions()])
 
         button_upload_2.grid(row=2, column=0,
-                           padx=(10, 0),
-                           pady=5,
-                           sticky='w')
+                             padx=(10, 0),
+                             pady=5,
+                             sticky='w')
 
         status_message_project_model_txt = tk.StringVar()
         status_message_project_model_txt.set("")
         tk.Label(frame_goal_model,
                  font='Helvetica 11', foreground='red',
-                 textvariable=status_message_project_model_txt).grid(row=5, column=0, sticky='w', padx=(20, 0), columnspan=150)
+                 textvariable=status_message_project_model_txt).grid(row=5, column=0, sticky='w', padx=(20, 0),
+                                                                     columnspan=150)
 
         button_show_2 = tk.Button(frame_goal_model,
                                   text='Show',
@@ -200,40 +211,39 @@ class ProjectPurposeScreen(tk.Frame):
                                   command=lambda: [goal_model_show_functions()])
 
         button_show_2.grid(row=2, column=1,
-                         padx=(10, 0),
-                         pady=2,
-                         sticky='w')
+                           padx=(10, 0),
+                           pady=2,
+                           sticky='w')
 
-        # -------------------------------------------------------------------------------------------
-
+    def create_method_fragment_section(self):
         frame_select_method_fragments = ttk.LabelFrame(self, text="1.3 Method Fragments",
-                                          width=c.Size.label_frame_width, height=250)
+                                                       width=c.Size.label_frame_width, height=250)
         frame_select_method_fragments.grid_propagate(0)
         frame_select_method_fragments.grid(padx=(10, 0),
                                            pady=(10, 0),
-                              sticky='nsew')
+                                           sticky='nsew')
 
         label_selected_method_fragments = tk.Label(frame_select_method_fragments,
-                                       text='Select method fragments')
+                                                   text='Select method fragments')
 
         label_selected_method_fragments.grid(row=1, column=0, columnspan=2,
-                                 padx=(20, 0),
-                                 sticky='w')
+                                             padx=(20, 0),
+                                             sticky='w')
 
         self.method_fragment = w.MethodFragmentSelection(self)
-
 
         # checkboxes and method fragments
         button_upload_3 = tk.Button(frame_select_method_fragments,
                                     text='Select',
                                     width=c.Size.button_width, height=c.Size.button_height,
-                                  command=lambda : [self.method_fragment.show_selection_screen(),
-                                                    self.method_fragment.send_status_message(show_status_message, show_status_message_metric_def)])
+                                    command=lambda: [self.method_fragment.show_selection_screen(),
+                                                     self.method_fragment.send_status_message(show_status_message,
+                                                                                              show_status_message_metric_def)])
 
         button_upload_3.grid(row=3, column=0,
-                           padx=(10, 0),
-                           pady=2,
-                           sticky='w')
+                             padx=(10, 0),
+                             pady=2,
+                             sticky='w')
 
         status_message_show_method_frags = ''
         status_message_add_metric_def = ''
@@ -268,20 +278,20 @@ class ProjectPurposeScreen(tk.Frame):
         # ------------
 
         show_status_message = ttk.Label(frame_select_method_fragments,
-                              font='Helvetica 11', foreground='red',
-                              text=status_message_show_method_frags)
+                                        font='Helvetica 11', foreground='red',
+                                        text=status_message_show_method_frags)
 
         show_status_message.grid(row=4, column=0,
-                                columnspan=20,
-                                padx=10, pady=(10),
-                                sticky='w')
+                                 columnspan=20,
+                                 padx=10, pady=(10),
+                                 sticky='w')
 
         label_add_definition = tk.Label(frame_select_method_fragments,
-                                                   text='Add metric definition & set targets')
+                                        text='Add metric definition & set targets')
 
         label_add_definition.grid(row=5, column=0, columnspan=100,
-                                             padx=(20, 0),
-                                             sticky='w')
+                                  padx=(20, 0),
+                                  sticky='w')
 
         button_upload_5 = tk.Button(frame_select_method_fragments,
                                     text='Add / Show',
@@ -294,15 +304,19 @@ class ProjectPurposeScreen(tk.Frame):
                              sticky='w')
 
         show_status_message_metric_def = ttk.Label(frame_select_method_fragments,
-                                        font='Helvetica 11', foreground='red',
-                                        text=status_message_add_metric_def)
+                                                   font='Helvetica 11', foreground='red',
+                                                   text=status_message_add_metric_def)
 
         show_status_message_metric_def.grid(row=7, column=0,
-                                 columnspan=20,
-                                 padx=10, pady=(10),
-                                 sticky='w')
+                                            columnspan=20,
+                                            padx=10, pady=(10),
+                                            sticky='w')
 
         self.sendFrame(frame_select_method_fragments)
+
+    # 1234
+    def save_data(self):
+        self.save_file_object.get_project_purpose(self.dict_paths.user_doc_file_paths, self.method_fragment.checkbox_list)
 
     def sendFrame(self, frame):
         self.method_fragment.retrieve_frame(frame)
@@ -313,6 +327,12 @@ class ProjectPurposeScreen(tk.Frame):
     def send_data_object(self, data):
         self.data_object = data
         self.method_fragment.get_data_object(self.data_object)
+
+    def send_dict_paths(self, dict):
+        self.dict_paths = dict
+
+    def send_save_file_object(self, data):
+        self.save_file_object = data
 
 class DataCollectionScreen(tk.Frame):
 
@@ -411,16 +431,19 @@ class DataCollectionScreen(tk.Frame):
 
         # check if valid link
         def sampling_strategy_select_functions():
-            self.data_collection_pdf.get_file_path()
+            file_path = self.data_collection_pdf.get_file_path()
             filename = self.data_collection_pdf.return_file_name()
 
             if len(filename) > 10:
                 self.text_sampling_pdf.set(filename)
                 self.status_message_txt.set("")
                 self.sampling_selected = True
+                self.dict_paths.update_user_doc_path_dict('sampling_strategy', file_path)
             else:
                 self.sampling_selected = False
                 self.text_sampling_pdf.set('')
+                self.dict_paths.update_user_doc_path_dict('sampling_strategy', '')
+
 
         # create button with actions
         button_upload_1 = tk.Button(frame_sampling,
@@ -549,9 +572,26 @@ class DataCollectionScreen(tk.Frame):
                              padx=(100, 0),
                              sticky='w')
 
+        self.user_dates_objects =   [user_date_1,
+                                    user_date_2,
+                                    user_date_3,
+                                    user_date_4]
+
     def send_dict_paths(self, dict):
         self.dict_paths = dict
         self.data_collection.get_dict_paths(self.dict_paths)
+
+    def send_save_file_object(self, data):
+        self.save_file_object = data
+
+    # 1234
+    def save_data(self):
+        self.user_dates = {'date_sop' : self.user_dates_objects[0].get(),
+                           'date_hop' : self.user_dates_objects[1].get(),
+                           'date_eop' : self.user_dates_objects[2].get(),
+                           'date_yap' : self.user_dates_objects[3].get()}
+
+        self.save_file_object.get_data_collection(self.user_dates, self.dict_paths.dc_file_paths)
 
     def reset_status_messages(self):
         self.provider_status_message_label_sop.set('')
@@ -698,7 +738,7 @@ class DataCollectionScreen(tk.Frame):
                         status_message_label.set("")
                         data_file_status_list[index]['status'] = True
 
-                        self.dict_paths.update_path_dict(targets_with_period, index, file_opener_object.file_path)
+                        self.dict_paths.update_dc_path_dict(targets_with_period, index, file_opener_object.file_path)
 
                         print('----')
                         print('target: ', targets_with_period[index])
@@ -710,7 +750,7 @@ class DataCollectionScreen(tk.Frame):
                         status_message_label.set("File is not a CSV file!")
                         file_name_label.set('')
 
-                        self.dict_paths.update_path_dict(targets_with_period, index, '')
+                        self.dict_paths.update_dc_path_dict(targets_with_period, index, '')
 
                         print('----')
                         print('target: ', targets_with_period[index])
@@ -722,7 +762,7 @@ class DataCollectionScreen(tk.Frame):
                     status_message_label.set("Select a CSV file first!")
                     file_name_label.set('')
 
-                    self.dict_paths.update_path_dict(targets_with_period, index, '')
+                    self.dict_paths.update_dc_path_dict(targets_with_period, index, '')
 
                     print('----')
                     print('target: ', targets_with_period[index])
@@ -1768,7 +1808,6 @@ class DataCollectionScreen(tk.Frame):
         if window == "start_project":
             self.start_project_window.withdraw()
 
-
 class DataAnalysisScreen(tk.Frame):
 
     def __init__(self):
@@ -1826,9 +1865,9 @@ class DataAnalysisScreen(tk.Frame):
         tk.Button(frame_load_data, text='Load in data',
                   width=18, height=1,
                   command=lambda: [self.data_analysis_object.delete_frame(self.popup_window), adjusted_state_window(),
-                                   self.data_analysis_object.load_into_database(self.dict_paths.file_path_dict, frame_load_data)]).grid(row=2, column=0,
-                                            padx=(10,0), pady=5,
-                                            sticky='w')
+                                   self.data_analysis_object.load_into_database(self.dict_paths.dc_file_paths, frame_load_data)]).grid(row=2, column=0,
+                                                                                                                                       padx=(10,0), pady=5,
+                                                                                                                                       sticky='w')
 
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
@@ -1883,6 +1922,13 @@ class DataAnalysisScreen(tk.Frame):
     def send_dict_paths(self, dict):
         self.dict_paths = dict
         self.data_analysis_object.get_paths_dict(self.dict_paths)
+
+    def send_save_file_object(self, data):
+        self.save_file_object = data
+
+    # 1234
+    def save_data(self):
+        self.save_file_object.get_data_analysis(self.data_analysis_object.selected_file_counter)
 
     # ------------------------- Popup window
     def create_popup(self):
@@ -2065,7 +2111,7 @@ class DataAnalysisScreen(tk.Frame):
                 else:
                     # TODO fix for later
                     input_key = remap_timeframe(self.select_time_frame.get()) + '_' + remap_target(self.select_target.get())
-                    value = self.dict_paths.file_path_dict[input_key]
+                    value = self.dict_paths.dc_file_paths[input_key]
 
                     # calculate the table based on user input
                     self.data_analysis_object.calculate_data(self.select_time_frame.get(), self.select_target.get())
@@ -2365,9 +2411,6 @@ class DataAnalysisScreen(tk.Frame):
 
         return frame_to_delete
 
-
-
-
 class EvaluationScreen(tk.Frame):
 
     def __init__(self):
@@ -2622,10 +2665,10 @@ class EvaluationScreen(tk.Frame):
         if update:
             self.impact_evaluation.refresh_tree()
 
-
         # check if database has entries
         sql = "SELECT DISTINCT metric_id FROM metric_value"
         retrieve_sql = self.data_object.query_no_par(sql)
+
         if retrieve_sql:
             self.metric_results_window()
             self.status_message_show_metrics.set('')

@@ -11,8 +11,6 @@ import os
 import pickle
 
 
-FILENAME = "save.pickle"
-
 class Application(tk.Tk):
     """Application root window"""
 
@@ -28,7 +26,6 @@ class Application(tk.Tk):
 
 # --------------- main screen setup
 
-    # actuall main tool window
     def create_main_screen(self):
         # create main screen
         self.setup_screen()
@@ -104,7 +101,7 @@ class Application(tk.Tk):
         self.filemenu = Menu(self.menuBar, tearoff=0)
         self.filemenu.add_command(label="New", command='')
         self.filemenu.add_command(label="Load", command='')
-        self.filemenu.add_command(label="Save", command='')
+        self.filemenu.add_command(label="Save", command=self.save_application)
         self.filemenu.add_command(label="Quit", command=self.quit_application)
         self.menuBar.add_cascade(label="File", menu=self.filemenu)
 
@@ -114,7 +111,7 @@ class Application(tk.Tk):
         self.help_menu.add_command(label="About")
         self.menuBar.add_cascade(label="Help", menu=self.help_menu)
 
-# --------------- select project
+# --------------- new project / load project
 
     def select_project_screen(self):
 
@@ -130,6 +127,8 @@ class Application(tk.Tk):
 
         # set size window fixed
         self.project_screen.resizable(0, 0)
+
+        self.project_screen.protocol("WM_DELETE_WINDOW", self.quit_application)
 
         frame_project = ttk.LabelFrame(self.project_screen, text="Select new or exisiting project file",
                                        style='Doc.TLabelframe',
@@ -163,7 +162,7 @@ class Application(tk.Tk):
         tk.Button(frame_project,
                   text='Load',
                   width=c.Size.button_width, height=c.Size.button_height,
-                  command=lambda: []).grid(row=3, column=0,
+                  command=lambda: [self.load_in_project()]).grid(row=3, column=0,
                                            padx=30, pady=5,
                                            sticky='w')
 
@@ -191,6 +190,8 @@ class Application(tk.Tk):
         self.project_screen.destroy()
 
         self.setup_menu()
+
+
         self.create_main_screen()
 
         # # Un hardcode it
@@ -208,11 +209,14 @@ class Application(tk.Tk):
         self.database = self.file_dir + '/' + self.file_name + file_extention
 
         # create db and send data to views
-        self.send_data()
+        self.send_data_db()
 
-# --------------- database
+    def load_in_project(self):
+        print('pickle file laden, \ndb linken naar bestaande met zelfde naam\n variable op juist plek zetten')
 
-    def send_data(self):
+    # --------------- database
+
+    def send_data_db(self):
         # create database
         self.create_database(self.database)
 
@@ -222,14 +226,24 @@ class Application(tk.Tk):
         # populate measure point table
         self.data_model.populate_measure_point_query()
 
-        # send data_model object to other functions
+        # send data_model object to other classes
         self.project_purpose_screen.send_data_object(self.data_model)
         self.data_analysis_screen.send_data_object(self.data_model)
         self.impact_assessment_screen.send_data_object(self.data_model)
 
-        # send path dict to data collection and data analysis
+        # send path dict to other classess
+        self.project_purpose_screen.send_dict_paths(self.path_model)
         self.data_collection_screen.send_dict_paths(self.path_model)
         self.data_analysis_screen.send_dict_paths(self.path_model)
+
+        # create appDataModel object for all saved data
+        self.save_file_object = m.appDataModel()
+        self.save_file_object.get_file_name(self.file_path)
+
+        # send appData object to other classes
+        self.project_purpose_screen.send_save_file_object(self.save_file_object)
+        self.data_collection_screen.send_save_file_object(self.save_file_object)
+        self.data_analysis_screen.send_save_file_object(self.save_file_object)
 
     def create_database(self, database):
         self.data_model = m.SQLModel(database)
@@ -244,3 +258,13 @@ class Application(tk.Tk):
         self.quit()
         self.destroy()
         exit()
+
+    def save_application(self):
+        self.project_purpose_screen.save_data()
+        self.data_collection_screen.save_data()
+        self.data_analysis_screen.save_data()
+
+        self.save_file_object.save_to_file()
+
+
+

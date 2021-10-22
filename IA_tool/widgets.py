@@ -34,6 +34,7 @@ class FileOpener(tk.Frame):
         filename = filedialog.askopenfilename()
         # print('Selected:', filename)
         self.file_path = filename
+        return filename
 
     def return_file_name(self):
         shown_text = "Filename: " + self.file_path.split("/")[-1]
@@ -59,7 +60,6 @@ class Window(tk.Frame):
         window.focus_force()
         window.grab_set()
         window.grab_release()
-
 
 class MethodFragmentSelection(tk.Frame):
 
@@ -154,8 +154,6 @@ class MethodFragmentSelection(tk.Frame):
     def send_status_message(self, message_1, message_2):
         self.reset_message_1 = message_1
         self.reset_message_2 = message_2
-
-        print('send_status_message ------')
 
     def reset_status_message(self):
         self.reset_message_1['text'] = ''
@@ -660,10 +658,6 @@ class MethodFragmentSelection(tk.Frame):
         # print("Clipboard: ", self.info_window.clipboard_get())
         # self.info_window.update()
         #
-
-
-
-
 
     def create_list(self, target_key):
 
@@ -1321,10 +1315,6 @@ class DataAnalysis(tk.Frame):
 
     def load_into_database(self, dict, frame):
 
-        print('load_into_database - CHECK')
-        # print('dict - value' , dict)
-
-
         # delete all rows in metric_values table
         self.data_object.empty_table()
 
@@ -1534,7 +1524,6 @@ class DataAnalysis(tk.Frame):
 
         self.status_load_data.set(str(self.selected_file_counter) + " file(s) were loaded in.")
 
-        # self.calculate_data()
 
     def fill_table(self, tree):
 
@@ -2471,11 +2460,9 @@ class ImpactEvaluation(tk.Frame):
         # for item in row_list:
         #     print('Row: ---',item)
 
-
-
-# ref: https://blog.teclado.com/tkinter-scrollable-frames/
 class ScrollableFrame(ttk.Frame):
 
+    # ref: https://blog.teclado.com/tkinter-scrollable-frames/
     def __init__(self, container, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
 
