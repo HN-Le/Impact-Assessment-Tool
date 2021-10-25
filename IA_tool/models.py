@@ -31,26 +31,30 @@ class surveyModel:
 
 class SQLModel:
 
-    def __init__(self, database):
+    def __init__(self, database, new):
 
-        # create connection
-        self.conn = self.create_connection(database)
+        if new:
+            # create connection
+            self.conn = self.create_connection(database)
 
-        # list of project time points
-        self.measure_point_list = ["start_of_project", "halfway_point_project", "end_project", "year_after_project_end"]
+            # list of project time points
+            self.measure_point_list = ["start_of_project", "halfway_point_project", "end_project", "year_after_project_end"]
 
-        # populate db
-        self.define_sql_table(self.conn)
+            # populate db
+            self.define_sql_table(self.conn)
 
-        # HARDCODED, REMOVE LATER
-        self.project = ("Test Project")
-        self.create_project(self.conn, self.project)
+            # HARDCODED, REMOVE LATER
+            self.project = ("Test Project")
+            self.create_project(self.conn, self.project)
 
-        self.project_2 = ("Test Project Versie 2")
-        self.create_project(self.conn, self.project_2)
+            self.project_2 = ("Test Project Versie 2")
+            self.create_project(self.conn, self.project_2)
 
-        self.load_in_stock_data()
+            self.load_in_stock_data()
 
+        else:
+            # create connection
+            self.conn = self.create_connection(database)
 
     def create_connection(self, db_file):
         """ create a database connection to a SQLite database """
@@ -485,12 +489,14 @@ class pathModel:
 class appDataModel:
 
     def __init__(self):
+
         print('appDataModel')
+        self.load_from_save_file = False
 
     def get_file_name(self, filename):
         self.file_name = filename
 
-    def save_to_file(self):
+    def save_to_file(self, database_path, path_model):
 
         try:
             data = {'project_goals_path' : self.pp_dict['project_goals'],
@@ -504,7 +510,9 @@ class appDataModel:
                     'date_yap' : self.data_collection_dict_dates['date_yap'],
                     'data_collection_paths' : self.data_collection_dict_paths,
                     'state': '',
-                    'selected_file_counter' : self.selected_file_counter}
+                    'selected_file_counter' : self.selected_file_counter,
+                    'database_path' : database_path,
+                    'path_model': path_model}
 
             with open(self.file_name, 'wb') as f:
                 pickle.dump(data, f)
@@ -513,22 +521,24 @@ class appDataModel:
             print ("error saving state:", str(e))
 
 
-        print(data)
+        # print('data: ', data)
         # print('project_purpose', project_purpose)
         # print('data_collection', data_collection)
         # print('data_collection_paths', data_collection_paths)
         # print('data_analysis_loading', data_analysis_loading)
 
     def load_from_file(self):
+
+        print('self.file_name: ', self.file_name)
         try:
             with open(self.file_name, "rb") as f:
-                data = pickle.load(f)
-
-            print(data)
+                self.data = pickle.load(f)
+                print('DATA: ', self.data)
 
         except Exception as e:
-            print
-            "error loading saved state:", str(e)
+            print("error loading saved state:")
+
+
 
     def get_project_purpose(self, dict, method_frags):
         self.pp_dict = dict
@@ -544,7 +554,5 @@ class appDataModel:
         self.data_collection_dict_paths = dict_paths
 
     def get_data_analysis(self, counter):
-
         self.selected_file_counter = counter
-
 

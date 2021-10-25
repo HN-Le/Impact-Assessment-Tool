@@ -23,9 +23,6 @@ class ProjectPurposeScreen(tk.Frame):
         self.create_goal_model_section()
         self.create_method_fragment_section()
 
-        # ---- get path dics
-        # print('save_file_object', self.save_file_object)
-
     def create_doc(self):
         # load in documentation
         dirname = os.getcwd()
@@ -109,18 +106,18 @@ class ProjectPurposeScreen(tk.Frame):
             if len(filename) > 10:
                 self.text_project_pdf.set(filename)
                 self.project_goal_selected = True
-                status_message_project_txt.set("")
+                self.status_message_project_txt.set("")
                 self.dict_paths.update_user_doc_path_dict('project_goals', file_path)
             else:
                 self.project_goal_selected = False
                 self.text_project_pdf.set('')
                 self.dict_paths.update_user_doc_path_dict('project_goals', '')
 
-        status_message_project_txt = tk.StringVar()
-        status_message_project_txt.set("")
+        self.status_message_project_txt = tk.StringVar()
+        self.status_message_project_txt.set("")
         status_message_project_label = tk.Label(frame_project_goals,
                                                 font='Helvetica 11', foreground='red',
-                                                textvariable=status_message_project_txt).grid(row=4, column=0,
+                                                textvariable=self.status_message_project_txt).grid(row=4, column=0,
                                                                                               sticky='w',
                                                                                               padx=(20, 0),
                                                                                               columnspan=150)
@@ -129,7 +126,7 @@ class ProjectPurposeScreen(tk.Frame):
             if self.project_goal_selected:
                 self.project_pdf.show_project_goals()
             else:
-                status_message_project_txt.set("Select project goals first!")
+                self.status_message_project_txt.set("Select project goals first!")
 
         # place show button
         button_show_1 = tk.Button(frame_project_goals,
@@ -314,9 +311,9 @@ class ProjectPurposeScreen(tk.Frame):
 
         self.sendFrame(frame_select_method_fragments)
 
-    # 1234
     def save_data(self):
-        self.save_file_object.get_project_purpose(self.dict_paths.user_doc_file_paths, self.method_fragment.checkbox_list)
+        self.save_file_object.get_project_purpose(self.dict_paths.user_doc_file_paths,
+                                                  self.method_fragment.checkbox_list)
 
     def sendFrame(self, frame):
         self.method_fragment.retrieve_frame(frame)
@@ -333,6 +330,13 @@ class ProjectPurposeScreen(tk.Frame):
 
     def send_save_file_object(self, data):
         self.save_file_object = data
+
+    def restore_from_save_file(self):
+
+        if self.save_file_object.data['project_goals_path']:
+            self.project_goal_selected = True
+            self.text_project_pdf.set(self.project_pdf.clean_file_name(self.save_file_object.data['project_goals_path']))
+
 
 class DataCollectionScreen(tk.Frame):
 

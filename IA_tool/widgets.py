@@ -40,6 +40,9 @@ class FileOpener(tk.Frame):
         shown_text = "Filename: " + self.file_path.split("/")[-1]
         return shown_text
 
+    def clean_file_name(self, path):
+        return "Filename: " + path.split("/")[-1]
+
     def is_csv(self):
         if self.file_path.endswith('.csv'):
             return True

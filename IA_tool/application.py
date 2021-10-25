@@ -20,6 +20,9 @@ class Application(tk.Tk):
         # apply style for whole app
         self.apply_style_sheet()
 
+        # create save file object
+        self.save_file_object = m.appDataModel()
+
         # select new or load in project
         self.select_project_screen()
 
@@ -29,6 +32,7 @@ class Application(tk.Tk):
     def create_main_screen(self):
         # create main screen
         self.setup_screen()
+        self.setup_menu()
         self.config(menu=self.menuBar)
         self.title("SIAM-ED Tool")
         # start in fullscreen
@@ -100,7 +104,9 @@ class Application(tk.Tk):
         self.menuBar = Menu(master=self)
         self.filemenu = Menu(self.menuBar, tearoff=0)
         self.filemenu.add_command(label="New", command='')
-        self.filemenu.add_command(label="Load", command='')
+
+        # TODO add message box to ask user to save current screen
+        self.filemenu.add_command(label="Load", command=lambda : [self.load_in_project()])
         self.filemenu.add_command(label="Save", command=self.save_application)
         self.filemenu.add_command(label="Quit", command=self.quit_application)
         self.menuBar.add_cascade(label="File", menu=self.filemenu)
@@ -171,7 +177,13 @@ class Application(tk.Tk):
 
     def create_new_project(self):
 
-        f = filedialog.asksaveasfile(mode='w', defaultextension=".pickle")
+        self.save_file_object.load_from_save_file = False
+
+        filetypes = [
+            ('Pickle Save File', '*.pickle')
+        ]
+
+        f = filedialog.asksaveasfile(mode='w', filetypes=filetypes)
 
         # if cancelled
         if f is None:
@@ -189,10 +201,9 @@ class Application(tk.Tk):
         # delete select project screen
         self.project_screen.destroy()
 
-        self.setup_menu()
-
-
         self.create_main_screen()
+
+        self.send_save_file()
 
         # # Un hardcode it
         # dirname = os.getcwd()
@@ -208,23 +219,69 @@ class Application(tk.Tk):
 
         self.database = self.file_dir + '/' + self.file_name + file_extention
 
-        # create db and send data to views
-        self.send_data_db()
-
-    def load_in_project(self):
-        print('pickle file laden, \ndb linken naar bestaande met zelfde naam\n variable op juist plek zetten')
-
-    # --------------- database
-
-    def send_data_db(self):
         # create database
-        self.create_database(self.database)
+        self.create_database(self.database, True)
 
         # create path model
         self.create_path_dict()
 
         # populate measure point table
         self.data_model.populate_measure_point_query()
+
+        # send data to views
+        self.send_data_db()
+
+    def load_in_project(self):
+
+        filetypes = [('Pickle Save File', '*.pickle')]
+
+        file = filedialog.askopenfilename(
+            title='Open project file',
+            filetypes=filetypes)
+
+        # if cancelled
+        if file is None:
+            return
+
+        self.file_path = file
+
+        self.create_main_screen()
+
+        # send save file to views
+        self.send_save_file()
+
+        # load from pickle save file
+        self.save_file_object.load_from_file()
+
+        self.load_path_dict()
+
+        # check if linked database exists
+        if not os.path.isfile(self.save_file_object.data['database_path']):
+            print('load_in_project --- PATH DOES NOT EXISTS')
+            return
+
+        self.database = self.save_file_object.data['database_path']
+
+        # link database
+        self.create_database(self.database, False)
+
+        self.save_file_object.load_from_save_file = True
+
+
+        # send db to views
+        self.send_data_db()
+
+        self.project_purpose_screen.restore_from_save_file()
+
+        print('Save File: ', self.save_file_object.data)
+
+        self.update()
+
+        self.project_screen.destroy()
+
+    # --------------- database
+
+    def send_data_db(self):
 
         # send data_model object to other classes
         self.project_purpose_screen.send_data_object(self.data_model)
@@ -236,8 +293,8 @@ class Application(tk.Tk):
         self.data_collection_screen.send_dict_paths(self.path_model)
         self.data_analysis_screen.send_dict_paths(self.path_model)
 
+    def send_save_file(self):
         # create appDataModel object for all saved data
-        self.save_file_object = m.appDataModel()
         self.save_file_object.get_file_name(self.file_path)
 
         # send appData object to other classes
@@ -245,11 +302,14 @@ class Application(tk.Tk):
         self.data_collection_screen.send_save_file_object(self.save_file_object)
         self.data_analysis_screen.send_save_file_object(self.save_file_object)
 
-    def create_database(self, database):
-        self.data_model = m.SQLModel(database)
+    def create_database(self, database, new):
+        self.data_model = m.SQLModel(database, new)
 
     def create_path_dict(self):
         self.path_model = m.pathModel()
+
+    def load_path_dict(self):
+        self.path_model = self.save_file_object.data['path_model']
 
 # --------------- button functions
 
@@ -264,7 +324,10 @@ class Application(tk.Tk):
         self.data_collection_screen.save_data()
         self.data_analysis_screen.save_data()
 
-        self.save_file_object.save_to_file()
+        self.save_file_object.save_to_file(self.database, self.path_model)
+
+        print('SAVED ---')
+
 
 
 
