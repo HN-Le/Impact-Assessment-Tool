@@ -509,7 +509,7 @@ class appDataModel:
                     'date_eop' : self.data_collection_dict_dates['date_eop'],
                     'date_yap' : self.data_collection_dict_dates['date_yap'],
                     'data_collection_paths' : self.data_collection_dict_paths,
-                    'state': '',
+                    'data_file_status_list' : self.data_collection_dict_states,
                     'selected_file_counter' : self.selected_file_counter,
                     'database_path' : database_path,
                     'path_model': path_model}
@@ -540,18 +540,15 @@ class appDataModel:
 
 
 
-    def get_project_purpose(self, dict, method_frags):
+    def get_project_purpose(self, dict, method_frags, frags_selected):
         self.pp_dict = dict
         self.method_fragments = method_frags
+        self.method_fragments_bool = frags_selected
 
-        if self.method_fragments:
-            self.method_fragments_bool = True
-        else:
-            self.method_fragments_bool = False
-
-    def get_data_collection(self, dict_date, dict_paths):
+    def get_data_collection(self, dict_date, dict_paths, status_list):
         self.data_collection_dict_dates = dict_date
         self.data_collection_dict_paths = dict_paths
+        self.data_collection_dict_states = status_list
 
     def get_data_analysis(self, counter):
         self.selected_file_counter = counter

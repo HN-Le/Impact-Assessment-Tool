@@ -103,11 +103,12 @@ class ProjectPurposeScreen(tk.Frame):
             file_path = self.project_pdf.get_file_path()
             filename = self.project_pdf.return_file_name()
 
-            if len(filename) > 10:
+            if file_path:
                 self.text_project_pdf.set(filename)
                 self.project_goal_selected = True
                 self.status_message_project_txt.set("")
                 self.dict_paths.update_user_doc_path_dict('project_goals', file_path)
+
             else:
                 self.project_goal_selected = False
                 self.text_project_pdf.set('')
@@ -169,7 +170,7 @@ class ProjectPurposeScreen(tk.Frame):
             file_path = self.goal_pdf.get_file_path()
             filename = self.goal_pdf.return_file_name()
 
-            if len(filename) > 10:
+            if file_path:
                 self.text_goal_pdf.set(filename)
                 status_message_project_model_txt.set("")
                 self.goal_model_selected = True
@@ -313,7 +314,8 @@ class ProjectPurposeScreen(tk.Frame):
 
     def save_data(self):
         self.save_file_object.get_project_purpose(self.dict_paths.user_doc_file_paths,
-                                                  self.method_fragment.checkbox_list)
+                                                  self.method_fragment.checkbox_list,
+                                                  self.method_fragment.methode_frags_selected)
 
     def sendFrame(self, frame):
         self.method_fragment.retrieve_frame(frame)
@@ -333,9 +335,61 @@ class ProjectPurposeScreen(tk.Frame):
 
     def restore_from_save_file(self):
 
+        # if path to project model was saved
         if self.save_file_object.data['project_goals_path']:
             self.project_goal_selected = True
             self.text_project_pdf.set(self.project_pdf.clean_file_name(self.save_file_object.data['project_goals_path']))
+
+        # if path to goal model was saved
+        if self.save_file_object.data['goal_model_path']:
+            self.goal_model_selected = True
+            self.text_goal_pdf.set(self.project_pdf.clean_file_name(self.save_file_object.data['goal_model_path']))
+
+        # if method fragments were saved
+
+        # checkboxes
+        if self.save_file_object.data['selected_method_fragments']:
+
+            self.method_fragment.show_selection_screen()
+            self.method_fragment.selection_window.withdraw()
+
+            sql = 'select method_fragment_name from method_fragment'
+            retrieve_sql = self.data_object.query_no_par(sql)
+
+            #todo FIX CHECKBOXES
+
+            for item in self.save_file_object.data['selected_method_fragments']:
+                print('item: ', item)
+                self.method_fragment.checkbox[item]['variable'] = True
+                self.method_fragment.checkbox[item].select()
+
+
+            self.method_fragment.methode_frags_selected = True
+
+            self.method_fragment.checkbox_list = self.save_file_object.data['selected_method_fragments']
+
+
+            self.method_fragment.show_info_screen()
+            self.method_fragment.delete_frame(self.method_fragment.scrollable_metric_frame)
+            self.method_fragment.delete_frame(self.method_fragment.add_metrics_frame)
+            self.method_fragment.delete_frame(self.method_fragment.remove_frame)
+            self.method_fragment.add_metric()
+            self.method_fragment.show_summary_metrics()
+            self.methode_frags_selected = True
+            self.method_fragment.info_window.withdraw()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class DataCollectionScreen(tk.Frame):
@@ -438,7 +492,7 @@ class DataCollectionScreen(tk.Frame):
             file_path = self.data_collection_pdf.get_file_path()
             filename = self.data_collection_pdf.return_file_name()
 
-            if len(filename) > 10:
+            if file_path:
                 self.text_sampling_pdf.set(filename)
                 self.status_message_txt.set("")
                 self.sampling_selected = True
@@ -494,9 +548,9 @@ class DataCollectionScreen(tk.Frame):
                         sticky='w')
 
         # row 1
-        user_date_1 = tk.StringVar()
-        user_date_1_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_1)
-        user_date_1_input.grid(row=4, column=0, padx=(20, 0), pady=15, sticky='nswe')
+        self.user_date_1 = tk.StringVar()
+        self.user_date_1_input = ttk.Entry(frame_data_collection, width=15, textvariable=self.user_date_1)
+        self.user_date_1_input.grid(row=4, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_1 = tk.Label(frame_data_collection,
                                      text='Start of project')
@@ -515,9 +569,9 @@ class DataCollectionScreen(tk.Frame):
                            sticky='w')
 
         # row 2
-        user_date_2 = tk.StringVar()
-        user_date_2_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_2)
-        user_date_2_input.grid(row=5, column=0, padx=(20, 0), pady=15, sticky='nswe')
+        self.user_date_2 = tk.StringVar()
+        self.user_date_2_input = ttk.Entry(frame_data_collection, width=15, textvariable=self.user_date_2)
+        self.user_date_2_input.grid(row=5, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_2 = tk.Label(frame_data_collection,
                                        text='Halfway point of project')
@@ -535,9 +589,9 @@ class DataCollectionScreen(tk.Frame):
                              padx=(100, 0),
                              sticky='w')
         # row 3
-        user_date_3 = tk.StringVar()
-        user_date_3_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_3)
-        user_date_3_input.grid(row=6, column=0, padx=(20, 0), pady=15, sticky='nswe')
+        self.user_date_3 = tk.StringVar()
+        self.user_date_3_input = ttk.Entry(frame_data_collection, width=15, textvariable=self.user_date_3)
+        self.user_date_3_input.grid(row=6, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_3 = tk.Label(frame_data_collection,
                                        text='End of project')
@@ -556,9 +610,9 @@ class DataCollectionScreen(tk.Frame):
                              sticky='w')
 
         # row 4
-        user_date_4 = tk.StringVar()
-        user_date_4_input = ttk.Entry(frame_data_collection, width=15, textvariable=user_date_4)
-        user_date_4_input.grid(row=7, column=0, padx=(20, 0), pady=15, sticky='nswe')
+        self.user_date_4 = tk.StringVar()
+        self.user_date_4_input = ttk.Entry(frame_data_collection, width=15, textvariable=self.user_date_4)
+        self.user_date_4_input.grid(row=7, column=0, padx=(20, 0), pady=15, sticky='nswe')
 
         label_time_period_4 = tk.Label(frame_data_collection,
                                        text='Year after end of project')
@@ -576,10 +630,74 @@ class DataCollectionScreen(tk.Frame):
                              padx=(100, 0),
                              sticky='w')
 
-        self.user_dates_objects =   [user_date_1,
-                                    user_date_2,
-                                    user_date_3,
-                                    user_date_4]
+        self.user_dates_objects =   [self.user_date_1,
+                                    self.user_date_2,
+                                    self.user_date_3,
+                                    self.user_date_4]
+
+    def restore_from_save_file(self):
+
+        self.user_date_1.set(self.save_file_object.data['date_sop'])
+        self.user_date_2.set(self.save_file_object.data['date_hop'])
+        self.user_date_3.set(self.save_file_object.data['date_eop'])
+        self.user_date_4.set(self.save_file_object.data['date_yap'])
+
+        # if path to sampling strategy was saved
+        if self.save_file_object.data['sampling_strategy_path']:
+            self.sampling_selected = True
+            self.text_sampling_pdf.set(self.data_collection_pdf.clean_file_name(self.save_file_object.data['sampling_strategy_path']))
+
+        # if paths to loading in data were saved
+        if self.save_file_object.data['data_collection_paths']:
+
+            # make  toplevel than hide
+            self.show_project_start()
+            self.start_project_window.withdraw()
+
+            self.dict_paths.dc_file_paths = self.save_file_object.data['data_collection_paths']
+            self.data_file_status_list = self.save_file_object.data['data_file_status_list']
+
+            # set paths back
+            self.provider_file_label_sop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['sop_provider']))
+            self.leader_file_label_sop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['sop_leader']))
+            self.teacher_file_label_sop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['sop_teacher']))
+            self.student_file_label_sop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['sop_student']))
+
+            self.provider_file_label_hop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['hop_provider']))
+            self.leader_file_label_hop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['hop_leader']))
+            self.teacher_file_label_hop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['hop_teacher']))
+            self.student_file_label_hop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['hop_student']))
+
+            self.provider_file_label_eop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['eop_provider']))
+            self.leader_file_label_eop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['eop_leader']))
+            self.teacher_file_label_eop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['eop_teacher']))
+            self.student_file_label_eop.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['eop_student']))
+
+            self.provider_file_label_yap.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['yap_provider']))
+            self.leader_file_label_yap.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['yap_leader']))
+            self.teacher_file_label_yap.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['yap_teacher']))
+            self.student_file_label_yap.set(self.data_collection_pdf.clean_file_name(self.dict_paths.dc_file_paths['yap_student']))
+
+            self.provider_object_sop.file_path = self.dict_paths.dc_file_paths['sop_provider']
+            self.provider_object_hop.file_path = self.dict_paths.dc_file_paths['hop_provider']
+            self.provider_object_eop.file_path = self.dict_paths.dc_file_paths['eop_provider']
+            self.provider_object_yap.file_path = self.dict_paths.dc_file_paths['yap_provider']
+
+            self.leader_object_sop.file_path = self.dict_paths.dc_file_paths['sop_leader']
+            self.leader_object_hop.file_path = self.dict_paths.dc_file_paths['hop_leader']
+            self.leader_object_eop.file_path = self.dict_paths.dc_file_paths['eop_leader']
+            self.leader_object_yap.file_path = self.dict_paths.dc_file_paths['yap_leader']
+
+            self.teacher_object_sop.file_path = self.dict_paths.dc_file_paths['sop_teacher']
+            self.teacher_object_hop.file_path = self.dict_paths.dc_file_paths['hop_teacher']
+            self.teacher_object_eop.file_path = self.dict_paths.dc_file_paths['eop_teacher']
+            self.teacher_object_yap.file_path = self.dict_paths.dc_file_paths['yap_teacher']
+
+            self.student_object_sop.file_path = self.dict_paths.dc_file_paths['sop_student']
+            self.student_object_hop.file_path = self.dict_paths.dc_file_paths['hop_student']
+            self.student_object_eop.file_path = self.dict_paths.dc_file_paths['eop_student']
+            self.student_object_yap.file_path = self.dict_paths.dc_file_paths['yap_student']
+
 
     def send_dict_paths(self, dict):
         self.dict_paths = dict
@@ -590,12 +708,13 @@ class DataCollectionScreen(tk.Frame):
 
     # 1234
     def save_data(self):
+
         self.user_dates = {'date_sop' : self.user_dates_objects[0].get(),
                            'date_hop' : self.user_dates_objects[1].get(),
                            'date_eop' : self.user_dates_objects[2].get(),
                            'date_yap' : self.user_dates_objects[3].get()}
 
-        self.save_file_object.get_data_collection(self.user_dates, self.dict_paths.dc_file_paths)
+        self.save_file_object.get_data_collection(self.user_dates, self.dict_paths.dc_file_paths, self.data_file_status_list)
 
     def reset_status_messages(self):
         self.provider_status_message_label_sop.set('')
@@ -628,7 +747,7 @@ class DataCollectionScreen(tk.Frame):
 
             # create pop up window
             self.start_project_window = tk.Toplevel()
-            self.start_project_window.wm_title('Load data')
+            self.start_project_window.wm_title('Load in survey data')
 
             width = 1280
             height = 600
@@ -682,7 +801,7 @@ class DataCollectionScreen(tk.Frame):
             self.start_project_window.protocol("WM_DELETE_WINDOW", lambda arg='start_project': self.hide_window(arg))
 
             #------------------------- functions for validation and label creation
-            data_file_status_list = []
+            self.data_file_status_list = []
 
             time_period = ['sop', 'hop', 'eop', 'yap']
             targets = ['provider', 'leader', 'teacher', 'student']
@@ -708,12 +827,10 @@ class DataCollectionScreen(tk.Frame):
                                    'yap_student'
                                    ]
 
-
-
             # fill data_file_status_list
             for period in time_period:
                 for target in targets:
-                    data_file_status_list.append({'time_period': period,
+                    self.data_file_status_list.append({'time_period': period,
                                                   'target': target,
                                                   'status': False})
 
@@ -731,54 +848,42 @@ class DataCollectionScreen(tk.Frame):
             def validate_path(file_name_label, status_message_label, file_opener_object, index):
 
                 self.start_project_window.attributes("-topmost", False)
-                file_opener_object.get_file_path()
+                file_path = file_opener_object.get_file_path_csv()
                 filename = file_opener_object.return_file_name()
 
                 # check if a file is selected
-                if len(filename) > 10:
-                    # check if file is a csv and if so save path
-                    if file_opener_object.is_csv():
-                        file_name_label.set(filename)
-                        status_message_label.set("")
-                        data_file_status_list[index]['status'] = True
+                if file_path:
 
-                        self.dict_paths.update_dc_path_dict(targets_with_period, index, file_opener_object.file_path)
+                    file_name_label.set(filename)
+                    status_message_label.set('')
+                    self.data_file_status_list[index]['status'] = True
 
-                        print('----')
-                        print('target: ', targets_with_period[index])
-                        print('path: ', file_opener_object.file_path)
-                        print('----')
+                    self.dict_paths.update_dc_path_dict(targets_with_period, index, file_opener_object.file_path)
 
-                    # error warning if not csv
-                    else:
-                        status_message_label.set("File is not a CSV file!")
-                        file_name_label.set('')
+                        # print('----')
+                        # print('target: ', targets_with_period[index])
+                        # print('path: ', file_opener_object.file_path)
+                        # print('----')
 
-                        self.dict_paths.update_dc_path_dict(targets_with_period, index, '')
-
-                        print('----')
-                        print('target: ', targets_with_period[index])
-                        print('path: ', file_opener_object.file_path)
-                        print('----')
-
-                # if file is not a csv
+                # if no file is selected
                 else:
-                    status_message_label.set("Select a CSV file first!")
-                    file_name_label.set('')
-
+                    file_name_label.set('Filename: ')
                     self.dict_paths.update_dc_path_dict(targets_with_period, index, '')
 
-                    print('----')
-                    print('target: ', targets_with_period[index])
-                    print('path: ', file_opener_object.file_path)
-                    print('----')
+                    # print('----')
+                    # print('target: ', targets_with_period[index])
+                    # print('path: ', file_opener_object.file_path)
+                    # print('----')
 
                 self.start_project_window.attributes("-topmost", True)
 
             # functions if valid
             def show_csv_file(file_selected, status_message_label, file_opener_object):
+
                 if file_selected and file_opener_object.is_csv():
                     file_opener_object.show_project_goals()
+                else:
+                    status_message_label.set("Select a file first!")
 
             #------------------------- Data collection: Start of project (SOP) Frame
 
@@ -804,11 +909,11 @@ class DataCollectionScreen(tk.Frame):
             self.provider_object_sop = w.FileOpener(self)
 
             # label for file_name provider (to store file path)
-            provider_file_label_sop = tk.StringVar()
-            provider_file_label_sop.set("")
+            self.provider_file_label_sop = tk.StringVar()
+            self.provider_file_label_sop.set("Filename: ")
 
             # place in GUI
-            create_label(label_name= provider_file_label_sop,
+            create_label(label_name= self.provider_file_label_sop,
                          frame=frame_project_sop,
                          row=4,
                          column=0,
@@ -836,7 +941,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label= provider_file_label_sop,
+                                        command=lambda: [validate_path(file_name_label= self.provider_file_label_sop,
                                                                        status_message_label= self.provider_status_message_label_sop,
                                                                        file_opener_object= self.provider_object_sop,
                                                                        index= 0)
@@ -848,7 +953,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected= data_file_status_list[0]['status'],
+                                      command=lambda: [show_csv_file(file_selected= self.data_file_status_list[0]['status'],
                                                                      status_message_label= self.provider_status_message_label_sop,
                                                                      file_opener_object= self.provider_object_sop)
                                       ]).grid(row=3, column=1,
@@ -867,10 +972,10 @@ class DataCollectionScreen(tk.Frame):
             self.leader_object_sop = w.FileOpener(self)
 
             # label for file_name community leader (to store path)
-            leader_file_label_sop = tk.StringVar()
-            leader_file_label_sop.set("")
+            self.leader_file_label_sop = tk.StringVar()
+            self.leader_file_label_sop.set("Filename: ")
 
-            create_label(label_name=leader_file_label_sop,
+            create_label(label_name=self.leader_file_label_sop,
                          frame=frame_project_sop,
                          row=8,
                          column=0,
@@ -896,7 +1001,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label=leader_file_label_sop,
+                                        command=lambda: [validate_path(file_name_label=self.leader_file_label_sop,
                                                                        status_message_label=self.leader_status_message_label_sop,
                                                                        file_opener_object=self.leader_object_sop,
                                                                        index=1)
@@ -908,7 +1013,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[1]['status'],
+                                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[1]['status'],
                                                                      status_message_label=self.leader_status_message_label_sop,
                                                                      file_opener_object=self.leader_object_sop)
                                                        ]).grid(row=7, column=1,
@@ -928,10 +1033,10 @@ class DataCollectionScreen(tk.Frame):
             self.teacher_object_sop = w.FileOpener(self)
 
             # label for file_name teacher (to store path)
-            teacher_file_label_sop = tk.StringVar()
-            teacher_file_label_sop.set("")
+            self.teacher_file_label_sop = tk.StringVar()
+            self.teacher_file_label_sop.set("Filename: ")
 
-            create_label(label_name=teacher_file_label_sop,
+            create_label(label_name=self.teacher_file_label_sop,
                          frame=frame_project_sop,
                          row=14,
                          column=0,
@@ -957,7 +1062,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label=teacher_file_label_sop,
+                                        command=lambda: [validate_path(file_name_label=self.teacher_file_label_sop,
                                                                        status_message_label=self.teacher_status_message_label_sop,
                                                                        file_opener_object=self.teacher_object_sop,
                                                                        index=2)
@@ -969,7 +1074,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[2]['status'],
+                                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[2]['status'],
                                                                      status_message_label=self.teacher_status_message_label_sop,
                                                                      file_opener_object=self.teacher_object_sop)
                                                        ]).grid(row=11, column=1,
@@ -988,10 +1093,10 @@ class DataCollectionScreen(tk.Frame):
                                                     sticky='w')
 
             # convert to string var and set init text
-            student_file_label_sop = tk.StringVar()
-            student_file_label_sop.set("")
+            self.student_file_label_sop = tk.StringVar()
+            self.student_file_label_sop.set("Filename: ")
 
-            create_label(label_name=student_file_label_sop,
+            create_label(label_name=self.student_file_label_sop,
                         frame=frame_project_sop,
                         row=19,
                         column=0,
@@ -1017,7 +1122,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label=student_file_label_sop,
+                                        command=lambda: [validate_path(file_name_label=self.student_file_label_sop,
                                                                        status_message_label=self.student_status_message_label_sop,
                                                                        file_opener_object=self.student_object_sop,
                                                                        index=3,
@@ -1029,7 +1134,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_sop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[3]['status'],
+                                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[3]['status'],
                                                                      status_message_label=self.student_status_message_label_sop,
                                                                      file_opener_object=self.student_object_sop)
                                                        ]).grid(row=17, column=1,
@@ -1058,11 +1163,11 @@ class DataCollectionScreen(tk.Frame):
             self.provider_object_hop = w.FileOpener(self)
 
             # label for file_name provider (to store file path)
-            provider_file_label_hop = tk.StringVar()
-            provider_file_label_hop.set("")
+            self.provider_file_label_hop = tk.StringVar()
+            self.provider_file_label_hop.set("Filename: ")
 
             # place in GUI
-            create_label(label_name= provider_file_label_hop,
+            create_label(label_name= self.provider_file_label_hop,
                          frame=frame_project_hop,
                          row=4,
                          column=0,
@@ -1090,7 +1195,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label= provider_file_label_hop,
+                                        command=lambda: [validate_path(file_name_label= self.provider_file_label_hop,
                                                                        status_message_label= self.provider_status_message_label_hop,
                                                                        file_opener_object= self.provider_object_hop,
                                                                        index= 4)
@@ -1102,7 +1207,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected= data_file_status_list[4]['status'],
+                                      command=lambda: [show_csv_file(file_selected= self.data_file_status_list[4]['status'],
                                                                      status_message_label= self.provider_status_message_label_hop,
                                                                      file_opener_object= self.provider_object_hop)
                                       ]).grid(row=3, column=1,
@@ -1121,10 +1226,10 @@ class DataCollectionScreen(tk.Frame):
             self.leader_object_hop = w.FileOpener(self)
 
             # label for file_name community leader (to store path)
-            leader_file_label_hop = tk.StringVar()
-            leader_file_label_hop.set("")
+            self.leader_file_label_hop = tk.StringVar()
+            self.leader_file_label_hop.set("Filename: ")
 
-            create_label(label_name=leader_file_label_hop,
+            create_label(label_name=self.leader_file_label_hop,
                          frame=frame_project_hop,
                          row=8,
                          column=0,
@@ -1151,7 +1256,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label=leader_file_label_hop,
+                                        command=lambda: [validate_path(file_name_label=self.leader_file_label_hop,
                                                                        status_message_label=self.leader_status_message_label_hop,
                                                                        file_opener_object=self.leader_object_hop,
                                                                        index=5)
@@ -1163,8 +1268,9 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[5]['status'],
-                                                                     status_message_label=self.leader_status_message_label_hop)
+                                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[5]['status'],
+                                                                     status_message_label=self.leader_status_message_label_hop,
+                                                                     file_opener_object=self.leader_object_hop)
                                                        ]).grid(row=7, column=1,
                                                                padx=(10, 0), pady=5,
                                                                sticky='w')
@@ -1182,10 +1288,10 @@ class DataCollectionScreen(tk.Frame):
             self.teacher_object_hop = w.FileOpener(self)
 
             # label for file_name teacher (to store path)
-            teacher_file_label_hop = tk.StringVar()
-            teacher_file_label_hop.set("")
+            self.teacher_file_label_hop = tk.StringVar()
+            self.teacher_file_label_hop.set("Filename: ")
 
-            create_label(label_name=teacher_file_label_hop,
+            create_label(label_name=self.teacher_file_label_hop,
                          frame=frame_project_hop,
                          row=14,
                          column=0,
@@ -1211,7 +1317,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label=teacher_file_label_hop,
+                                        command=lambda: [validate_path(file_name_label=self.teacher_file_label_hop,
                                                                        status_message_label=self.teacher_status_message_label_hop,
                                                                        file_opener_object=self.teacher_object_hop,
                                                                        index=6)
@@ -1223,7 +1329,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[6]['status'],
+                                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[6]['status'],
                                                                      status_message_label=self.teacher_status_message_label_hop,
                                                                      file_opener_object=self.teacher_object_hop)
                                                        ]).grid(row=11, column=1,
@@ -1242,10 +1348,10 @@ class DataCollectionScreen(tk.Frame):
                                                     sticky='w')
 
             # convert to string var and set init text
-            student_file_label_hop = tk.StringVar()
-            student_file_label_hop.set("")
+            self.student_file_label_hop = tk.StringVar()
+            self.student_file_label_hop.set("Filename: ")
 
-            create_label(label_name=student_file_label_hop,
+            create_label(label_name=self.student_file_label_hop,
                         frame=frame_project_hop,
                         row=19,
                         column=0,
@@ -1271,7 +1377,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                         text='Select',
                                         width=c.Size.button_width, height=c.Size.button_height,
-                                        command=lambda: [validate_path(file_name_label=student_file_label_hop,
+                                        command=lambda: [validate_path(file_name_label=self.student_file_label_hop,
                                                                        status_message_label=self.student_status_message_label_hop,
                                                                        file_opener_object=self.student_object_hop,
                                                                        index=7,
@@ -1283,7 +1389,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_hop,
                                       text='Show',
                                       width=c.Size.button_width, height=c.Size.button_height,
-                                      command=lambda: [show_csv_file(file_selected=data_file_status_list[7]['status'],
+                                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[7]['status'],
                                                                      status_message_label=self.student_status_message_label_hop,
                                                                      file_opener_object=self.student_object_hop)
                                                        ]).grid(row=17, column=1,
@@ -1312,11 +1418,11 @@ class DataCollectionScreen(tk.Frame):
             self.provider_object_eop = w.FileOpener(self)
 
             # label for file_name provider (to store file path)
-            provider_file_label_eop = tk.StringVar()
-            provider_file_label_eop.set("")
+            self.provider_file_label_eop = tk.StringVar()
+            self.provider_file_label_eop.set("Filename: ")
 
             # place in GUI
-            create_label(label_name=provider_file_label_eop,
+            create_label(label_name=self.provider_file_label_eop,
                          frame=frame_project_eop,
                          row=4,
                          column=0,
@@ -1344,7 +1450,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=provider_file_label_eop,
+                      command=lambda: [validate_path(file_name_label=self.provider_file_label_eop,
                                                      status_message_label=self.provider_status_message_label_eop,
                                                      file_opener_object=self.provider_object_eop,
                                                      index=8)
@@ -1356,7 +1462,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[8]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[8]['status'],
                                                      status_message_label=self.provider_status_message_label_eop,
                                                      file_opener_object=self.provider_object_eop)
                                        ]).grid(row=3, column=1,
@@ -1375,10 +1481,10 @@ class DataCollectionScreen(tk.Frame):
             self.leader_object_eop = w.FileOpener(self)
 
             # label for file_name community leader (to store path)
-            leader_file_label_eop = tk.StringVar()
-            leader_file_label_eop.set("")
+            self.leader_file_label_eop = tk.StringVar()
+            self.leader_file_label_eop.set("Filename: ")
 
-            create_label(label_name=leader_file_label_eop,
+            create_label(label_name=self.leader_file_label_eop,
                          frame=frame_project_eop,
                          row=8,
                          column=0,
@@ -1404,7 +1510,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=leader_file_label_eop,
+                      command=lambda: [validate_path(file_name_label=self.leader_file_label_eop,
                                                      status_message_label=self.leader_status_message_label_eop,
                                                      file_opener_object=self.leader_object_eop,
                                                      index=9)
@@ -1416,7 +1522,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[9]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[9]['status'],
                                                      status_message_label=self.leader_status_message_label_eop,
                                                      file_opener_object=self.leader_object_eop)
                                        ]).grid(row=7, column=1,
@@ -1436,10 +1542,10 @@ class DataCollectionScreen(tk.Frame):
             self.teacher_object_eop = w.FileOpener(self)
 
             # label for file_name teacher (to store path)
-            teacher_file_label_eop = tk.StringVar()
-            teacher_file_label_eop.set("")
+            self.teacher_file_label_eop = tk.StringVar()
+            self.teacher_file_label_eop.set("Filename: ")
 
-            create_label(label_name=teacher_file_label_eop,
+            create_label(label_name=self.teacher_file_label_eop,
                          frame=frame_project_eop,
                          row=14,
                          column=0,
@@ -1465,7 +1571,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=teacher_file_label_eop,
+                      command=lambda: [validate_path(file_name_label=self.teacher_file_label_eop,
                                                      status_message_label=self.teacher_status_message_label_eop,
                                                      file_opener_object=self.teacher_object_eop,
                                                      index=10)
@@ -1477,7 +1583,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[10]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[10]['status'],
                                                      status_message_label=self.teacher_status_message_label_eop,
                                                      file_opener_object=self.teacher_object_eop)
                                        ]).grid(row=11, column=1,
@@ -1496,10 +1602,10 @@ class DataCollectionScreen(tk.Frame):
                                                     sticky='w')
 
             # convert to string var and set init text
-            student_file_label_eop = tk.StringVar()
-            student_file_label_eop.set("")
+            self.student_file_label_eop = tk.StringVar()
+            self.student_file_label_eop.set("Filename: ")
 
-            create_label(label_name=student_file_label_eop,
+            create_label(label_name=self.student_file_label_eop,
                          frame=frame_project_eop,
                          row=19,
                          column=0,
@@ -1525,7 +1631,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=student_file_label_eop,
+                      command=lambda: [validate_path(file_name_label=self.student_file_label_eop,
                                                      status_message_label=self.student_status_message_label_eop,
                                                      file_opener_object=self.student_object_eop,
                                                      index=11,
@@ -1537,7 +1643,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_eop,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[11]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[11]['status'],
                                                      status_message_label=self.student_status_message_label_eop,
                                                      file_opener_object=self.student_object_eop)
                                        ]).grid(row=17, column=1,
@@ -1566,11 +1672,11 @@ class DataCollectionScreen(tk.Frame):
             self.provider_object_yap = w.FileOpener(self)
 
             # label for file_name provider (to store file path)
-            provider_file_label_yap = tk.StringVar()
-            provider_file_label_yap.set("")
+            self.provider_file_label_yap = tk.StringVar()
+            self.provider_file_label_yap.set("Filename: ")
 
             # place in GUI
-            create_label(label_name=provider_file_label_yap,
+            create_label(label_name=self.provider_file_label_yap,
                          frame=frame_project_yap,
                          row=4,
                          column=0,
@@ -1598,7 +1704,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=provider_file_label_yap,
+                      command=lambda: [validate_path(file_name_label=self.provider_file_label_yap,
                                                      status_message_label=self.provider_status_message_label_yap,
                                                      file_opener_object=self.provider_object_yap,
                                                      index=12)
@@ -1610,7 +1716,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[12]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[12]['status'],
                                                      status_message_label=self.provider_status_message_label_yap,
                                                      file_opener_object=self.provider_object_yap)
                                        ]).grid(row=3, column=1,
@@ -1629,10 +1735,10 @@ class DataCollectionScreen(tk.Frame):
             self.leader_object_yap = w.FileOpener(self)
 
             # label for file_name community leader (to store path)
-            leader_file_label_yap = tk.StringVar()
-            leader_file_label_yap.set("")
+            self.leader_file_label_yap = tk.StringVar()
+            self.leader_file_label_yap.set("Filename: ")
 
-            create_label(label_name=leader_file_label_yap,
+            create_label(label_name=self.leader_file_label_yap,
                          frame=frame_project_yap,
                          row=8,
                          column=0,
@@ -1658,7 +1764,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=leader_file_label_yap,
+                      command=lambda: [validate_path(file_name_label=self.leader_file_label_yap,
                                                      status_message_label=self.leader_status_message_label_yap,
                                                      file_opener_object=self.leader_object_yap,
                                                      index=13)
@@ -1670,7 +1776,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[13]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[13]['status'],
                                                      status_message_label=self.leader_status_message_label_yap,
                                                      file_opener_object=self.leader_object_yap)
                                        ]).grid(row=7, column=1,
@@ -1690,10 +1796,10 @@ class DataCollectionScreen(tk.Frame):
             self.teacher_object_yap = w.FileOpener(self)
 
             # label for file_name teacher (to store path)
-            teacher_file_label_yap = tk.StringVar()
-            teacher_file_label_yap.set("")
+            self.teacher_file_label_yap = tk.StringVar()
+            self.teacher_file_label_yap.set("Filename: ")
 
-            create_label(label_name=teacher_file_label_yap,
+            create_label(label_name=self.teacher_file_label_yap,
                          frame=frame_project_yap,
                          row=14,
                          column=0,
@@ -1719,7 +1825,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=teacher_file_label_yap,
+                      command=lambda: [validate_path(file_name_label=self.teacher_file_label_yap,
                                                      status_message_label=self.teacher_status_message_label_yap,
                                                      file_opener_object=self.teacher_object_yap,
                                                      index=14)
@@ -1731,7 +1837,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[14]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[14]['status'],
                                                      status_message_label=self.teacher_status_message_label_yap,
                                                      file_opener_object=self.teacher_object_yap)
                                        ]).grid(row=11, column=1,
@@ -1750,10 +1856,10 @@ class DataCollectionScreen(tk.Frame):
                                                     sticky='w')
 
             # convert to string var and set init text
-            student_file_label_yap = tk.StringVar()
-            student_file_label_yap.set("")
+            self.student_file_label_yap = tk.StringVar()
+            self.student_file_label_yap.set("Filename: ")
 
-            create_label(label_name=student_file_label_yap,
+            create_label(label_name=self.student_file_label_yap,
                          frame=frame_project_yap,
                          row=19,
                          column=0,
@@ -1779,7 +1885,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Select',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [validate_path(file_name_label=student_file_label_yap,
+                      command=lambda: [validate_path(file_name_label=self.student_file_label_yap,
                                                      status_message_label=self.student_status_message_label_yap,
                                                      file_opener_object=self.student_object_yap,
                                                      index=15,
@@ -1791,7 +1897,7 @@ class DataCollectionScreen(tk.Frame):
             tk.Button(frame_project_yap,
                       text='Show',
                       width=c.Size.button_width, height=c.Size.button_height,
-                      command=lambda: [show_csv_file(file_selected=data_file_status_list[15]['status'],
+                      command=lambda: [show_csv_file(file_selected=self.data_file_status_list[15]['status'],
                                                      status_message_label=self.student_status_message_label_yap,
                                                      file_opener_object=self.student_object_yap)
                                        ]).grid(row=17, column=1,

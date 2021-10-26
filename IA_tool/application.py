@@ -6,6 +6,8 @@ from tkinter import messagebox
 from . import views as views
 from . import models as m
 from . import constants as c
+from . import widgets as w
+
 from tkinter import filedialog
 import os
 import pickle
@@ -25,6 +27,8 @@ class Application(tk.Tk):
 
         # select new or load in project
         self.select_project_screen()
+
+        w.Window.focus_window(self, self)
 
 
 # --------------- main screen setup
@@ -247,6 +251,7 @@ class Application(tk.Tk):
 
         self.create_main_screen()
 
+
         # send save file to views
         self.send_save_file()
 
@@ -267,16 +272,18 @@ class Application(tk.Tk):
 
         self.save_file_object.load_from_save_file = True
 
-
         # send db to views
         self.send_data_db()
 
+        # load saved variables from file
         self.project_purpose_screen.restore_from_save_file()
+        self.data_collection_screen.restore_from_save_file()
+
+
+
 
         print('Save File: ', self.save_file_object.data)
-
         self.update()
-
         self.project_screen.destroy()
 
     # --------------- database

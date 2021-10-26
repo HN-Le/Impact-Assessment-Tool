@@ -30,10 +30,32 @@ class FileOpener(tk.Frame):
     def show_project_goals(self):
         webbrowser.open(self.file_path)
 
+    def show_project_goals_save_file(self, path):
+        webbrowser.open(path)
+
     def get_file_path(self):
+
         filename = filedialog.askopenfilename()
-        # print('Selected:', filename)
+
+        if filename is None:
+            return
+
         self.file_path = filename
+
+        return filename
+
+    def get_file_path_csv(self):
+        filetypes = [('CSV File', '*.csv')]
+
+        filename = filedialog.askopenfilename(
+            title='Load CSV file',
+            filetypes=filetypes)
+
+        if filename is None:
+            return
+
+        self.file_path = filename
+
         return filename
 
     def return_file_name(self):
@@ -126,7 +148,7 @@ class MethodFragmentSelection(tk.Frame):
             self.make_checkboxes(dataframe, frame_method_fragments)
 
             def select_check():
-                self.generate_questions,
+                self.generate_questions(),
                 self.show_info_screen(),
                 self.selection_window.withdraw(),
                 self.delete_frame(self.scrollable_metric_frame),
@@ -634,8 +656,8 @@ class MethodFragmentSelection(tk.Frame):
 
         target_key = self.chose_target_list[self.input_combobox]
 
-        if self.community_list is not None:
-            self.community_list.delete('0', tk.END)
+        if self.question_list is not None:
+            self.question_list.delete('0', tk.END)
             self.metric_counter_label.set('')
 
         self.create_list(target_key)
@@ -675,29 +697,27 @@ class MethodFragmentSelection(tk.Frame):
                                               pady=(10, 0),
                                               sticky='w')
 
+        scrollbar_v_question_list = tk.Scrollbar(self.frame_survey_questions)
+        scrollbar_h_question_list = tk.Scrollbar(self.frame_survey_questions)
 
-
-        scrollbar_v_community_list = tk.Scrollbar(self.frame_survey_questions)
-        scrollbar_h_community_list = tk.Scrollbar(self.frame_survey_questions)
-
-        self.community_list = tk.Listbox(self.frame_survey_questions, yscrollcommand=scrollbar_v_community_list.set,
-                                         xscrollcommand=scrollbar_h_community_list.set,
-                                         activestyle='none',
-                                         width=140, height=15)
+        self.question_list = tk.Listbox(self.frame_survey_questions, yscrollcommand=scrollbar_v_question_list.set,
+                                        xscrollcommand=scrollbar_h_question_list.set,
+                                        activestyle='none',
+                                        width=140, height=15)
 
         # bind copy past function to listbox
-        self.community_list.bind("<Control-Key-q>", lambda x: self.copy_from_listbox(self.community_list, x))
+        self.question_list.bind("<Control-Key-q>", lambda x: self.copy_from_listbox(self.question_list, x))
 
-        scrollbar_v_community_list.grid(row=7, column=1, sticky='ns')
-        scrollbar_h_community_list.grid(row=8, column=0, sticky='we')
+        scrollbar_v_question_list.grid(row=7, column=1, sticky='ns')
+        scrollbar_h_question_list.grid(row=8, column=0, sticky='we')
 
-        self.community_list.grid(row=7, column=0,
-                                 padx=(10, 0),
-                                 pady=2,
-                                 sticky='nswe')
+        self.question_list.grid(row=7, column=0,
+                                padx=(10, 0),
+                                pady=2,
+                                sticky='nswe')
 
-        scrollbar_v_community_list.config(command=self.community_list.yview)
-        scrollbar_h_community_list.config(command=self.community_list.xview)
+        scrollbar_v_question_list.config(command=self.question_list.yview)
+        scrollbar_h_question_list.config(command=self.question_list.xview)
 
         metric_counter = 0
         self.metric_counter_label = tk.StringVar()
@@ -716,7 +736,7 @@ class MethodFragmentSelection(tk.Frame):
         txt_list = [txt_metric, txt_question, txt_type, txt_items, txt_choices, txt_format]
 
         # Get the listbox font
-        listFont = tkFont.Font(font=self.community_list.cget("font"))
+        listFont = tkFont.Font(font=self.question_list.cget("font"))
         spaceLength = listFont.measure(" ")
         spacing = 15 * spaceLength
 
@@ -779,21 +799,21 @@ class MethodFragmentSelection(tk.Frame):
                 # if metric_index == 0:
                 #     self.community_list.insert(tk.END, '\n')
 
-                self.community_list.insert(tk.END, pre_pad + txt_metric + spacesToAdd_list[0] * " " + str(metric_name))
-                self.community_list.insert(tk.END, pre_pad + txt_question + spacesToAdd_list[1] * " " + str(question))
-                self.community_list.insert(tk.END, pre_pad + txt_type + spacesToAdd_list[2] * " " + str(type))
+                self.question_list.insert(tk.END, pre_pad + txt_metric + spacesToAdd_list[0] * " " + str(metric_name))
+                self.question_list.insert(tk.END, pre_pad + txt_question + spacesToAdd_list[1] * " " + str(question))
+                self.question_list.insert(tk.END, pre_pad + txt_type + spacesToAdd_list[2] * " " + str(type))
 
                 if question_type == 'scale':
-                    self.community_list.insert(tk.END, pre_pad + txt_items + spacesToAdd_list[3] * " " + str(';   '.join(map(str,items_list))))
+                    self.question_list.insert(tk.END, pre_pad + txt_items + spacesToAdd_list[3] * " " + str(';   '.join(map(str, items_list))))
 
                 if choices_all:
-                    self.community_list.insert(tk.END, pre_pad + txt_choices + spacesToAdd_list[4] * " " + str(';   '.join(map(str,choices))))
+                    self.question_list.insert(tk.END, pre_pad + txt_choices + spacesToAdd_list[4] * " " + str(';   '.join(map(str, choices))))
 
                 # also if text question
                 if question_type == 'numerical':
-                    self.community_list.insert(tk.END, pre_pad + txt_format + spacesToAdd_list[5] * " " + str(format))
+                    self.question_list.insert(tk.END, pre_pad + txt_format + spacesToAdd_list[5] * " " + str(format))
 
-                self.community_list.insert(tk.END, '\n')
+                self.question_list.insert(tk.END, '\n')
 
 
         self.metric_counter_label.set("Amount of questions:  " + str(metric_counter))
@@ -868,8 +888,6 @@ class MethodFragmentSelection(tk.Frame):
             # self.frame_survey_questions.grid_propagate(0)
             self.frame_survey_questions.grid(padx=5, pady=5,
                                              sticky='e')
-
-
 
             self.create_list('project_provider')
 
