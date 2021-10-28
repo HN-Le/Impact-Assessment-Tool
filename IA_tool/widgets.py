@@ -102,6 +102,9 @@ class MethodFragmentSelection(tk.Frame):
                              'Project Provider': 'project_provider',
                              }
 
+        self.saved_checkboxes = {'Technology acceptance smartphone'}
+
+
         self.checkbox_list = {}
         self.input_combobox = {}
 
@@ -230,6 +233,7 @@ class MethodFragmentSelection(tk.Frame):
 
         self.checkbox = dict()
 
+
         for item in self.unique_values:
 
             self.checkbox[item] = tk.Checkbutton(frame, text=item, onvalue=True, offvalue =False)
@@ -241,6 +245,10 @@ class MethodFragmentSelection(tk.Frame):
                 self.checkbox[item].select()
                 self.checkbox[item].config(state='disabled')
 
+            # elif self.checkbox[item]['text'] in self.saved_checkboxes:
+            #     self.checkbox[item]['variable'] = True
+            #     self.checkbox[item].select()
+
             if counter < int(amount_values/3):
                 # print('Unique item: ', item)
                 counter += 1
@@ -249,6 +257,7 @@ class MethodFragmentSelection(tk.Frame):
             elif counter < int(amount_values/3 * 2):
                 counter += 1
                 self.checkbox[item].grid(row=counter - int(amount_values/3), column=1 , sticky='w')
+
             else:
                 counter += 1
                 self.checkbox[item].grid(row=(counter - int(amount_values/3 * 2)), column=2, sticky='w')
@@ -263,6 +272,8 @@ class MethodFragmentSelection(tk.Frame):
     def selected_method_fragments(self, checkbox_state, checkbox_name):
 
         self.append_value(self.checkbox_list, checkbox_name, checkbox_state)
+
+
 
     def append_value(self, dict_object, key, value):
         # Check if key exist in dict or not
@@ -283,6 +294,11 @@ class MethodFragmentSelection(tk.Frame):
     def send_category_object(self, key, value):
         self.key = key
         self.value = value
+
+        print('KEY: ', self.key)
+        print('VALUE : ', self.value)
+        print('')
+
 
         self.selected_method_fragments(self.value, self.key)
 
@@ -1209,8 +1225,8 @@ class MethodFragmentSelection(tk.Frame):
                 self.status_message_list.append(status_message)
 
                 if user_metric_definition_input:
-                    self.user_metric_defintion_text.append(str(user_metric_definition_input).strip())
-                    self.demo_scope_list.append(str(user_demo_scope_input).strip())
+                    self.user_metric_defintion_text.append(user_metric_definition_input)
+                    self.demo_scope_list.append(user_demo_scope_input)
                 else:
                     self.user_metric_defintion_text.append(user_metric_definition_input)
                     self.demo_scope_list.append(user_demo_scope_input)
@@ -1253,6 +1269,7 @@ class MethodFragmentSelection(tk.Frame):
         if self.metric_target_list[index].get() != '' and self.if_increase_list[index].get() != '':
 
             try:
+                print('demo_scope_list: ', self.demo_scope_list[index].get())
 
                 metric_target_int = int(self.metric_target_list[index].get())
 
@@ -2310,7 +2327,6 @@ class ImpactEvaluation(tk.Frame):
     def refresh_tree(self):
 
         try:
-
             for i in self.tree.get_children():
                 self.tree.delete(i)
 

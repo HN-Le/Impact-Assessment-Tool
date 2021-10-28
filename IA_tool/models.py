@@ -512,10 +512,21 @@ class appDataModel:
                     'data_file_status_list' : self.data_collection_dict_states,
                     'selected_file_counter' : self.selected_file_counter,
                     'database_path' : database_path,
-                    'path_model': path_model}
+                    'path_model': path_model,
+                    'metric_evaluation' : self.user_input_objects[0],
+                    'target_evaluation' : self.user_input_objects[1],
+                    'eval_question_1': self.user_input_objects[2],
+                    'eval_question_2': self.user_input_objects[3],
+                    'eval_question_3': self.user_input_objects[4],
+                    'eval_question_4': self.user_input_objects[5],
+                    'eval_question_5': self.user_input_objects[6],
+                    'eval_question_6': self.user_input_objects[7],
+                    'eval_question_7': self.user_input_objects[8]
+                    }
 
             with open(self.file_name, 'wb') as f:
                 pickle.dump(data, f)
+                print('saved? ---')
 
         except Exception as e:
             print ("error saving state:", str(e))
@@ -552,4 +563,9 @@ class appDataModel:
 
     def get_data_analysis(self, counter):
         self.selected_file_counter = counter
+
+    def get_impact_evaluation(self, user_input):
+
+        self.user_input_objects = user_input
+        print('user_input_objects: ', user_input)
 

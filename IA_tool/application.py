@@ -187,7 +187,7 @@ class Application(tk.Tk):
             ('Pickle Save File', '*.pickle')
         ]
 
-        f = filedialog.asksaveasfile(mode='w', filetypes=filetypes)
+        f = filedialog.asksaveasfile(mode='w', defaultextension=".pickle", filetypes=filetypes)
 
         # if cancelled
         if f is None:
@@ -278,11 +278,8 @@ class Application(tk.Tk):
         # load saved variables from file
         self.project_purpose_screen.restore_from_save_file()
         self.data_collection_screen.restore_from_save_file()
+        self.impact_assessment_screen.restore_from_save_file()
 
-
-
-
-        print('Save File: ', self.save_file_object.data)
         self.update()
         self.project_screen.destroy()
 
@@ -308,6 +305,7 @@ class Application(tk.Tk):
         self.project_purpose_screen.send_save_file_object(self.save_file_object)
         self.data_collection_screen.send_save_file_object(self.save_file_object)
         self.data_analysis_screen.send_save_file_object(self.save_file_object)
+        self.impact_assessment_screen.send_save_file_object(self.save_file_object)
 
     def create_database(self, database, new):
         self.data_model = m.SQLModel(database, new)
@@ -330,6 +328,7 @@ class Application(tk.Tk):
         self.project_purpose_screen.save_data()
         self.data_collection_screen.save_data()
         self.data_analysis_screen.save_data()
+        self.impact_assessment_screen.save_data()
 
         self.save_file_object.save_to_file(self.database, self.path_model)
 

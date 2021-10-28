@@ -356,18 +356,11 @@ class ProjectPurposeScreen(tk.Frame):
             sql = 'select method_fragment_name from method_fragment'
             retrieve_sql = self.data_object.query_no_par(sql)
 
-            #todo FIX CHECKBOXES
-
             for item in self.save_file_object.data['selected_method_fragments']:
-                print('item: ', item)
-                self.method_fragment.checkbox[item]['variable'] = True
                 self.method_fragment.checkbox[item].select()
 
-
             self.method_fragment.methode_frags_selected = True
-
             self.method_fragment.checkbox_list = self.save_file_object.data['selected_method_fragments']
-
 
             self.method_fragment.show_info_screen()
             self.method_fragment.delete_frame(self.method_fragment.scrollable_metric_frame)
@@ -375,8 +368,8 @@ class ProjectPurposeScreen(tk.Frame):
             self.method_fragment.delete_frame(self.method_fragment.remove_frame)
             self.method_fragment.add_metric()
             self.method_fragment.show_summary_metrics()
-            self.methode_frags_selected = True
             self.method_fragment.info_window.withdraw()
+
 
 
 
@@ -714,7 +707,12 @@ class DataCollectionScreen(tk.Frame):
                            'date_eop' : self.user_dates_objects[2].get(),
                            'date_yap' : self.user_dates_objects[3].get()}
 
-        self.save_file_object.get_data_collection(self.user_dates, self.dict_paths.dc_file_paths, self.data_file_status_list)
+        try:
+            self.save_file_object.get_data_collection(self.user_dates, self.dict_paths.dc_file_paths, self.data_file_status_list)
+
+        except:
+            self.data_file_status_list = []
+            self.save_file_object.get_data_collection(self.user_dates, self.dict_paths.dc_file_paths, self.data_file_status_list)
 
     def reset_status_messages(self):
         self.provider_status_message_label_sop.set('')
@@ -741,6 +739,18 @@ class DataCollectionScreen(tk.Frame):
         # TODO split into multiple functions (sop, hop, eop, yap)
         # TODO adjust buttons accordingly to function
         # TODO figure out where to place notebook
+
+        self.data_file_status_list = []
+
+        time_period = ['sop', 'hop', 'eop', 'yap']
+        targets = ['provider', 'leader', 'teacher', 'student']
+
+        # fill data_file_status_list
+        for period in time_period:
+            for target in targets:
+                self.data_file_status_list.append({'time_period': period,
+                                                   'target': target,
+                                                   'status': False})
 
         # if there is not already a 'start of project' window
         if not self.start_project_window:
@@ -845,7 +855,9 @@ class DataCollectionScreen(tk.Frame):
 
             # check if valid link
             # TODO change validation file paths first tab
-            def validate_path(file_name_label, status_message_label, file_opener_object, index):
+            def validate_path(file_name_label, status_message_label, file_opener_object, index, status_list):
+
+                print('status_list: ',status_list)
 
                 self.start_project_window.attributes("-topmost", False)
                 file_path = file_opener_object.get_file_path_csv()
@@ -856,7 +868,7 @@ class DataCollectionScreen(tk.Frame):
 
                     file_name_label.set(filename)
                     status_message_label.set('')
-                    self.data_file_status_list[index]['status'] = True
+                    status_list[index]['status'] = True
 
                     self.dict_paths.update_dc_path_dict(targets_with_period, index, file_opener_object.file_path)
 
@@ -937,6 +949,8 @@ class DataCollectionScreen(tk.Frame):
             # 3 = sop - student
             # print(data_file_status_list[0]['target'])
 
+            print('self.data_file_status_list 1234: ', self.data_file_status_list)
+
             # create and place 'select' button with actions
             tk.Button(frame_project_sop,
                                         text='Select',
@@ -944,7 +958,8 @@ class DataCollectionScreen(tk.Frame):
                                         command=lambda: [validate_path(file_name_label= self.provider_file_label_sop,
                                                                        status_message_label= self.provider_status_message_label_sop,
                                                                        file_opener_object= self.provider_object_sop,
-                                                                       index= 0)
+                                                                       index=0,
+                                                                       status_list=self.data_file_status_list)
                                                          ] ).grid(row=3, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1004,7 +1019,8 @@ class DataCollectionScreen(tk.Frame):
                                         command=lambda: [validate_path(file_name_label=self.leader_file_label_sop,
                                                                        status_message_label=self.leader_status_message_label_sop,
                                                                        file_opener_object=self.leader_object_sop,
-                                                                       index=1)
+                                                                       index=1,
+                                                                       status_list=self.data_file_status_list)
                                                          ]).grid(row=7, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1065,7 +1081,8 @@ class DataCollectionScreen(tk.Frame):
                                         command=lambda: [validate_path(file_name_label=self.teacher_file_label_sop,
                                                                        status_message_label=self.teacher_status_message_label_sop,
                                                                        file_opener_object=self.teacher_object_sop,
-                                                                       index=2)
+                                                                       index=2,
+                                                                       status_list=self.data_file_status_list)
                                                          ]).grid(row=11, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1126,9 +1143,9 @@ class DataCollectionScreen(tk.Frame):
                                                                        status_message_label=self.student_status_message_label_sop,
                                                                        file_opener_object=self.student_object_sop,
                                                                        index=3,
-                                                                       )]).grid(row=17, column=0,
-                                                                 padx=(10, 0), pady=5,
-                                                                 sticky='w')
+                                                                       status_list=self.data_file_status_list)]).grid(row=17, column=0,
+                                                                                                                      padx=(10, 0), pady=5,
+                                                                                                                      sticky='w')
 
             # place show button
             tk.Button(frame_project_sop,
@@ -1198,7 +1215,8 @@ class DataCollectionScreen(tk.Frame):
                                         command=lambda: [validate_path(file_name_label= self.provider_file_label_hop,
                                                                        status_message_label= self.provider_status_message_label_hop,
                                                                        file_opener_object= self.provider_object_hop,
-                                                                       index= 4)
+                                                                       index= 4,
+                                                                       status_list=self.data_file_status_list)
                                                          ]).grid(row=3, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1259,7 +1277,8 @@ class DataCollectionScreen(tk.Frame):
                                         command=lambda: [validate_path(file_name_label=self.leader_file_label_hop,
                                                                        status_message_label=self.leader_status_message_label_hop,
                                                                        file_opener_object=self.leader_object_hop,
-                                                                       index=5)
+                                                                       index=5,
+                                                                       status_list=self.data_file_status_list)
                                                          ]).grid(row=7, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1320,7 +1339,8 @@ class DataCollectionScreen(tk.Frame):
                                         command=lambda: [validate_path(file_name_label=self.teacher_file_label_hop,
                                                                        status_message_label=self.teacher_status_message_label_hop,
                                                                        file_opener_object=self.teacher_object_hop,
-                                                                       index=6)
+                                                                       index=6,
+                                                                       status_list=self.data_file_status_list)
                                                          ]).grid(row=11, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1381,6 +1401,7 @@ class DataCollectionScreen(tk.Frame):
                                                                        status_message_label=self.student_status_message_label_hop,
                                                                        file_opener_object=self.student_object_hop,
                                                                        index=7,
+                                                                       status_list=self.data_file_status_list
                                                                        )]).grid(row=17, column=0,
                                                                  padx=(10, 0), pady=5,
                                                                  sticky='w')
@@ -1453,7 +1474,8 @@ class DataCollectionScreen(tk.Frame):
                       command=lambda: [validate_path(file_name_label=self.provider_file_label_eop,
                                                      status_message_label=self.provider_status_message_label_eop,
                                                      file_opener_object=self.provider_object_eop,
-                                                     index=8)
+                                                     index=8,
+                                                     status_list=self.data_file_status_list)
                                        ]).grid(row=3, column=0,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
@@ -1513,7 +1535,8 @@ class DataCollectionScreen(tk.Frame):
                       command=lambda: [validate_path(file_name_label=self.leader_file_label_eop,
                                                      status_message_label=self.leader_status_message_label_eop,
                                                      file_opener_object=self.leader_object_eop,
-                                                     index=9)
+                                                     index=9,
+                                                     status_list=self.data_file_status_list)
                                        ]).grid(row=7, column=0,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
@@ -1574,7 +1597,8 @@ class DataCollectionScreen(tk.Frame):
                       command=lambda: [validate_path(file_name_label=self.teacher_file_label_eop,
                                                      status_message_label=self.teacher_status_message_label_eop,
                                                      file_opener_object=self.teacher_object_eop,
-                                                     index=10)
+                                                     index=10,
+                                                     status_list=self.data_file_status_list)
                                        ]).grid(row=11, column=0,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
@@ -1635,6 +1659,7 @@ class DataCollectionScreen(tk.Frame):
                                                      status_message_label=self.student_status_message_label_eop,
                                                      file_opener_object=self.student_object_eop,
                                                      index=11,
+                                                     status_list=self.data_file_status_list
                                                      )]).grid(row=17, column=0,
                                                               padx=(10, 0), pady=5,
                                                               sticky='w')
@@ -1707,7 +1732,8 @@ class DataCollectionScreen(tk.Frame):
                       command=lambda: [validate_path(file_name_label=self.provider_file_label_yap,
                                                      status_message_label=self.provider_status_message_label_yap,
                                                      file_opener_object=self.provider_object_yap,
-                                                     index=12)
+                                                     index=12,
+                                                     status_list=self.data_file_status_list)
                                        ]).grid(row=3, column=0,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
@@ -1767,7 +1793,8 @@ class DataCollectionScreen(tk.Frame):
                       command=lambda: [validate_path(file_name_label=self.leader_file_label_yap,
                                                      status_message_label=self.leader_status_message_label_yap,
                                                      file_opener_object=self.leader_object_yap,
-                                                     index=13)
+                                                     index=13,
+                                                     status_list=self.data_file_status_list)
                                        ]).grid(row=7, column=0,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
@@ -1828,7 +1855,8 @@ class DataCollectionScreen(tk.Frame):
                       command=lambda: [validate_path(file_name_label=self.teacher_file_label_yap,
                                                      status_message_label=self.teacher_status_message_label_yap,
                                                      file_opener_object=self.teacher_object_yap,
-                                                     index=14)
+                                                     index=14,
+                                                     status_list=self.data_file_status_list)
                                        ]).grid(row=11, column=0,
                                                padx=(10, 0), pady=5,
                                                sticky='w')
@@ -1889,6 +1917,7 @@ class DataCollectionScreen(tk.Frame):
                                                      status_message_label=self.student_status_message_label_yap,
                                                      file_opener_object=self.student_object_yap,
                                                      index=15,
+                                                     status_list=self.data_file_status_list
                                                      )]).grid(row=17, column=0,
                                                               padx=(10, 0), pady=5,
                                                               sticky='w')
@@ -2770,6 +2799,10 @@ class EvaluationScreen(tk.Frame):
         # --- pack scrollable frame
         self.scrollable_labelframe.pack(side="left", fill="both", expand=True)
 
+
+
+
+
     def check_if_data_loaded(self, update):
 
         if update:
@@ -2825,10 +2858,43 @@ class EvaluationScreen(tk.Frame):
         self.data_object = data
         self.impact_evaluation.get_data_object(self.data_object)
 
-    def hide_window(self, window):
+    def save_data(self):
 
+        self.user_input_objects = [self.entry_box_metric.get('1.0', 'end-1c'),
+                                   self.entry_box_target.get('1.0', 'end-1c'),
+                                   self.entry_box_question_1.get('1.0', 'end-1c'),
+                                   self.entry_box_question_2.get('1.0', 'end-1c'),
+                                   self.entry_box_question_3.get('1.0', 'end-1c'),
+                                   self.entry_box_question_4.get('1.0', 'end-1c'),
+                                   self.entry_box_question_5.get('1.0', 'end-1c'),
+                                   self.entry_box_question_6.get('1.0', 'end-1c'),
+                                   self.entry_box_question_7.get('1.0', 'end-1c')]
+
+        self.save_file_object.get_impact_evaluation(self.user_input_objects)
+
+        for item in self.user_input_objects:
+            print('Item: ', item)
+
+    def send_save_file_object(self, data):
+        self.save_file_object = data
+
+    def hide_window(self, window):
         if window == "popup":
             self.popup_window_metrics.withdraw()
+
+    def restore_from_save_file(self):
+
+        self.entry_box_metric.insert('1.0', self.save_file_object.data['metric_evaluation'])
+        self.entry_box_target.insert('1.0', self.save_file_object.data['target_evaluation'])
+        self.entry_box_question_1.insert('1.0', self.save_file_object.data['eval_question_1'])
+        self.entry_box_question_2.insert('1.0', self.save_file_object.data['eval_question_2'])
+        self.entry_box_question_3.insert('1.0', self.save_file_object.data['eval_question_3'])
+        self.entry_box_question_4.insert('1.0', self.save_file_object.data['eval_question_4'])
+        self.entry_box_question_5.insert('1.0', self.save_file_object.data['eval_question_5'])
+        self.entry_box_question_6.insert('1.0', self.save_file_object.data['eval_question_6'])
+        self.entry_box_question_7.insert('1.0', self.save_file_object.data['eval_question_7'])
+
+
 
 
 
