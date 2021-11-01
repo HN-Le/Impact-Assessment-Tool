@@ -39,6 +39,7 @@ class Application(tk.Tk):
         self.setup_menu()
         self.config(menu=self.menuBar)
         self.title("SIAM-ED Tool")
+
         # start in fullscreen
         # self.state('zoomed')
 
@@ -61,6 +62,9 @@ class Application(tk.Tk):
 
         # set size window fixed
         self.resizable(0, 0)
+
+        self.protocol("WM_DELETE_WINDOW", self.quit_application)
+
 
     def setup_screen(self):
         notebook = ttk.Notebook(self)
@@ -107,15 +111,14 @@ class Application(tk.Tk):
     def setup_menu(self):
         self.menuBar = Menu(master=self)
         self.filemenu = Menu(self.menuBar, tearoff=0)
-        self.filemenu.add_command(label="New", command='')
 
-        # TODO add message box to ask user to save current screen
-        self.filemenu.add_command(label="Load", command=lambda : [self.load_in_project()])
+        self.filemenu.add_command(label="New", command=lambda : [self.new_or_load_menu_bar('new_project')])
+        self.filemenu.add_command(label="Load", command=lambda : [self.new_or_load_menu_bar('load_project')])
         self.filemenu.add_command(label="Save", command=self.save_application)
-        self.filemenu.add_command(label="Quit", command=self.quit_application)
+        self.filemenu.add_command(label="Quit", command=lambda : [self.quit_application()])
+
         self.menuBar.add_cascade(label="File", menu=self.filemenu)
 
-        # menu item: help
         self.help_menu = Menu(self.menuBar, tearoff=0)
         self.help_menu.add_command(label="Documentation")
         self.help_menu.add_command(label="About")
@@ -139,6 +142,7 @@ class Application(tk.Tk):
         self.project_screen.resizable(0, 0)
 
         self.project_screen.protocol("WM_DELETE_WINDOW", self.quit_application)
+
 
         frame_project = ttk.LabelFrame(self.project_screen, text="Select new or exisiting project file",
                                        style='Doc.TLabelframe',
@@ -187,7 +191,10 @@ class Application(tk.Tk):
             ('Pickle Save File', '*.pickle')
         ]
 
-        f = filedialog.asksaveasfile(mode='w', defaultextension=".pickle", filetypes=filetypes)
+        f = filedialog.asksaveasfile(mode='w',
+                                     defaultextension=".pickle",
+                                     filetypes=filetypes,
+                                     title="Create new project")
 
         # if cancelled
         if f is None:
@@ -235,12 +242,14 @@ class Application(tk.Tk):
         # send data to views
         self.send_data_db()
 
+        self.title("SIAM-ED Tool - " + self.file_name)
+
     def load_in_project(self):
 
         filetypes = [('Pickle Save File', '*.pickle')]
 
         file = filedialog.askopenfilename(
-            title='Open project file',
+            title='Load project file',
             filetypes=filetypes)
 
         # if cancelled
@@ -248,9 +257,9 @@ class Application(tk.Tk):
             return
 
         self.file_path = file
+        self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
 
         self.create_main_screen()
-
 
         # send save file to views
         self.send_save_file()
@@ -282,6 +291,24 @@ class Application(tk.Tk):
 
         self.update()
         self.project_screen.destroy()
+
+        self.title("SIAM-ED Tool - " + self.file_name)
+
+
+    def new_or_load_menu_bar(self, state):
+
+        self.save_msg_popup()
+
+        if state == 'new_project':
+            self.create_new_project()
+        elif state == 'load_project':
+            self.load_in_project()
+
+    def save_msg_popup(self):
+        save_msgbox = messagebox.askquestion("askquestion", "Do you want to save the current project?")
+
+        if save_msgbox == 'yes':
+            self.save_application()
 
     # --------------- database
 
@@ -320,9 +347,11 @@ class Application(tk.Tk):
 
     # exit GUI cleanly
     def quit_application(self):
+        self.save_msg_popup()
         self.quit()
         self.destroy()
         exit()
+
 
     def save_application(self):
         self.project_purpose_screen.save_data()
@@ -332,7 +361,6 @@ class Application(tk.Tk):
 
         self.save_file_object.save_to_file(self.database, self.path_model)
 
-        print('SAVED ---')
 
 
 

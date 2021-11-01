@@ -526,11 +526,9 @@ class appDataModel:
 
             with open(self.file_name, 'wb') as f:
                 pickle.dump(data, f)
-                print('saved? ---')
 
         except Exception as e:
             print ("error saving state:", str(e))
-
 
         # print('data: ', data)
         # print('project_purpose', project_purpose)
@@ -544,12 +542,9 @@ class appDataModel:
         try:
             with open(self.file_name, "rb") as f:
                 self.data = pickle.load(f)
-                print('DATA: ', self.data)
 
         except Exception as e:
             print("error loading saved state:")
-
-
 
     def get_project_purpose(self, dict, method_frags, frags_selected):
         self.pp_dict = dict
@@ -565,7 +560,4 @@ class appDataModel:
         self.selected_file_counter = counter
 
     def get_impact_evaluation(self, user_input):
-
         self.user_input_objects = user_input
-        print('user_input_objects: ', user_input)
-

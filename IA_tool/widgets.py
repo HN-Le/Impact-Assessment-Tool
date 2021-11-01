@@ -250,7 +250,6 @@ class MethodFragmentSelection(tk.Frame):
             #     self.checkbox[item].select()
 
             if counter < int(amount_values/3):
-                # print('Unique item: ', item)
                 counter += 1
                 self.checkbox[item].grid(row=counter, sticky='w')
 
@@ -294,11 +293,6 @@ class MethodFragmentSelection(tk.Frame):
     def send_category_object(self, key, value):
         self.key = key
         self.value = value
-
-        print('KEY: ', self.key)
-        print('VALUE : ', self.value)
-        print('')
-
 
         self.selected_method_fragments(self.value, self.key)
 
@@ -1199,11 +1193,6 @@ class MethodFragmentSelection(tk.Frame):
 
                 # check if array is not empty
                 if retrieve_metric_target:
-                    print('retrieve_metric_target| ALL ------', retrieve_metric_target)
-                    print('retrieve_metric_target| if_increased ------', retrieve_metric_target[0][1])
-                    print('retrieve_metric_target| metric_target_value ------', retrieve_metric_target[0][2])
-                    print('retrieve_metric_target| if_interest_demographic ------', retrieve_metric_target[0][3])
-                    print('retrieve_metric_target| interest_scope ------', retrieve_metric_target[0][4])
 
                     button_reset['state'] = 'active'
 
@@ -1269,8 +1258,6 @@ class MethodFragmentSelection(tk.Frame):
         if self.metric_target_list[index].get() != '' and self.if_increase_list[index].get() != '':
 
             try:
-                print('demo_scope_list: ', self.demo_scope_list[index].get())
-
                 metric_target_int = int(self.metric_target_list[index].get())
 
                 if self.if_increase_list[index].get() == "Increase":
@@ -1306,6 +1293,7 @@ class MethodFragmentSelection(tk.Frame):
             interest_demographic = self.checkbox_demographic[index].get()
             interest_scope = self.demo_scope_list[index].get()
 
+
             if interest_demographic == '':
                 interest_scope = None
 
@@ -1313,6 +1301,8 @@ class MethodFragmentSelection(tk.Frame):
             target = (self.isIncrease, metric_target, interest_demographic, interest_scope, 1, metric_id)
             self.data_object.create_metric_target(target)
             self.status_message_list[index].set('')
+
+            self.status_message_list[index].set( '- Saved - ')
 
         else:
             self.status_message_list[index].set('Error, please fill both the metric target and target increase/decrease in!')

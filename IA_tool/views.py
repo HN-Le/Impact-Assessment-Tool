@@ -2872,9 +2872,6 @@ class EvaluationScreen(tk.Frame):
 
         self.save_file_object.get_impact_evaluation(self.user_input_objects)
 
-        for item in self.user_input_objects:
-            print('Item: ', item)
-
     def send_save_file_object(self, data):
         self.save_file_object = data
 
