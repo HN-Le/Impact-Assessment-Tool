@@ -1378,6 +1378,7 @@ class DataAnalysis(tk.Frame):
             if isinstance(value, int) or isinstance(value, float):
                 return value
             elif isinstance(value, str):
+
                 cleaned_value = (value.lower()).strip()
                 return cleaned_value
 
@@ -1439,7 +1440,7 @@ class DataAnalysis(tk.Frame):
                 # print('Path: ', dict[item])
 
                 # open the valid paths and extract the data
-                with open(dict[item], newline='\n') as f:
+                with open(dict[item], encoding='UTF-8', newline='\n') as f:
 
                     reader = csv.DictReader(f, delimiter=',')
 
@@ -1458,6 +1459,8 @@ class DataAnalysis(tk.Frame):
                         # loop through the non-header rows
                         for metric_index, new_item in enumerate(row):
 
+
+
                             # skip non relevant headers
                             if metric_index in range(0,10):
                                 continue
@@ -1466,7 +1469,6 @@ class DataAnalysis(tk.Frame):
                             else:
                                 self.metric_question = ((metric_list[metric_index]).lower()).strip()
                                 self.target_name = (self.target.lower()).strip()
-
 
                                 # TODO check if it works with strings!
                                 self.metric_value_data = data_type_check(row[metric_list[metric_index]])
@@ -1488,11 +1490,12 @@ class DataAnalysis(tk.Frame):
                                         # print("Metric question ---", self.metric_question)
                                         # print("Metric question trimmed ---", self.trimmed_value[1])
 
-
                                 sql_metrics = "select * from metric where lower(metric_question) = (?) and lower(target_name) = (?)"
                                 retrieve_metrics = self.data_object.query_with_par(sql_metrics, (self.metric_question, self.target_name))
 
                                 for metric_item in retrieve_metrics:
+
+
                                     self.metric_id = metric_item[0]
                                     self.metric_data_type = metric_item[10]
 
@@ -1528,8 +1531,7 @@ class DataAnalysis(tk.Frame):
                                     # Load into database
                                     self.data_object.create_metric_value(metric_value)
 
-                                # print('Metric_value DATABASE', metric_value)
-                                # print('-----')
+
 
         # retrieve metrics and answer options from database
         sql_test = "select * from metric"
@@ -1640,7 +1642,13 @@ class DataAnalysis(tk.Frame):
             sql_metrics_id = "select * from metric where metric_id in ({seq})".format(seq=','.join(['?'] * len(unique_metric_ids)))
             retrieve_metrics_target = self.data_object.query_with_par(sql_metrics_id, unique_metric_ids)
 
+
+
             for metric in retrieve_metrics_target:
+
+                # print('metric --- ', metric)
+
+
                 metric_id = metric[0]
                 metric_target = metric[8]
                 metric_name = metric[1]
@@ -1649,7 +1657,6 @@ class DataAnalysis(tk.Frame):
                 if metric_target == remap_target(target) and metric_data_type != 'String':
                     metrics_target.append(metric_name)
 
-            # print('metrics_target ', metrics_target)
             return metrics_target
 
     def remap_target(self, target):
@@ -1885,10 +1892,10 @@ class DataAnalysis(tk.Frame):
 
     def create_visualisations(self, target_group, point, metric, frame):
 
-        print('target_group ---', target_group)
-        print('point ---', point)
-        print('metric ---', metric)
-        print("")
+        # print('target_group ---', target_group)
+        # print('point ---', point)
+        # print('metric ---', metric)
+        # print("")
 
         time_list = []
         value_list_sop = []
@@ -1919,6 +1926,9 @@ class DataAnalysis(tk.Frame):
         metric_question_type = retrieve_sql_data[0][5]
         metric_data_type = retrieve_sql_data[0][10]
         metric_question = retrieve_sql_data[0][4]
+        metric_answer_options = retrieve_sql_data[0][7]
+        metric_answer_multiple = retrieve_sql_data[0][6]
+
 
         figure_for_plot = Figure(figsize=(12, 4.2), dpi=100)
         self.canvas = FigureCanvasTkAgg(figure_for_plot, master=frame)
@@ -1930,17 +1940,17 @@ class DataAnalysis(tk.Frame):
         else:
             self.plot_figure = figure_for_plot.add_subplot()
 
-        print("Metric ID ", metric_id)
+        # print("Metric ID ", metric_id)
 
         for time_unit in time_list:
             sql_metric = "select * from metric_value where metric_id = (?) and measuring_point_id = (?)"
             retrieve_metrics = self.data_object.query_with_par(sql_metric, (metric_id, time_unit))
 
-            print("retrieve_metrics ", retrieve_metrics)
-
             for item in retrieve_metrics:
                 data_value = item[self.remap_data_type(metric_data_type)]
                 value_list_all[(time_unit - 1)].append(data_value)
+
+
 
         # -------------------
         # scoring likert scales
@@ -2049,7 +2059,6 @@ class DataAnalysis(tk.Frame):
                 else:
                     self.plot_figure.text(i, 0.9 * (value + y1[i]), str(value), color='white', fontweight='bold')
 
-            self.plot_figure.set_xlabel([0,1,2,3])
             self.plot_figure.set_ylabel(y_label)
             self.plot_figure.set_title(title)
             self.plot_figure.legend()
@@ -2141,43 +2150,100 @@ class DataAnalysis(tk.Frame):
             print("horizontal bar chart (scale)")
 
         # multiple choice data
-        def create_stacked_bar_chart_mc():
+        def create_stacked_bar_chart_mc(y_values):
 
             x = ['Start', 'Halfway', 'End', 'Year after']
-            y1 = []
-            y2 = []
+
+            value_list_mc = [[],[],[],[]]
+            name_list_mc = [[],[],[],[]]
+            multi_values = [[],[],[],[]]
             width = 0.35
 
-            for item in y_values:
-                if item:
-                    counter = Counter(item)
-                    y1.append(counter['yes'])
-                    y2.append(counter['no'])
-                else:
-                    y1.append(0)
-                    y2.append(0)
 
-            self.plot_figure.bar(x, y1, width, label='Yes')
-            self.plot_figure.bar(x, y2, width, bottom=y1, label='No')
+            answer_option_list = [x.strip() for x in metric_answer_options.split(';')]
+
+            if metric_answer_multiple:
+                print('y_values: ', y_values)
+
+
+                for time_index, item in enumerate(y_values):
+
+                    for string in item:
+                        value = [x.strip() for x in string.split(',')]
+                        multi_values[time_index].extend(value)
+
+                print('multi_values: ', multi_values)
+
+                for time_index, item in enumerate(multi_values):
+
+                    if item:
+                        counter = Counter(item)
+                        items = counter.keys()
+
+                        print('item: ', item)
+
+                        for i in items:
+                            value_list_mc[time_index].append(counter[i])
+                            name_list_mc[time_index].append(i)
+
+            else:
+                for time_index, item in enumerate(y_values):
+
+                    if item:
+                        counter = Counter(item)
+                        items = counter.keys()
+
+                        for i in items:
+                            value_list_mc[time_index].append(counter[i])
+                            name_list_mc[time_index].append(i)
+
+
+
+            color_bar = ['#f27026', '#e8b28f', '#08649b', '#519954', '#a3b1cd', '#4a3526', '#b06dad', '#e96060']
+            color_dict = {}
+
+
+            for index, answer_option in enumerate(answer_option_list):
+
+                answer_option = answer_option.lower()
+                color_dict[answer_option] = color_bar[index]
+
+            print('value_list_mc: ', value_list_mc)
+            print('name_list_mc: ', name_list_mc)
+            print('answer_option_list: ', answer_option_list)
+            print('color_dict: ', color_dict)
+
+            used_labels = []
+
+            for time_index, item in enumerate(name_list_mc):
+
+                if item:
+                    bottom = len(name_list_mc[time_index]) * 0
+
+                    for index, item in enumerate(name_list_mc[time_index]):
+
+                        if item not in used_labels:
+                            used_labels.append(item)
+                            label_item = item
+                        else:
+                            label_item = "_nolegend_"
+
+                        self.plot_figure.bar(x[time_index], value_list_mc[time_index][index], width,
+                                             color = color_dict[item],
+                                             bottom = bottom,
+                                             label=label_item)
+
+
+
+                        bottom = bottom + value_list_mc[time_index][index]
+                else:
+                    self.plot_figure.bar(x[time_index], 0, width)
+
+
 
             y_label = metric
             title = metric_question
 
-            # text with y values
-            for i, value in enumerate(y1):
-                if not value:
-                    self.plot_figure.text(i, value, str(value), color='black', fontweight='bold')
-                else:
-                    self.plot_figure.text(i, 0.9 * value, str(value), color='white', fontweight='bold')
-
-            # text with y values
-            for i, value in enumerate(y2):
-                if not value:
-                    self.plot_figure.text(i, value + y1[i], str(value), color='black', fontweight='bold')
-                else:
-                    self.plot_figure.text(i, 0.9 * (value + y1[i]), str(value), color='white', fontweight='bold')
-
-            self.plot_figure.set_xlabel([0, 1, 2, 3])
             self.plot_figure.set_ylabel(y_label)
             self.plot_figure.set_title(title)
             self.plot_figure.legend()
@@ -2199,22 +2265,7 @@ class DataAnalysis(tk.Frame):
             create_horizontal_chart()
 
         elif (metric_question_type.lower()) == "multiple_choice":
-            create_stacked_bar_chart_mc()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            create_stacked_bar_chart_mc(value_list_all)
 
 
 

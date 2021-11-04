@@ -5,3 +5,4 @@
 3) Run install_packages.py (run this command on commandline: py install_packages.py)
 4) Run main.py (run this command on commandline: py main.py)
 
+DO NOT OVERWRITE OLD PROJECT IF ITS IN THE CLOUD
