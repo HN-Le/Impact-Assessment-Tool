@@ -1028,12 +1028,13 @@ class MethodFragmentSelection(tk.Frame):
         self.add_metric_window = tk.Toplevel()
         self.add_metric_window.wm_title('Add metric definitions')
 
-        width = 900
+        width = 650
         height = 720
         position_left = 150
         position_right = 150
 
         self.add_metric_window.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
+
 
         # set size window fixed
         self.add_metric_window.resizable(0, 0)
@@ -1057,6 +1058,31 @@ class MethodFragmentSelection(tk.Frame):
 
         counter = 0
 
+
+        def remap_target_to_show(target):
+
+            if target == "project_provider":
+                return 'Project Provider'
+            elif target == "community_school_leader":
+                return 'Community School Leader'
+            elif target == "teacher":
+                return 'Teacher'
+            else:
+                return 'Student'
+
+        def remap_target_to_process(target):
+
+            if target == "Project Provider":
+                return 'project_provider'
+            elif target == "Community School Leader":
+                return 'community_school_leader'
+            elif target == "Teacher":
+                return 'teacher'
+            else:
+                return 'student'
+
+
+
         for index, value in enumerate(self.checkbox_list):
             # print("show_summary_metrics: VALUE: ", value)
             # print("show_summary_metrics: type of VALUE: ", type(value[0]))
@@ -1078,7 +1104,7 @@ class MethodFragmentSelection(tk.Frame):
 
             ttk.Label(metric_frame,
                       anchor="w", justify='left',
-                      font='Helvetica 14', foreground='blue',
+                      font='Helvetica 14', foreground='#9383f7',
                       text=value).pack(fill='both', pady=10)
 
             for metric_index, metric in enumerate(retrieve_metrics):
@@ -1088,27 +1114,48 @@ class MethodFragmentSelection(tk.Frame):
                 # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
                 # print('retrieve_metric_target ------', metric[0])
 
+                question_type = metric[5].lower()
 
+                print("question_type: ", question_type)
+
+                # 12345
+
+                # metric name (plain label)
+                ttk.Label(metric_frame,
+                          anchor="w", justify='left',
+                          font='Helvetica 10 bold',
+                          text='    ' + 'Method Fragment: ').pack(fill='both')
+
+                # metric name (from db)
+                ttk.Label(metric_frame,
+                          anchor="w", justify='left',
+                          text=value).pack(anchor='w', padx=(40, 0))
+
+                # metric name (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
                           text='    ' + 'Metric: ').pack(fill='both')
 
+                # metric name (from db)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           text=str(metric[1])).pack(anchor='w', padx=(40,0))
 
                 self.metric_id_holder.append(metric[1])
 
+                # target group (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
                           text='    ' + 'Target group: ').pack(fill='both')
 
+                # target group (from db)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
-                          text=str(metric[8])).pack(anchor='w', padx=(40, 0))
+                          text=remap_target_to_show(str(metric[8]))).pack(anchor='w', padx=(40, 0))
 
+                # metric definition (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
@@ -1121,8 +1168,6 @@ class MethodFragmentSelection(tk.Frame):
                 if metric[3] is not None:
                     user_metric_definition_input.set(str(metric[3]))
 
-                # todo rewrite to only show when metric_definition is not None
-
                 button_reset = tk.Button(metric_frame,
                                    text='Reset metric definition',
                                    state = 'disabled',
@@ -1131,6 +1176,7 @@ class MethodFragmentSelection(tk.Frame):
 
                 button_reset.pack(pady=(0), anchor="e", padx=(20, 0))
 
+                # set metric target (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
@@ -1141,11 +1187,13 @@ class MethodFragmentSelection(tk.Frame):
                                             width=10,
                                             textvariable=user_target_input).pack(anchor='w', padx=(40,0), pady=(0, 5))
 
+                # target increase / decrease (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold',
                           text='    ' + 'Target increase or decrease: ').pack(fill='both', pady=(0, 5))
 
+                # input box for target increase/decrease
                 combobox = ttk.Combobox(
                     metric_frame,
                     width=15,
@@ -1157,6 +1205,7 @@ class MethodFragmentSelection(tk.Frame):
                 combobox.pack(anchor='w', pady=(0, 5), padx=(40,0))
 
                 self.metric_id_holder[counter] = tk.BooleanVar()
+
                 checkbox_demographic = ttk.Checkbutton(metric_frame,
                                            text='Demographic of interest',
                                            variable=self.metric_id_holder[counter],
@@ -1186,6 +1235,13 @@ class MethodFragmentSelection(tk.Frame):
                                    text='Save',
                                    width=c.Size.button_width, height=c.Size.button_height,
                                    command=partial(self.save_metric_stats, counter)).pack(pady=(10,0), anchor="w", padx=(20,0))
+
+                separator = ttk.Separator(metric_frame, orient='horizontal')
+                separator.pack(fill='x', padx=(30,0), pady=(20, 0))
+
+
+                # --------------------------------
+
 
                 # retrieve method fragment id from checked methods fragments
                 sql_retrieve_metric_target = "select * from metric_target where metric_id = (?)"
@@ -1226,7 +1282,7 @@ class MethodFragmentSelection(tk.Frame):
                 # white line
                 ttk.Label(metric_frame, text='').pack()
 
-            metric_frame.pack(fill='both')
+            metric_frame.pack(fill='both', expand='true')
 
         # print('button_id_list ---------- ', len(self.button_id_list))
         # print('METRIC ITEM LIST', self.metric_id_list)
@@ -1404,6 +1460,7 @@ class DataAnalysis(tk.Frame):
                 self.data_bool = None
                 self.data_int = None
 
+
         # loop through dict and extract the data from the valid paths
         for id, item in enumerate(dict):
 
@@ -1459,8 +1516,6 @@ class DataAnalysis(tk.Frame):
                         # loop through the non-header rows
                         for metric_index, new_item in enumerate(row):
 
-
-
                             # skip non relevant headers
                             if metric_index in range(0,10):
                                 continue
@@ -1470,42 +1525,61 @@ class DataAnalysis(tk.Frame):
                                 self.metric_question = ((metric_list[metric_index]).lower()).strip()
                                 self.target_name = (self.target.lower()).strip()
 
-                                # TODO check if it works with strings!
                                 self.metric_value_data = data_type_check(row[metric_list[metric_index]])
-
-                                # print(" METRIC NAME ", self.metric_name)
-                                # print(" METRIC VALUE DATA ",self.metric_value_data)
-                                # print("")
-
-                                # print('-----')
-                                # print('Metric: ', self.metric_name)
-                                # print('Metric Value: ', self.metric_value_data)
-                                # print('Target Name: ', self.target_name)
-
 
                                 if ": " in self.metric_question:
                                     self.trimmed_value = self.metric_question.split(": ")
                                     if len(self.trimmed_value[1]) > 3:
+
+                                        self.base_question = self.trimmed_value[0]
                                         self.metric_question = self.trimmed_value[1]
-                                        # print("Metric question ---", self.metric_question)
-                                        # print("Metric question trimmed ---", self.trimmed_value[1])
+
+                                        if self.base_question[-1] == ' ':
+                                            self.base_question = self.base_question[:-1]
+                                            self.scale_option = self.metric_question
+                                            self.metric_question = self.base_question
+
+                                            self.metric_value_data = self.scale_option + ":" + str(self.metric_value_data)
 
                                 sql_metrics = "select * from metric where lower(metric_question) = (?) and lower(target_name) = (?)"
                                 retrieve_metrics = self.data_object.query_with_par(sql_metrics, (self.metric_question, self.target_name))
 
+
                                 for metric_item in retrieve_metrics:
+
+                                    # print('---***')
+                                    # print('metric_id: ', metric_item[0])
+                                    # print('metric_name: ', metric_item[1])
+                                    # print('metric_question : ', metric_item[4])
+
 
 
                                     self.metric_id = metric_item[0]
                                     self.metric_data_type = metric_item[10]
 
-                                    # TODO change name in tool (Whole number, decimal, etc..)
                                     if self.metric_data_type == 'int' :
                                         self.data_int = int(self.metric_value_data)
                                         reset_data('data_int')
 
                                     elif self.metric_data_type == 'bool' :
-                                        self.data_bool = self.metric_value_data
+
+                                        self.metric_value_data = (self.metric_value_data.lower()).strip()
+
+                                        print("self.metric_value_data: ", self.metric_value_data)
+
+                                        # female / male
+                                        if self.metric_value_data == 'female' or self.metric_value_data == 'woman' or self.metric_value_data == 'girl':
+                                            self.data_bool = True
+                                        elif self.metric_value_data == 'male' or self.metric_value_data == 'man' or self.metric_value_data == 'boy':
+                                            self.data_bool = False
+
+                                        # normal booleans
+                                        if self.metric_value_data == 'yes':
+                                            self.data_bool = True
+                                        elif self.metric_value_data == 'no':
+                                            self.data_bool = False
+
+                                        # self.data_bool = self.metric_value_data
                                         reset_data('data_bool')
 
                                     elif self.metric_data_type == 'float' :
@@ -1527,6 +1601,9 @@ class DataAnalysis(tk.Frame):
                                                     self.data_str,
                                                     self.data_int,
                                                     self.data_float)
+
+
+
 
                                     # Load into database
                                     self.data_object.create_metric_value(metric_value)
@@ -1637,6 +1714,7 @@ class DataAnalysis(tk.Frame):
             for metric in retrieve_unique_metrics:
                 metric_id = metric[0]
                 unique_metric_ids.append(metric_id)
+
 
             # retrieve from db if unique metric is in metric database
             sql_metrics_id = "select * from metric where metric_id in ({seq})".format(seq=','.join(['?'] * len(unique_metric_ids)))
@@ -1928,6 +2006,7 @@ class DataAnalysis(tk.Frame):
         metric_question = retrieve_sql_data[0][4]
         metric_answer_options = retrieve_sql_data[0][7]
         metric_answer_multiple = retrieve_sql_data[0][6]
+        metric_name= retrieve_sql_data[0][1]
 
 
         figure_for_plot = Figure(figsize=(12, 4.2), dpi=100)
@@ -2030,17 +2109,25 @@ class DataAnalysis(tk.Frame):
             y2 = []
             width = 0.35
 
+
+
             for item in y_values:
                 if item:
                     counter = Counter(item)
-                    y1.append(counter['yes'])
-                    y2.append(counter['no'])
+                    y1.append(counter[True])
+                    y2.append(counter[False])
                 else:
                     y1.append(0)
                     y2.append(0)
 
-            self.plot_figure.bar(x, y1, width, label='Yes')
-            self.plot_figure.bar(x, y2, width, bottom=y1, label='No')
+            # female = true, male = false
+            if metric_name.lower() == 'gender':
+                self.plot_figure.bar(x, y1, width, label='Female')
+                self.plot_figure.bar(x, y2, width, bottom=y1, label='Male')
+
+            else:
+                self.plot_figure.bar(x, y1, width, label='Yes')
+                self.plot_figure.bar(x, y2, width, bottom=y1, label='No')
 
             y_label = metric
             title = metric_question
@@ -2146,8 +2233,76 @@ class DataAnalysis(tk.Frame):
             figure_for_plot.legend(prop={'size': 8})
 
         # scale data
-        def create_horizontal_chart():
-            print("horizontal bar chart (scale)")
+        def create_stacked_bar_chart_scale(y_values):
+
+            x = ['Start', 'Halfway', 'End', 'Year after']
+
+            value_list = [[], [], [], []]
+            name_list = [[], [], [], []]
+            multi_values = [[], [], [], []]
+            width = 0.35
+
+            answer_option_list = [x.strip() for x in metric_answer_options.split(';')]
+
+
+            for time_index, item in enumerate(y_values):
+
+                if item:
+
+                    scale_dict = {}
+
+                    for i in item:
+                        split_item = i.split(':')
+
+                        type = split_item[0]
+                        value = int(split_item[1])
+
+                        if type not in scale_dict:
+                            scale_dict[type] = value
+                        else:
+                            scale_dict[type] += value
+
+                    for dict_item in scale_dict:
+                        value_list[time_index].append(scale_dict[dict_item])
+                        name_list[time_index].append(dict_item)
+
+            color_bar = ['#f27026', '#e8b28f', '#08649b', '#519954', '#a3b1cd', '#4a3526', '#b06dad', '#e96060']
+            color_dict = {}
+
+            for index, answer_option in enumerate(answer_option_list):
+                answer_option = answer_option.lower()
+                color_dict[answer_option] = color_bar[index]
+
+            used_labels = []
+
+            for time_index, item in enumerate(name_list):
+
+                if item:
+                    bottom = len(name_list[time_index]) * 0
+
+                    for index, item in enumerate(name_list[time_index]):
+
+                        if item not in used_labels:
+                            used_labels.append(item)
+                            label_item = item
+                        else:
+                            label_item = "_nolegend_"
+
+                        self.plot_figure.bar(x[time_index], value_list[time_index][index], width,
+                                             color=color_dict[item],
+                                             bottom=bottom,
+                                             label=label_item)
+
+                        bottom = bottom + value_list[time_index][index]
+                else:
+                    self.plot_figure.bar(x[time_index], 0, width)
+
+            y_label = metric
+            title = metric_question
+
+            self.plot_figure.set_ylabel(y_label)
+            self.plot_figure.set_title(title)
+            self.plot_figure.legend()
 
         # multiple choice data
         def create_stacked_bar_chart_mc(y_values):
@@ -2159,12 +2314,9 @@ class DataAnalysis(tk.Frame):
             multi_values = [[],[],[],[]]
             width = 0.35
 
-
             answer_option_list = [x.strip() for x in metric_answer_options.split(';')]
 
             if metric_answer_multiple:
-                print('y_values: ', y_values)
-
 
                 for time_index, item in enumerate(y_values):
 
@@ -2172,15 +2324,11 @@ class DataAnalysis(tk.Frame):
                         value = [x.strip() for x in string.split(',')]
                         multi_values[time_index].extend(value)
 
-                print('multi_values: ', multi_values)
-
                 for time_index, item in enumerate(multi_values):
 
                     if item:
                         counter = Counter(item)
                         items = counter.keys()
-
-                        print('item: ', item)
 
                         for i in items:
                             value_list_mc[time_index].append(counter[i])
@@ -2197,8 +2345,6 @@ class DataAnalysis(tk.Frame):
                             value_list_mc[time_index].append(counter[i])
                             name_list_mc[time_index].append(i)
 
-
-
             color_bar = ['#f27026', '#e8b28f', '#08649b', '#519954', '#a3b1cd', '#4a3526', '#b06dad', '#e96060']
             color_dict = {}
 
@@ -2207,11 +2353,6 @@ class DataAnalysis(tk.Frame):
 
                 answer_option = answer_option.lower()
                 color_dict[answer_option] = color_bar[index]
-
-            print('value_list_mc: ', value_list_mc)
-            print('name_list_mc: ', name_list_mc)
-            print('answer_option_list: ', answer_option_list)
-            print('color_dict: ', color_dict)
 
             used_labels = []
 
@@ -2233,13 +2374,9 @@ class DataAnalysis(tk.Frame):
                                              bottom = bottom,
                                              label=label_item)
 
-
-
                         bottom = bottom + value_list_mc[time_index][index]
                 else:
                     self.plot_figure.bar(x[time_index], 0, width)
-
-
 
             y_label = metric
             title = metric_question
@@ -2262,18 +2399,11 @@ class DataAnalysis(tk.Frame):
             create_radar_chart(value_list_all)
 
         elif (metric_question_type.lower()) == "scale":
-            create_horizontal_chart()
+            create_stacked_bar_chart_scale(value_list_all)
 
         elif (metric_question_type.lower()) == "multiple_choice":
             create_stacked_bar_chart_mc(value_list_all)
 
-
-
-        # print('--- create_visualisations')
-        # print('TARGET GROUP: ', target_group)
-        # print('POINT: ', point)
-        # print('METRIC: ', metric)
-        # print('')
 
 class ImpactEvaluation(tk.Frame):
 
@@ -2303,6 +2433,7 @@ class ImpactEvaluation(tk.Frame):
                                           "Target for metric",
                                           "Increase / Decrease",
                                           "Current average",
+                                          '# that reach target',
                                           "% of target reached"),
                                  selectmode="extended",
                                  yscrollcommand=self.scrollbary.set,
@@ -2324,6 +2455,7 @@ class ImpactEvaluation(tk.Frame):
         self.tree.heading('Target for metric', text="Target for metric", anchor='w')
         self.tree.heading('Increase / Decrease', text="Increase / Decrease", anchor='w')
         self.tree.heading('Current average', text="Current average", anchor='w')
+        self.tree.heading('# that reach target', text="# that reach target", anchor='w')
         self.tree.heading('% of target reached', text="% of target reached", anchor='w')
 
 
@@ -2336,6 +2468,9 @@ class ImpactEvaluation(tk.Frame):
         self.tree.column('#5', stretch='no', minwidth=0, width=150)
         self.tree.column('#6', stretch='no', minwidth=0, width=150)
         self.tree.column('#7', stretch='no', minwidth=0, width=150)
+        self.tree.column('#8', stretch='no', minwidth=0, width=150)
+
+
 
         # place tree
         self.tree.pack(fill='both',
@@ -2380,32 +2515,46 @@ class ImpactEvaluation(tk.Frame):
     def calculate_target_mean(self, metric_id):
 
         values_list = []
+        value_list_scale = []
+
         average = 0
         data_bool = data_str = data_int = data_float = False
 
+        # get latest time period
+        sql_time = "select max(measuring_point_id) from metric_value"
+        retrieve_time = self.data_object.query_no_par(sql_time)
+        latest_time_period = retrieve_time[0][0]
+
         # look up the rows in db
-        sql_values = "select *  from metric_value where metric_id = (?)"
-        retrieve_values = self.data_object.query_with_par(sql_values, (metric_id,))
+        sql_values = "select *  from metric_value where metric_id = (?) and measuring_point_id = (?)"
+        retrieve_values = self.data_object.query_with_par(sql_values, (metric_id, latest_time_period))
+
+        # look up the question_type in db
+        sql_type = "select metric_value_type from metric where metric_id = (?)"
+        retrieve_type = self.data_object.query_with_par(sql_type, (metric_id,))
 
         # check data_type
-        if retrieve_values[0][4]:
-            data_bool = True
-        elif retrieve_values[0][5]:
+        if retrieve_values[0][5]:
             data_str = True
         elif retrieve_values[0][6]:
             data_int = True
         elif retrieve_values[0][7]:
             data_float = True
+        else:
+            data_bool = True
+
+        # get question type
+        question_type = (retrieve_type[0][0]).lower()
 
         # skip string
         for item in retrieve_values:
-            if item[6]:
+            if data_int:
                 values_list.append(item[6])
-            elif item[7]:
+            elif data_float:
                 values_list.append(item[7])
-            elif item[4]:
+            elif data_bool:
                 values_list.append(item[4])
-            elif item[5]:
+            elif data_str:
                 values_list.append(item[5])
             else:
                 continue
@@ -2415,17 +2564,112 @@ class ImpactEvaluation(tk.Frame):
             mean = statistics.mean(values_list)
 
         elif data_str:
-            print('To Fix')
-        elif data_bool:
-            print('To Fix')
+            return (None)
 
-        # print("values_list, ", values_list)
+        elif data_bool:
+            counter = Counter(values_list)
+
+            value_yes = counter[True]
+            value_no = counter[False]
+
+            percentage_yes = value_yes / len(values_list) * 100
+            percentage_no = value_no / len(values_list) * 100
+
+            text_yes = str(round(percentage_yes, 1)) + ' % yes'
+            text_no = str(round(percentage_no, 1)) + ' % no'
+
+            if percentage_yes >= percentage_no:
+                return [percentage_yes, text_yes]
+            else:
+                return [percentage_no, text_no]
 
         if values_list:
             return(mean)
         else:
             return(None)
 
+    def calculate_target_reached(self, metric_id, target, increase):
+
+        values_list = []
+        value_list_scale = []
+        target_reached = 0
+        target_not_reached = 0
+
+        average = 0
+        data_bool = data_str = data_int = data_float = False
+
+        # get latest time period
+        sql_time = "select max(measuring_point_id) from metric_value"
+        retrieve_time = self.data_object.query_no_par(sql_time)
+        latest_time_period = retrieve_time[0][0]
+
+        # look up the rows in db
+        sql_values = "select *  from metric_value where metric_id = (?) and measuring_point_id = (?)"
+        retrieve_values = self.data_object.query_with_par(sql_values, (metric_id, latest_time_period))
+
+        # look up the question_type in db
+        sql_type = "select metric_value_type from metric where metric_id = (?)"
+        retrieve_type = self.data_object.query_with_par(sql_type, (metric_id,))
+
+        # check data_type
+        if retrieve_values[0][5]:
+            data_str = True
+        elif retrieve_values[0][6]:
+            data_int = True
+        elif retrieve_values[0][7]:
+            data_float = True
+        else:
+            data_bool = True
+
+        # get question type
+        question_type = (retrieve_type[0][0]).lower()
+
+        # skip string
+        for item in retrieve_values:
+            if data_int:
+                values_list.append(item[6])
+            elif data_float:
+                values_list.append(item[7])
+            elif data_bool:
+                values_list.append(item[4])
+            elif data_str:
+                values_list.append(item[5])
+            else:
+                continue
+
+        # if int or float type
+        if data_int or data_float:
+
+            if increase:
+                for item in values_list:
+                    if item >= target:
+                        target_reached += 1
+                    else:
+                        target_not_reached += 1
+
+                return target_reached
+            else:
+                for item in values_list:
+                    if item <= target:
+                        target_reached += 1
+                    else:
+                        target_not_reached += 1
+
+                return target_reached
+
+        elif data_str:
+            return (None)
+
+        elif data_bool:
+            counter = Counter(values_list)
+
+            value_yes = counter[True]
+            value_no = counter[False]
+
+            percentage_yes = value_yes / len(values_list) * 100
+            percentage_no = value_no / len(values_list) * 100
+
+            return percentage_yes
 
     def make_rows(self):
 
@@ -2438,7 +2682,7 @@ class ImpactEvaluation(tk.Frame):
         demo_scope = None
         metric_target = None
         increase_decrease = None
-        target_reached = None
+        target_reached_percentage = None
 
         def remap_increase_decrease(bool):
             if bool:
@@ -2466,13 +2710,29 @@ class ImpactEvaluation(tk.Frame):
             demo_scope = None
             metric_target = None
             increase_decrease = None
-            target_reached = None
+            target_reached_number = None
+            target_reached_percentage = None
+            target_txt = None
 
             metric_id = metric[0]
             metric_name = metric[1]
             target_group = metric[8]
 
-            target_mean = self.calculate_target_mean(metric_id)
+
+            target_mean_ls = self.calculate_target_mean(metric_id)
+
+            if isinstance(target_mean_ls, list):
+                target_mean = target_mean_ls[0]
+                target_txt = target_mean_ls[1]
+            else:
+                target_mean = target_mean_ls
+
+
+            if target_mean:
+                if isinstance(target_mean, int) or isinstance(target_mean, float):
+                    target_mean = round(target_mean, 1)
+            else:
+                target_mean = '-'
 
             # look in metric_target db
             sql_targets = "select * from metric_target where metric_id = (?)"
@@ -2483,7 +2743,11 @@ class ImpactEvaluation(tk.Frame):
                 demo_scope = "all"
                 metric_target = "not specified"
                 increase_decrease = '-'
-                target_reached = '-'
+                target_reached_number = '-'
+                target_reached_percentage = '-'
+
+                if target_txt:
+                    target_mean = target_txt
 
             else:
                 # if no metric_value
@@ -2491,7 +2755,11 @@ class ImpactEvaluation(tk.Frame):
 
                     metric_target = "not specified"
                     increase_decrease = '-'
-                    target_reached = '-'
+                    target_reached_number = '-'
+                    target_reached_percentage = '-'
+
+                    if target_txt:
+                        target_mean = target_txt
 
                     if retrieve_sql_targets[0][4] == "":
                         demo_scope = "all"
@@ -2509,29 +2777,36 @@ class ImpactEvaluation(tk.Frame):
                     increase_decrease =retrieve_sql_targets[0][1]
 
                     if increase_decrease:
-                        target_reached = (target_mean / metric_target) * 100
+                        target_reached_number = int(self.calculate_target_reached(metric_id, metric_target, True))
+                        target_reached_percentage = (int(target_mean) / metric_target) * 100
                     else:
-                        target_reached = (metric_target / target_mean) * 100
+                        target_reached_number = int(self.calculate_target_reached(metric_id, metric_target, False))
+                        target_reached_percentage = (metric_target / int(target_mean)) * 100
 
-                    target_reached = round(target_reached, 1)
+                    target_reached_percentage = round(target_reached_percentage, 1)
 
                     increase_decrease = remap_increase_decrease(increase_decrease)
 
+                    if target_txt:
+                        target_mean = target_txt
+
                     # print("metric_target: ", metric_target)
                     # print("target_mean: ", target_mean)
-                    # print("target_reached: ", target_reached)
+                    # print("target_reached_percentage: ", target_reached_percentage)
 
             self.row_list.append((metric_name,
                             self.remap_target_to_show(target_group),
                             demo_scope,
                             metric_target,
                             increase_decrease,
-                            round(target_mean, 1),
-                            target_reached))
+                            target_mean,
+                            target_reached_number,
+                            target_reached_percentage))
 
             self.tree.insert("", tk.END, values=(metric_name, self.remap_target_to_show(target_group),
                                                  demo_scope, metric_target,
-                                                 increase_decrease, round(target_mean, 1), target_reached))
+                                                 increase_decrease, target_mean,
+                                                 target_reached_number, target_reached_percentage))
 
 
         #

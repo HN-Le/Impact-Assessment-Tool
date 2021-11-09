@@ -892,7 +892,7 @@ class DataCollectionScreen(tk.Frame):
             # functions if valid
             def show_csv_file(file_selected, status_message_label, file_opener_object):
 
-                if file_selected and file_opener_object.is_csv():
+                if file_opener_object.file_path:
                     file_opener_object.show_project_goals()
                 else:
                     status_message_label.set("Select a file first!")
@@ -2832,7 +2832,7 @@ class EvaluationScreen(tk.Frame):
             self.popup_window_metrics.geometry("{}x{}+{}+{}".format(width, height, position_left, position_right))
 
             # set size window fixed
-            self.popup_window_metrics.resizable(0, 0)
+            # self.popup_window_metrics.resizable(0, 0)
 
             self.popup_window_metrics.wm_title('Overview of metric results, goals and targets')
 

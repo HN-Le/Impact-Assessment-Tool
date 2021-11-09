@@ -19,6 +19,8 @@ class Application(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
 
+        self.init_screen = False
+
         # apply style for whole app
         self.apply_style_sheet()
 
@@ -81,6 +83,8 @@ class Application(tk.Tk):
 
         notebook.grid(row=1, column=1, sticky='E', padx=10, pady=(5,10), ipadx=5, ipady=5)
 
+        self.init_screen = True
+
     def apply_style_sheet(self):
         # styling
         style = ttk.Style()
@@ -100,7 +104,6 @@ class Application(tk.Tk):
                         foreground="#234987")
 
         # highlight active tab
-        # style.configure("TNotebook.Tab", background="green3")
         style.map("TNotebook.Tab", background=[("selected", "#c6bef7")])
 
         # combobox background
@@ -180,8 +183,14 @@ class Application(tk.Tk):
                                            padx=30, pady=5,
                                            sticky='w')
 
-        self.project_screen.transient(self)  # set to be on top of the main window
-        self.project_screen.grab_set()  # hijack all commands from the master (clicks on the main window are ignored)
+        self.project_screen.transient(self)
+
+        self.project_screen.takefocus = True
+        self.project_screen.focus_set()
+
+        self.project_screen.grab_set_global()
+
+
 
     def create_new_project(self):
 
@@ -253,46 +262,46 @@ class Application(tk.Tk):
             filetypes=filetypes)
 
         # if cancelled
-        if file is None:
-            return
+        if file:
+            print ("file: ", file)
 
-        self.file_path = file
-        self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
+            self.file_path = file
+            self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
 
-        self.create_main_screen()
+            self.create_main_screen()
 
-        # send save file to views
-        self.send_save_file()
+            # send save file to views
+            self.send_save_file()
 
-        # load from pickle save file
-        self.save_file_object.load_from_file()
+            # load from pickle save file
+            self.save_file_object.load_from_file()
 
-        self.load_path_dict()
+            self.load_path_dict()
 
-        # check if linked database exists
-        if not os.path.isfile(self.save_file_object.data['database_path']):
-            print('load_in_project --- PATH DOES NOT EXISTS')
-            return
+            # check if linked database exists
+            if not os.path.isfile(self.save_file_object.data['database_path']):
+                print('load_in_project --- PATH DOES NOT EXISTS')
+                return
 
-        self.database = self.save_file_object.data['database_path']
+            self.database = self.save_file_object.data['database_path']
 
-        # link database
-        self.create_database(self.database, False)
+            # link database
+            self.create_database(self.database, False)
 
-        self.save_file_object.load_from_save_file = True
+            self.save_file_object.load_from_save_file = True
 
-        # send db to views
-        self.send_data_db()
+            # send db to views
+            self.send_data_db()
 
-        # load saved variables from file
-        self.project_purpose_screen.restore_from_save_file()
-        self.data_collection_screen.restore_from_save_file()
-        self.impact_assessment_screen.restore_from_save_file()
+            # load saved variables from file
+            self.project_purpose_screen.restore_from_save_file()
+            self.data_collection_screen.restore_from_save_file()
+            self.impact_assessment_screen.restore_from_save_file()
 
-        self.update()
-        self.project_screen.destroy()
+            self.update()
+            self.project_screen.destroy()
 
-        self.title("SIAM-ED Tool - " + self.file_name)
+            self.title("SIAM-ED Tool - " + self.file_name)
 
 
     def new_or_load_menu_bar(self, state):
@@ -347,10 +356,16 @@ class Application(tk.Tk):
 
     # exit GUI cleanly
     def quit_application(self):
-        self.save_msg_popup()
-        self.quit()
-        self.destroy()
-        exit()
+
+        if self.init_screen:
+            self.save_msg_popup()
+            self.quit()
+            self.destroy()
+            exit()
+        else:
+            self.quit()
+            self.destroy()
+            exit()
 
 
     def save_application(self):
