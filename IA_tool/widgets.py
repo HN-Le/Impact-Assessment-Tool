@@ -1114,12 +1114,10 @@ class MethodFragmentSelection(tk.Frame):
                 # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
                 # print('retrieve_metric_target ------', metric[0])
 
+                metric_id_test = retrieve_metrics[0]
                 question_type = metric[5].lower()
 
-                print("question_type: ", question_type)
-
                 # 12345
-
                 # metric name (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
@@ -1140,7 +1138,7 @@ class MethodFragmentSelection(tk.Frame):
                 # metric name (from db)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
-                          text=str(metric[1])).pack(anchor='w', padx=(40,0))
+                          text=str(metric[1])).pack(anchor='w', padx=(40, 0))
 
                 self.metric_id_holder.append(metric[1])
 
@@ -1164,34 +1162,25 @@ class MethodFragmentSelection(tk.Frame):
                 user_metric_definition_input = tk.StringVar()
                 user_metric_definition = ttk.Entry(metric_frame,
                                                    width=15,
-                                                   textvariable=user_metric_definition_input).pack(fill='both', padx=(40,0), pady=(0, 5))
+                                                   textvariable=user_metric_definition_input).pack(fill='both',
+                                                                                                   padx=(40, 0),
+                                                                                                   pady=(0, 5))
                 if metric[3] is not None:
                     user_metric_definition_input.set(str(metric[3]))
 
                 button_reset = tk.Button(metric_frame,
-                                   text='Reset metric definition',
-                                   state = 'disabled',
-                                   height=1,
-                                   command=partial(self.reset_user_def, counter))
+                                         text='Reset metric definition',
+                                         state='disabled',
+                                         height=1,
+                                         command=partial(self.reset_user_def, counter))
 
                 button_reset.pack(pady=(0), anchor="e", padx=(20, 0))
 
-                # set metric target (plain label)
-                ttk.Label(metric_frame,
-                          anchor="w", justify='left',
-                          font='Helvetica 10 bold',
-                          text='    ' + 'Set metric target: (must be >0 !)').pack(fill='both', pady=(0, 5))
-
+                self.metric_id_holder[counter] = tk.BooleanVar()
+                self.checkbox_demographic.append(self.metric_id_holder[counter])
                 user_target_input = tk.StringVar()
-                user_target = ttk.Entry(metric_frame,
-                                            width=10,
-                                            textvariable=user_target_input).pack(anchor='w', padx=(40,0), pady=(0, 5))
-
-                # target increase / decrease (plain label)
-                ttk.Label(metric_frame,
-                          anchor="w", justify='left',
-                          font='Helvetica 10 bold',
-                          text='    ' + 'Target increase or decrease: ').pack(fill='both', pady=(0, 5))
+                status_message = tk.StringVar()
+                user_demo_scope_input = tk.StringVar()
 
                 # input box for target increase/decrease
                 combobox = ttk.Combobox(
@@ -1202,43 +1191,99 @@ class MethodFragmentSelection(tk.Frame):
                             "Decrease"
                             ])
 
-                combobox.pack(anchor='w', pady=(0, 5), padx=(40,0))
-
-                self.metric_id_holder[counter] = tk.BooleanVar()
-
                 checkbox_demographic = ttk.Checkbutton(metric_frame,
-                                           text='Demographic of interest',
-                                           variable=self.metric_id_holder[counter],
-                                           onvalue=True, offvalue=False)
+                                                       text='Demographic of interest',
+                                                       variable=self.metric_id_holder[counter],
+                                                       onvalue=True, offvalue=False)
 
-                checkbox_demographic.pack(anchor="w", padx=(10,0), pady=(0, 5))
+                # if int or float
+                if question_type == "numerical" or question_type == "float":
 
-                self.checkbox_demographic.append(self.metric_id_holder[counter])
+                    # set metric target (plain label)
+                    ttk.Label(metric_frame,
+                              anchor="w", justify='left',
+                              font='Helvetica 10 bold',
+                              text='    ' + 'Set metric target:\n      - Must be > 0 -').pack(fill='both', pady=(0, 5))
 
-                ttk.Label(metric_frame,
-                          anchor="w", justify='left',
-                          font='Helvetica 10 bold',
-                          text='    ' + 'Demographic scope: ').pack(fill='both', pady=(0, 5))
+                    user_target = ttk.Entry(metric_frame,
+                                                width=10,
+                                                textvariable=user_target_input).pack(anchor='w', padx=(40,0), pady=(0, 5))
 
-                user_demo_scope_input = tk.StringVar()
-                user_demo_scope = ttk.Entry(metric_frame,
-                                                   width=15,
-                                                   textvariable=user_demo_scope_input).pack(fill='both', padx=(40,0), pady=(0, 5))
+                    # target increase / decrease (plain label)
+                    ttk.Label(metric_frame,
+                              anchor="w", justify='left',
+                              font='Helvetica 10 bold',
+                              text='    ' + 'Target increase or decrease: ').pack(fill='both', pady=(0, 5))
 
-                status_message = tk.StringVar()
+                    combobox.pack(anchor='w', pady=(0, 5), padx=(40,0))
+
+                    checkbox_demographic.pack(anchor="w", padx=(10,0), pady=(0, 5))
+
+                    ttk.Label(metric_frame,
+                              anchor="w", justify='left',
+                              font='Helvetica 10 bold',
+                              text='    ' + 'Demographic scope: ').pack(fill='both', pady=(0, 5))
+
+                    user_demo_scope = ttk.Entry(metric_frame,
+                                                       width=15,
+                                                       textvariable=user_demo_scope_input).pack(fill='both', padx=(40,0), pady=(0, 5))
+
+                elif question_type == "boolean":
+
+                    if metric[1].lower() == 'gender':
+                        ttk.Label(metric_frame,
+                                  anchor="w", justify='left',
+                                  font='Helvetica 10 bold',
+                                  text='    ' + 'Set metric target:\n      (How many % should be atleast female)\n      - Must be > 0 -').pack(fill='both', pady=(0, 5))
+
+                        user_target = ttk.Entry(metric_frame,
+                                                width=10,
+                                                textvariable=user_target_input).pack(anchor='w', padx=(40, 0),
+                                                                                     pady=(0, 5))
+                    else:
+                    # set metric target (plain label)
+                        ttk.Label(metric_frame,
+                                  anchor="w", justify='left',
+                                  font='Helvetica 10 bold',
+                                  text='    ' + 'Set metric target:\n      (how many % should be yes)\n      - Must be > 0 -').pack(fill='both', pady=(0, 5))
+
+                        user_target = ttk.Entry(metric_frame,
+                                                width=10,
+                                                textvariable=user_target_input).pack(anchor='w', padx=(40, 0), pady=(0, 5))
+
+                    # target increase / decrease (plain label)
+                    ttk.Label(metric_frame,
+                              anchor="w", justify='left',
+                              font='Helvetica 10 bold',
+                              text='    ' + 'Target increase or decrease: ').pack(fill='both', pady=(0, 5))
+
+                    combobox.pack(anchor='w', pady=(0, 5), padx=(40, 0))
+
+                    checkbox_demographic.pack(anchor="w", padx=(10, 0), pady=(0, 5))
+
+                    ttk.Label(metric_frame,
+                              anchor="w", justify='left',
+                              font='Helvetica 10 bold',
+                              text='    ' + 'Demographic scope: ').pack(fill='both', pady=(0, 5))
+
+                    user_demo_scope = ttk.Entry(metric_frame,
+                                                width=15,
+                                                textvariable=user_demo_scope_input).pack(fill='both', padx=(40, 0),
+                                                                                         pady=(0, 5))
+
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
                           font='Helvetica 10 bold', foreground='red',
-                          textvariable=status_message).pack(fill='both', padx=(40,0), pady=(0, 5))
+                          textvariable=status_message).pack(fill='both', padx=(40, 0), pady=(0, 5))
 
                 button = tk.Button(metric_frame,
                                    text='Save',
                                    width=c.Size.button_width, height=c.Size.button_height,
-                                   command=partial(self.save_metric_stats, counter)).pack(pady=(10,0), anchor="w", padx=(20,0))
+                                   command=partial(self.save_metric_stats, counter)).pack(pady=(10, 0), anchor="w",
+                                                                                          padx=(20, 0))
 
                 separator = ttk.Separator(metric_frame, orient='horizontal')
-                separator.pack(fill='x', padx=(30,0), pady=(20, 0))
-
+                separator.pack(fill='x', padx=(30, 0), pady=(20, 0))
 
                 # --------------------------------
 
@@ -1250,13 +1295,17 @@ class MethodFragmentSelection(tk.Frame):
                 # check if array is not empty
                 if retrieve_metric_target:
 
+
                     button_reset['state'] = 'active'
 
                     # if in database pre fill the fields
                     user_target_input.set(str(retrieve_metric_target[0][2]))
 
                     if retrieve_metric_target[0][1]:
+                        combobox.current(0)
+                    else:
                         combobox.current(1)
+
 
                     if retrieve_metric_target[0][3]:
                         self.metric_id_holder[counter].set(True)
@@ -1349,7 +1398,6 @@ class MethodFragmentSelection(tk.Frame):
             interest_demographic = self.checkbox_demographic[index].get()
             interest_scope = self.demo_scope_list[index].get()
 
-
             if interest_demographic == '':
                 interest_scope = None
 
@@ -1360,16 +1408,10 @@ class MethodFragmentSelection(tk.Frame):
 
             self.status_message_list[index].set( '- Saved - ')
 
+
         else:
             self.status_message_list[index].set('Error, please fill both the metric target and target increase/decrease in!')
 
-        # print('save_metric_stats| button index ---- ', index)
-        # print('save_metric_stats| metric definition ---- ', self.user_metric_defintion_text[index].get())
-        # print('save_metric_stats| metric_id ---- ', self.metric_id_list[index])
-        # print('save_metric_stats| checkbox ---- ', self.checkbox_demographic[index].get())
-        # print('save_metric_stats| demographic scope ---- ', self.demo_scope_list[index].get())
-        # print('save_metric_stats| target ---- ', self.metric_target_list[index].get())
-        # print('save_metric_stats| if increase ---- ', self.if_increase_list[index].get())
 
 class DataCollection(tk.Frame):
 
@@ -1564,8 +1606,6 @@ class DataAnalysis(tk.Frame):
                                     elif self.metric_data_type == 'bool' :
 
                                         self.metric_value_data = (self.metric_value_data.lower()).strip()
-
-                                        print("self.metric_value_data: ", self.metric_value_data)
 
                                         # female / male
                                         if self.metric_value_data == 'female' or self.metric_value_data == 'woman' or self.metric_value_data == 'girl':
@@ -2740,6 +2780,9 @@ class ImpactEvaluation(tk.Frame):
 
             # if no metric_target
             if not retrieve_sql_targets:
+
+                print("IF ---")
+
                 demo_scope = "all"
                 metric_target = "not specified"
                 increase_decrease = '-'

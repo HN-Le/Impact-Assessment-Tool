@@ -253,6 +253,8 @@ class Application(tk.Tk):
 
         self.title("SIAM-ED Tool - " + self.file_name)
 
+        self.save_application()
+
     def load_in_project(self):
 
         filetypes = [('Pickle Save File', '*.pickle')]
