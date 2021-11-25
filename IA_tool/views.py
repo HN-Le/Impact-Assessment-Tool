@@ -699,7 +699,6 @@ class DataCollectionScreen(tk.Frame):
     def send_save_file_object(self, data):
         self.save_file_object = data
 
-    # 1234
     def save_data(self):
 
         self.user_dates = {'date_sop' : self.user_dates_objects[0].get(),
@@ -857,8 +856,6 @@ class DataCollectionScreen(tk.Frame):
             # TODO change validation file paths first tab
             def validate_path(file_name_label, status_message_label, file_opener_object, index, status_list):
 
-                print('status_list: ',status_list)
-
                 self.start_project_window.attributes("-topmost", False)
                 file_path = file_opener_object.get_file_path_csv()
                 filename = file_opener_object.return_file_name()
@@ -872,20 +869,10 @@ class DataCollectionScreen(tk.Frame):
 
                     self.dict_paths.update_dc_path_dict(targets_with_period, index, file_opener_object.file_path)
 
-                        # print('----')
-                        # print('target: ', targets_with_period[index])
-                        # print('path: ', file_opener_object.file_path)
-                        # print('----')
-
                 # if no file is selected
                 else:
                     file_name_label.set('Filename: ')
                     self.dict_paths.update_dc_path_dict(targets_with_period, index, '')
-
-                    # print('----')
-                    # print('target: ', targets_with_period[index])
-                    # print('path: ', file_opener_object.file_path)
-                    # print('----')
 
                 self.start_project_window.attributes("-topmost", True)
 
@@ -935,7 +922,7 @@ class DataCollectionScreen(tk.Frame):
             self.provider_status_message_label_sop = tk.StringVar()
             self.provider_status_message_label_sop.set("")
 
-            # place in GUI
+            # place in GU
             create_label(label_name= self.provider_status_message_label_sop,
                          frame=frame_project_sop,
                          row=5,
@@ -947,9 +934,6 @@ class DataCollectionScreen(tk.Frame):
             # 1 = sop - leader
             # 2 = sop - teacher
             # 3 = sop - student
-            # print(data_file_status_list[0]['target'])
-
-            print('self.data_file_status_list 1234: ', self.data_file_status_list)
 
             # create and place 'select' button with actions
             tk.Button(frame_project_sop,
@@ -1206,7 +1190,6 @@ class DataCollectionScreen(tk.Frame):
             # 5 = hop - leader
             # 6 = hop - teacher
             # 7 = hop - student
-            # print(data_file_status_list[4])
 
             # create and place 'select' button with actions
             tk.Button(frame_project_hop,
@@ -1268,7 +1251,6 @@ class DataCollectionScreen(tk.Frame):
             # 5 = hop - leader
             # 6 = hop - teacher
             # 7 = hop - student
-            # print(data_file_status_list[4])
 
             # create and place 'select' button with actions
             tk.Button(frame_project_hop,
@@ -1465,7 +1447,6 @@ class DataCollectionScreen(tk.Frame):
             # 13 = eop - leader
             # 14 = eop - teacher
             # 15 = eop - student
-            # print(data_file_status_list[8])
 
             # create and place 'select' button with actions
             tk.Button(frame_project_eop,
@@ -1723,7 +1704,6 @@ class DataCollectionScreen(tk.Frame):
             # 13 = yap - leader
             # 14 = yap - teacher
             # 15 = yap - student
-            # print(data_file_status_list[12])
 
             # create and place 'select' button with actions
             tk.Button(frame_project_yap,
@@ -2065,7 +2045,6 @@ class DataAnalysisScreen(tk.Frame):
     def send_save_file_object(self, data):
         self.save_file_object = data
 
-    # 1234
     def save_data(self):
         self.save_file_object.get_data_analysis(self.data_analysis_object.selected_file_counter)
 
@@ -2141,7 +2120,6 @@ class DataAnalysisScreen(tk.Frame):
                     if file_id[0] in provider_id:
                         if self.input_target == "Project Provider":
                             self.time_option_list.append(time_option_dict[provider_id.index(file_id[0])])
-                            # print('INDEX if statement ---', index)
 
                     if file_id[0] in leader_id:
                         if self.input_target == "Community School Leader":
@@ -2154,12 +2132,6 @@ class DataAnalysisScreen(tk.Frame):
                     if file_id[0] in student_id:
                         if self.input_target == "Student":
                             self.time_option_list.append(time_option_dict[student_id.index(file_id[0])])
-
-
-                    # print('file_id: ---', file_id[0])
-                    # print('time_option_list ---', self.time_option_list)
-
-
 
             def change_time_frame_box():
                 if self.time_option_list:
@@ -2234,9 +2206,6 @@ class DataAnalysisScreen(tk.Frame):
                     return 'yap'
 
             def validate_combobox_input(state):
-
-                # print ('Timeframe: ', self.select_time_frame.get())
-                # print ('Target: ', self.select_target.get())
 
                 if self.select_time_frame.get() == '' and self.select_target.get() == '':
                     self.status_message_tables.set('Select a timeframe and target!')

@@ -329,7 +329,6 @@ class MethodFragmentSelection(tk.Frame):
         labels = ['Metric', 'Method fragment', 'Question type']
 
         check_list = list(self.checkbox_list.keys())
-        # print(("check_box_list ----- ", check_list))
 
         # only retrieve the method fragments that were checked (to show in the combobox)
         sql = "select method_fragment_name from method_fragment where method_fragment_name in ({seq})".format(
@@ -530,11 +529,6 @@ class MethodFragmentSelection(tk.Frame):
             else:
                 return "string"
 
-        # print('METRIC TEXT BOX: ', metric_input.get())
-        # print('METHOD FRAG BOX: ', method_frag_input.get())
-        # print('DATATYPE BOX: ', data_type_input.get())
-        # print('SURVEY QUESTION BOX: ', user_survey_question.get())
-
         if metric_input.get() and method_frag_input.get() and \
                 question_type_input.get() and user_survey_question.get() and \
                 combobox_target.get() and combobox_data_type.get():
@@ -565,8 +559,6 @@ class MethodFragmentSelection(tk.Frame):
                           metric_definition, (metric_question.strip()),
                           metric_value_type, multiple_answers,
                           answer_options, target_name, user_made, data_type)
-
-                # print('Metric_name ---------', metric)
 
                 self.data_object.create_metric(metric)
 
@@ -613,15 +605,10 @@ class MethodFragmentSelection(tk.Frame):
                 frag_id_int_user = int((frag_id.get()),)
                 frag_id_in_db = self.metric_id_list[frag_id_int_user-1]
 
-                # print('frag_id_int_user ----------- ', frag_id_int_user)
-                # print('self.metric_id_list[frag_id_int_user] ----------- ', self.metric_id_list[frag_id_int_user - 1])
-
                 sql_check = "select user_made from metric where metric_id = ?"
                 retrieve_check = self.data_object.query_with_par(sql_check, ((frag_id_in_db),))
 
                 sql_delete_metric = "delete from metric where metric_id = ?"
-
-                # print('retrieve_check ------ ', retrieve_check[0][0])
 
                 if retrieve_check[0][0] == False:
                     self.status_message_remove_metric.set("Cannot remove standard metrics! (only metrics added by user)")
@@ -653,8 +640,6 @@ class MethodFragmentSelection(tk.Frame):
                     self.remove_frame.update()
                     self.remove_frame.after(1000, self.refresh_summary_window())
 
-                # print('self.metric_id_list ----------- ', self.metric_id_list)
-
             else:
                 self.status_message_remove_metric.set("Please fill in an existing ID!")
 
@@ -685,14 +670,6 @@ class MethodFragmentSelection(tk.Frame):
 
         pyperclip.copy(value)
         pyperclip.paste()
-
-        print("Value: ", pyperclip.paste())
-
-        # self.info_window.clipboard_append('CLIPBOARD')
-        #
-        # print("Clipboard: ", self.info_window.clipboard_get())
-        # self.info_window.update()
-        #
 
     def create_list(self, target_key):
 
@@ -957,9 +934,6 @@ class MethodFragmentSelection(tk.Frame):
         stat_label_metric.pack(fill='both', pady=(0, 10))
 
         for index, value in enumerate(self.checkbox_list):
-            # print("show_summary_metrics: VALUE: ", value)
-            # print("show_summary_metrics: type of VALUE: ", type(value[0]))
-
             # retrieve method fragment id from checked methods fragments
             sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
             retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((value),))
@@ -990,7 +964,6 @@ class MethodFragmentSelection(tk.Frame):
                           text= '    ' + str(counter+1) + '  - ' + str(metric[1])).pack(fill='both')
                 counter += 1
 
-                # print('ID ------', metric[0])
                 self.metric_id_list.append(metric[0])
 
         self.scrollable_metric_frame.pack(side="left", fill="both", expand=True)
@@ -1019,8 +992,6 @@ class MethodFragmentSelection(tk.Frame):
         self.add_metric()
         self.show_summary_metrics()
         self.notebook_summary.select(0)
-
-        # print("REFRESH SUMMARY WINDOW ------ ")
 
     def show_add_metric_definition_window(self):
 
@@ -1084,8 +1055,6 @@ class MethodFragmentSelection(tk.Frame):
 
 
         for index, value in enumerate(self.checkbox_list):
-            # print("show_summary_metrics: VALUE: ", value)
-            # print("show_summary_metrics: type of VALUE: ", type(value[0]))
 
             # make frame
             metric_frame = ttk.Frame(self.scrollable_add_metric_frame.scrollable_frame, width=width, height=height)
@@ -1098,10 +1067,6 @@ class MethodFragmentSelection(tk.Frame):
             sql_retrieve_metrics = "select * from metric where method_fragment_id=?"
             retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, retrieve_method_frag_id[0])
 
-            # for metric in retrieve_metrics:
-            #     print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
-            #     print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
-
             ttk.Label(metric_frame,
                       anchor="w", justify='left',
                       font='Helvetica 14', foreground='#9383f7',
@@ -1109,15 +1074,11 @@ class MethodFragmentSelection(tk.Frame):
 
             for metric_index, metric in enumerate(retrieve_metrics):
 
-                # print(' ID: retrieve_metrics[0] -------------- ', metric[0])
-                # print(' ID: retrieve_metrics[0] -------------- ', metric[0][metric_index])
-                # print(' Name: retrieve_metrics[1] -------------- ', metric[1][metric_index])
-                # print('retrieve_metric_target ------', metric[0])
-
                 metric_id_test = retrieve_metrics[0]
                 question_type = metric[5].lower()
 
-                # 12345
+                # metric name (plain label)
+                # metric name (plain label)
                 # metric name (plain label)
                 ttk.Label(metric_frame,
                           anchor="w", justify='left',
@@ -1333,9 +1294,6 @@ class MethodFragmentSelection(tk.Frame):
 
             metric_frame.pack(fill='both', expand='true')
 
-        # print('button_id_list ---------- ', len(self.button_id_list))
-        # print('METRIC ITEM LIST', self.metric_id_list)
-
         # put scrollable frame in window
         self.scrollable_add_metric_frame.pack(fill="both", expand='true')
 
@@ -1506,16 +1464,12 @@ class DataAnalysis(tk.Frame):
         # loop through dict and extract the data from the valid paths
         for id, item in enumerate(dict):
 
-            # print('Key: ', item)
-            # print('Value: ', dict[item])
-
             # variables for the SQL query
             self.file_id = id
 
             # non valid paths
             if dict[item] == '':
                 continue
-                # print(item, ': No path selected')
 
             else:
                 # check which target group the file is for
@@ -1534,10 +1488,6 @@ class DataAnalysis(tk.Frame):
                 else:
                     self.measuring_point_id = 4
 
-                # print('file ID = ', self.file_id)
-                # print('Target: ', item)
-                # print('Path: ', dict[item])
-
                 # open the valid paths and extract the data
                 with open(dict[item], encoding='UTF-8', newline='\n') as f:
 
@@ -1551,10 +1501,6 @@ class DataAnalysis(tk.Frame):
                     # each survey in the csv file (1 row = 1 survey)
                     for index, row in enumerate(reader):
 
-                        # print("ROWWW -- ",row)
-                        # print('Index: ', index)
-                        # print('-----')
-
                         # loop through the non-header rows
                         for metric_index, new_item in enumerate(row):
 
@@ -1566,6 +1512,12 @@ class DataAnalysis(tk.Frame):
                             else:
                                 self.metric_question = ((metric_list[metric_index]).lower()).strip()
                                 self.target_name = (self.target.lower()).strip()
+
+                                last_char = self.metric_question[-1]
+
+                                if last_char == '.':
+                                    temp = self.metric_question[:-1]
+                                    self.metric_question = temp
 
                                 self.metric_value_data = data_type_check(row[metric_list[metric_index]])
 
@@ -1583,18 +1535,12 @@ class DataAnalysis(tk.Frame):
 
                                             self.metric_value_data = self.scale_option + ":" + str(self.metric_value_data)
 
+                                # remove dots from end
+
                                 sql_metrics = "select * from metric where lower(metric_question) = (?) and lower(target_name) = (?)"
                                 retrieve_metrics = self.data_object.query_with_par(sql_metrics, (self.metric_question, self.target_name))
 
-
                                 for metric_item in retrieve_metrics:
-
-                                    # print('---***')
-                                    # print('metric_id: ', metric_item[0])
-                                    # print('metric_name: ', metric_item[1])
-                                    # print('metric_question : ', metric_item[4])
-
-
 
                                     self.metric_id = metric_item[0]
                                     self.metric_data_type = metric_item[10]
@@ -1642,9 +1588,6 @@ class DataAnalysis(tk.Frame):
                                                     self.data_int,
                                                     self.data_float)
 
-
-
-
                                     # Load into database
                                     self.data_object.create_metric_value(metric_value)
 
@@ -1660,7 +1603,6 @@ class DataAnalysis(tk.Frame):
             if options is not None:
                 option_list = options.split(";")
                 stripped_option_list = [s.strip() for s in option_list]
-                # print(stripped_option_list)
 
         # status message
         tk.Label(frame,
@@ -1715,15 +1657,6 @@ class DataAnalysis(tk.Frame):
         # refill with updated data
         self.fill_table(tree)
 
-    # def validate_vis_inputs(self, target, time_frame):
-    #
-    #     print("target: ---", target)
-    #     print("time_frame: ---", time_frame)
-    #
-    #     if target and time_frame:
-    #         self.visualisation_get_metrics(target, time_frame)
-
-
     def visualisation_get_metrics(self, target, time_frame):
 
         def remap_target(target):
@@ -1763,9 +1696,6 @@ class DataAnalysis(tk.Frame):
 
 
             for metric in retrieve_metrics_target:
-
-                # print('metric --- ', metric)
-
 
                 metric_id = metric[0]
                 metric_target = metric[8]
@@ -1829,18 +1759,9 @@ class DataAnalysis(tk.Frame):
             if data_type == 'string':
                 metric_modus = caluculate_modus(values_list)
 
-                # print('min: ', metric_min)
-                # print('max: ', metric_max)
-                # print('mean: ', metric_average)
-                # print('modus: ', metric_modus)
-                # print('median: ', metric_median)
-                # print('')
-
             calculated_row = [metric_name, metric_entries, metric_min,
                               metric_max, metric_average, metric_modus, metric_median]
 
-            # print('TO BE INSERTED ROW: ', calculated_row)
-            # print('')
             self.data_list.append(calculated_row)
 
         def data_type_index(data_type):
@@ -1884,15 +1805,6 @@ class DataAnalysis(tk.Frame):
                 # add unique metrics in metrics_value db to list
                 self.unique_metrics.append((metric_name, metric_id, data_type, metric_type))
 
-                # print('---Unique Metrics---')
-                # print('Metric ID: ', metric_id)
-                # print('Metric Name: ', metric_name)
-                # print('Metric Type: ', metric_type )
-                # print('Data Type: ', data_type)
-                #
-                # print('METRIC ID? ', ((metric_id),)[0])
-                # print('USER TIME FRAME? ', ((user_time_frame),)[0] )
-
             else:
                 continue
 
@@ -1901,28 +1813,18 @@ class DataAnalysis(tk.Frame):
             values_list = []
             unique_metric_id = metric[1]
 
-            # print ('METRIC: ', metric)
             # retrieve the rows from a unique metric
             sql_collect_rows = "select * from metric_value where metric_id = (?) and measuring_point_id = (?)"
             retrieve_collected_rows = self.data_object.query_with_par(sql_collect_rows, (((unique_metric_id),)[0],
                                                                                          (((user_time_frame),)[0]))
                                                                       )
 
-            # print('METRIC ', metric)
-            # print('METRIC ', unique_metric_id)
-            # print ('RETRIEVE COLLECTED ROWS ',retrieve_collected_rows)
-
             # rows for every unique metric
             for entry_counter, row in enumerate(retrieve_collected_rows):
                 metric_entries = entry_counter + 1
-                # print('Row: ', entry_counter, '-', row)
-                # print('data_type_index(data_type) ', data_type_index(metric[2]))
 
                 if row[data_type_index(metric[2])] is not None:
                     values_list.append(row[data_type_index(metric[2])])
-
-            # print("# of rows: ", metric_entries)
-            # print("")
 
             if values_list:
                 create_table_row(metric[0], metric_entries, values_list, metric[3], metric[2], self.data_list)
@@ -1986,9 +1888,6 @@ class DataAnalysis(tk.Frame):
         self.tree.pack(fill='both',
                        padx=10)
 
-        # if len(self.tree.get_children()) == 0:
-        #     print('NOPS')
-
     def create_canvas_frame(self, frame):
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
@@ -2009,11 +1908,6 @@ class DataAnalysis(tk.Frame):
             return 5
 
     def create_visualisations(self, target_group, point, metric, frame):
-
-        # print('target_group ---', target_group)
-        # print('point ---', point)
-        # print('metric ---', metric)
-        # print("")
 
         time_list = []
         value_list_sop = []
@@ -2059,8 +1953,6 @@ class DataAnalysis(tk.Frame):
         else:
             self.plot_figure = figure_for_plot.add_subplot()
 
-        # print("Metric ID ", metric_id)
-
         for time_unit in time_list:
             sql_metric = "select * from metric_value where metric_id = (?) and measuring_point_id = (?)"
             retrieve_metrics = self.data_object.query_with_par(sql_metric, (metric_id, time_unit))
@@ -2082,14 +1974,11 @@ class DataAnalysis(tk.Frame):
             score_list_7 = [score_1, score_2, score_3, score_4, score_5, score_6, score_7]
 
             for point in list:
-                print("point: ", point)
 
                 if isLikert_7:
                     score_list_7[(c.DataTypes.likert_7).index(point)] += c.DataTypes.likert_7_score[point]
                 else:
                     score_list_6[(c.DataTypes.likert_6).index(point)]  += c.DataTypes.likert_6_score[point]
-
-            print('score_list_7: ', score_list_7)
 
             if isLikert_7:
                 return score_list_7
@@ -2781,8 +2670,6 @@ class ImpactEvaluation(tk.Frame):
             # if no metric_target
             if not retrieve_sql_targets:
 
-                print("IF ---")
-
                 demo_scope = "all"
                 metric_target = "not specified"
                 increase_decrease = '-'
@@ -2833,10 +2720,6 @@ class ImpactEvaluation(tk.Frame):
                     if target_txt:
                         target_mean = target_txt
 
-                    # print("metric_target: ", metric_target)
-                    # print("target_mean: ", target_mean)
-                    # print("target_reached_percentage: ", target_reached_percentage)
-
             self.row_list.append((metric_name,
                             self.remap_target_to_show(target_group),
                             demo_scope,
@@ -2851,10 +2734,6 @@ class ImpactEvaluation(tk.Frame):
                                                  increase_decrease, target_mean,
                                                  target_reached_number, target_reached_percentage))
 
-
-        #
-        # for item in row_list:
-        #     print('Row: ---',item)
 
 class ScrollableFrame(ttk.Frame):
 

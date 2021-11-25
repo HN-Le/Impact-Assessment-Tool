@@ -213,22 +213,11 @@ class Application(tk.Tk):
         self.file_path = f.name
         self.file_dir = (self.file_path.rsplit("/", 1))[0]
         self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
-        # self.file_name = self.file_name + ' - DATABASE'
-
-        # print('self.file_path  ', self.file_path)
-        # print('self.file_dir  ', self.file_dir)
 
         # delete select project screen
         self.project_screen.destroy()
-
         self.create_main_screen()
-
         self.send_save_file()
-
-        # # Un hardcode it
-        # dirname = os.getcwd()
-        # name_db = 'test2.db'
-        # self.database = os.path.join(dirname, 'data', 'sql', name_db)
 
         file_extention = '.db'
         db_file_path = self.file_dir + '/' + self.file_name + file_extention
@@ -265,8 +254,6 @@ class Application(tk.Tk):
 
         # if cancelled
         if file:
-            print ("file: ", file)
-
             self.file_path = file
             self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
 
