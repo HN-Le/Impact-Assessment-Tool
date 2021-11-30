@@ -234,66 +234,58 @@ class Application(tk.Tk):
 
     def load_in_project(self):
 
-        valid_load_file = False
+        filetypes = [('Pickle Save File', '*.pickle')]
 
-        while not valid_load_file:
+        file = filedialog.askopenfilename(
+            title='Load project file',
+            filetypes=filetypes)
 
-            filetypes = [('Pickle Save File', '*.pickle')]
+        # if cancelled
+        if file:
 
-            file = filedialog.askopenfilename(
-                title='Load project file',
-                filetypes=filetypes)
+            self.file_path = file
+            self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
 
-            # if cancelled
-            if file:
+            self.create_main_screen()
 
+            # send save file to views
+            self.send_save_file()
 
-                self.file_path = file
-                self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
+            # load from pickle save file
+            self.save_file_object.load_from_file()
 
-                self.create_main_screen()
-
-                # send save file to views
-                self.send_save_file()
-
-                # load from pickle save file
-                self.save_file_object.load_from_file()
-
-                self.load_path_dict()
-
-                print("self.save_file_object.data['database_path']")
+            self.load_path_dict()
 
 
-                # check if linked database exists
-                if not os.path.isfile(self.save_file_object.data['database_path']):
-                    print('load_in_project --- PATH DOES NOT EXISTS')
+            # check if linked database exists
+            if not os.path.isfile(self.save_file_object.data['database_path']):
 
-                    # create popup
-                    continue
+                print("self.save_file_object.data['database_path']", self.save_file_object.data['database_path'])
+                print('load_in_project --- PATH DOES NOT EXISTS')
+
+                # create popup
+                return
 
 
+            self.database = self.save_file_object.data['database_path']
 
-                self.database = self.save_file_object.data['database_path']
+            # link database
+            self.create_database(self.database, False)
 
-                # link database
-                self.create_database(self.database, False)
+            self.save_file_object.load_from_save_file = True
 
-                self.save_file_object.load_from_save_file = True
+            # send db to views
+            self.send_data_db()
 
-                # send db to views
-                self.send_data_db()
+            # load saved variables from file
+            self.project_purpose_screen.restore_from_save_file()
+            self.data_collection_screen.restore_from_save_file()
+            self.impact_assessment_screen.restore_from_save_file()
 
-                # load saved variables from file
-                self.project_purpose_screen.restore_from_save_file()
-                self.data_collection_screen.restore_from_save_file()
-                self.impact_assessment_screen.restore_from_save_file()
+            self.update()
+            self.project_screen.destroy()
 
-                self.update()
-                self.project_screen.destroy()
-
-                self.title("SIAM-ED Tool - " + self.file_name)
-
-                valid_load_file = True
+            self.title("SIAM-ED Tool - " + self.file_name)
 
 
     def new_or_load_menu_bar(self, state):
