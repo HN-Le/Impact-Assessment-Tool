@@ -18,8 +18,6 @@ class surveyModel:
 
     def show_relevant_fragments(self, df, item, target):
 
-        # print('Checked item: ',item)
-
         relevant_categories = df.loc[(df['category'] == item) & (df['target'] == target)]
         relevant_survey_inputs = relevant_categories['survey_input']
         relevant_metrics = relevant_categories['metric']
@@ -173,10 +171,7 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, method_fragment)
             conn.commit()
-            # print('New method fragment added')
 
-        # else:
-        #     print('Method fragment found')
 
         return cur.lastrowid
 
@@ -200,10 +195,6 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, metric)
             self.conn.commit()
-            # print('New metric added')
-
-        # else:
-        #     print('Metric found')
 
         return cur.lastrowid
 
@@ -233,10 +224,6 @@ class SQLModel:
         if entry is None:
             cur.execute(sql, ((project,)))
             conn.commit()
-            # print('New project added')
-
-        # else:
-        #     print('Project found')
 
         return cur.lastrowid
 
@@ -250,23 +237,14 @@ class SQLModel:
         # check whether it is already present in database
         measuring_point_name = measuring_point[0]
 
-        # print("create_measuring_point: type ", type(measuring_point_name))
-        # print("create_measuring_point: measuring_point_name ", measuring_point_name)
-
         sql_check = "SELECT * FROM measuring_point WHERE measuring_point_name = ? "
         cur.execute(sql_check, (((measuring_point_name),)))
 
         entry = cur.fetchone()
 
-        # print('create_measuring_point - entry: ', entry)
-
         if entry is None:
             cur.execute(sql, measuring_point)
             self.conn.commit()
-            # print('New measuring point added')
-
-        # else:
-        #     print('Measuring point found')
 
         return cur.lastrowid
 
@@ -277,33 +255,22 @@ class SQLModel:
         sql = """ INSERT INTO metric_target(increase, metric_target_value, interest_demographic, interest_scope, project_id, metric_id) 
                 VALUES (?,?,?,?,?,?) """
 
-        # print('METRIC TARGET', metric_target)
-
         # check whether it is already present in database
         metric_id = metric_target[5]
-
-        # print("create_measuring_point: type ", type(measuring_point_name))
-        # print("create_measuring_point: measuring_point_name ", measuring_point_name)
 
         sql_check = "SELECT * FROM metric_target WHERE metric_id = ? "
         cur.execute(sql_check, (((metric_id),)))
 
         entry = cur.fetchone()
 
-        # print('create_measuring_point - entry: ', entry)
-
         if entry is None:
             cur.execute(sql, metric_target)
             self.conn.commit()
-            # print('New metric target added')
 
         else:
-            # print('Metric target found')
             sql_update = 'update metric_target set metric_target_value = (?), increase = (?), interest_demographic =(?), interest_scope =(?) where metric_id = (?)'
             parameters = self.parameter
 
-            # parameters = (metric_target[1], metric_target[0], metric_target[3], metric_id)
-            # print('Metric_target| parameters: ', parameters)
             self.update_row_with_par(sql_update, parameters)
 
         return cur.lastrowid
@@ -368,17 +335,11 @@ class SQLModel:
 
             measure_point = (point, int(project_id[0]))
 
-            # print('Measure_point_query: point - ', point)
-            # print('Measure_point_query: project_id - ', project_id)
-            # print('Measure_point_query: project_name - ', ((self.project),))
-            # print('Measure_point_query: measure_point -
-
             self.create_measuring_point(measure_point)
 
     def query_with_par(self, query, parameter):
 
         cur = self.conn.cursor()
-        # print('models: parameters --- ', parameter)
 
         try:
             cur.execute(query, parameter)
@@ -394,7 +355,6 @@ class SQLModel:
     def query_no_par(self, query):
 
         cur = self.conn.cursor()
-        # print('models: no parameters --- ' )
 
         try:
             cur.execute(query)
@@ -411,14 +371,11 @@ class SQLModel:
         cur = self.conn.cursor()
 
         try:
-            # print('update_row parameters', parameter)
             cur.execute(query, parameter)
         except Error as e:
             raise e
         else:
             self.conn.commit()
-            # print('Row updated ------')
-
 
     def delete_row_with_par(self, query, parameter):
 
@@ -443,7 +400,6 @@ class SQLModel:
             raise e
         else:
             self.conn.commit()
-            print("DELETED")
 
 class pathModel:
 
@@ -490,7 +446,6 @@ class appDataModel:
 
     def __init__(self):
 
-        print('appDataModel')
         self.load_from_save_file = False
 
     def get_file_name(self, filename):
@@ -530,15 +485,8 @@ class appDataModel:
         except Exception as e:
             print ("error saving state:", str(e))
 
-        # print('data: ', data)
-        # print('project_purpose', project_purpose)
-        # print('data_collection', data_collection)
-        # print('data_collection_paths', data_collection_paths)
-        # print('data_analysis_loading', data_analysis_loading)
-
     def load_from_file(self):
 
-        print('self.file_name: ', self.file_name)
         try:
             with open(self.file_name, "rb") as f:
                 self.data = pickle.load(f)

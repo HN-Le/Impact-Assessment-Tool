@@ -42,17 +42,6 @@ class Application(tk.Tk):
         self.config(menu=self.menuBar)
         self.title("SIAM-ED Tool")
 
-        # start in fullscreen
-        # self.state('zoomed')
-
-        # # set min and max screen size
-        # self.minsize(width=1280, height=720)
-        # self.maxsize(width=1920, height=1080)
-
-        # .geometry("window width x window height + position right + position down")
-        # width = self.winfo_screenwidth()
-        # height = self.winfo_screenheight()
-
         width = 1280
         height = 720
 
@@ -66,7 +55,6 @@ class Application(tk.Tk):
         self.resizable(0, 0)
 
         self.protocol("WM_DELETE_WINDOW", self.quit_application)
-
 
     def setup_screen(self):
         notebook = ttk.Notebook(self)
