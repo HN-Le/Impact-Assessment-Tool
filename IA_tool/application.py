@@ -245,6 +245,12 @@ class Application(tk.Tk):
 
             self.file_path = file
             self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
+            self.db_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '.db')
+
+            self.base_db = (self.file_path.rsplit("/", 1))[:-1]
+            self.base_db_str = self.base_db[0]
+
+            self.db_path = self.base_db_str + "/" + self.db_name
 
             self.create_main_screen()
 
@@ -258,16 +264,15 @@ class Application(tk.Tk):
 
 
             # check if linked database exists
-            if not os.path.isfile(self.save_file_object.data['database_path']):
+            if not os.path.isfile(self.db_path):
 
-                print("self.save_file_object.data['database_path']", self.save_file_object.data['database_path'])
                 print('load_in_project --- PATH DOES NOT EXISTS')
 
                 # create popup
                 return
 
 
-            self.database = self.save_file_object.data['database_path']
+            self.database = self.db_path
 
             # link database
             self.create_database(self.database, False)
