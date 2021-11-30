@@ -234,51 +234,66 @@ class Application(tk.Tk):
 
     def load_in_project(self):
 
-        filetypes = [('Pickle Save File', '*.pickle')]
+        valid_load_file = False
 
-        file = filedialog.askopenfilename(
-            title='Load project file',
-            filetypes=filetypes)
+        while not valid_load_file:
 
-        # if cancelled
-        if file:
-            self.file_path = file
-            self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
+            filetypes = [('Pickle Save File', '*.pickle')]
 
-            self.create_main_screen()
+            file = filedialog.askopenfilename(
+                title='Load project file',
+                filetypes=filetypes)
 
-            # send save file to views
-            self.send_save_file()
+            # if cancelled
+            if file:
 
-            # load from pickle save file
-            self.save_file_object.load_from_file()
 
-            self.load_path_dict()
+                self.file_path = file
+                self.file_name = (self.file_path.rsplit("/", 1))[1].replace('.pickle', '')
 
-            # check if linked database exists
-            if not os.path.isfile(self.save_file_object.data['database_path']):
-                print('load_in_project --- PATH DOES NOT EXISTS')
-                return
+                self.create_main_screen()
 
-            self.database = self.save_file_object.data['database_path']
+                # send save file to views
+                self.send_save_file()
 
-            # link database
-            self.create_database(self.database, False)
+                # load from pickle save file
+                self.save_file_object.load_from_file()
 
-            self.save_file_object.load_from_save_file = True
+                self.load_path_dict()
 
-            # send db to views
-            self.send_data_db()
+                print("self.save_file_object.data['database_path']")
 
-            # load saved variables from file
-            self.project_purpose_screen.restore_from_save_file()
-            self.data_collection_screen.restore_from_save_file()
-            self.impact_assessment_screen.restore_from_save_file()
 
-            self.update()
-            self.project_screen.destroy()
+                # check if linked database exists
+                if not os.path.isfile(self.save_file_object.data['database_path']):
+                    print('load_in_project --- PATH DOES NOT EXISTS')
 
-            self.title("SIAM-ED Tool - " + self.file_name)
+                    # create popup
+                    continue
+
+
+
+                self.database = self.save_file_object.data['database_path']
+
+                # link database
+                self.create_database(self.database, False)
+
+                self.save_file_object.load_from_save_file = True
+
+                # send db to views
+                self.send_data_db()
+
+                # load saved variables from file
+                self.project_purpose_screen.restore_from_save_file()
+                self.data_collection_screen.restore_from_save_file()
+                self.impact_assessment_screen.restore_from_save_file()
+
+                self.update()
+                self.project_screen.destroy()
+
+                self.title("SIAM-ED Tool - " + self.file_name)
+
+                valid_load_file = True
 
 
     def new_or_load_menu_bar(self, state):
@@ -291,7 +306,7 @@ class Application(tk.Tk):
             self.load_in_project()
 
     def save_msg_popup(self):
-        save_msgbox = messagebox.askquestion("askquestion", "Do you want to save the current project?")
+        save_msgbox = messagebox.askquestion("Save current project", "Do you want to save the current project?")
 
         if save_msgbox == 'yes':
             self.save_application()
