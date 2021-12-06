@@ -11,6 +11,8 @@ from . import widgets as w
 from tkinter import filedialog
 import os
 import pickle
+import webbrowser
+
 
 
 class Application(tk.Tk):
@@ -111,8 +113,8 @@ class Application(tk.Tk):
         self.menuBar.add_cascade(label="File", menu=self.filemenu)
 
         self.help_menu = Menu(self.menuBar, tearoff=0)
-        self.help_menu.add_command(label="Documentation")
-        self.help_menu.add_command(label="About")
+        self.help_menu.add_command(label="Documentation", command=lambda : [webbrowser.open(c.PdfFiles.all_documentation)])
+        self.help_menu.add_command(label="About", command=lambda : [webbrowser.open(c.PdfFiles.about)])
         self.menuBar.add_cascade(label="Help", menu=self.help_menu)
 
 # --------------- new project / load project
@@ -265,10 +267,7 @@ class Application(tk.Tk):
 
             # check if linked database exists
             if not os.path.isfile(self.db_path):
-
-                print('load_in_project --- PATH DOES NOT EXISTS')
-
-                # create popup
+                messagebox.showerror("Database error", "Database does not exist!")
                 return
 
 

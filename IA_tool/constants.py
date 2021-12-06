@@ -1,3 +1,4 @@
+import os
 
 # data types used
 class FieldTypes:
@@ -8,6 +9,25 @@ class FieldTypes:
     decimal = 5
     integer = 6
     boolean = 7
+
+class PdfFiles:
+    dirname = os.getcwd()
+
+    project_goals = os.path.join(dirname, 'docs', '1.1 - Project Goals.pdf')
+    goal_model = os.path.join(dirname, 'docs', '1.2 - Goal Model.pdf')
+    method_fragments = os.path.join(dirname, 'docs', '1.3 - Method Fragments.pdf')
+
+    sampling_strategy = os.path.join(dirname, 'docs', '2.1 - Sampling Strategy.pdf')
+    data_collection = os.path.join(dirname, 'docs', '2.2 - Data Collection.pdf')
+
+    loading_in_data = os.path.join(dirname, 'docs', '3.1 - Loading in Data.pdf')
+    summary_data = os.path.join(dirname, 'docs', '3.2 - Summary data.pdf')
+
+    metric_results = os.path.join(dirname, 'docs', '4.1 - Metric results.pdf')
+    evaluation = os.path.join(dirname, 'docs', '4.2 - Evaluation.pdf')
+
+    about = os.path.join(dirname, 'docs', '5 - About.pdf')
+    all_documentation = os.path.join(dirname, 'docs', '0 - All Documentation.pdf')
 
 class Size:
     label_frame_width = 800

@@ -25,11 +25,6 @@ class ProjectPurposeScreen(tk.Frame):
 
     def create_doc(self):
         # load in documentation
-        dirname = os.getcwd()
-        filename_docs_project_goals = os.path.join(dirname, 'docs', 'project_goals.pdf')
-        filename_docs_goal_model = os.path.join(dirname, 'docs', 'goal_model.pdf')
-        filename_docs_method_frag = os.path.join(dirname, 'docs', 'method_fragments.pdf')
-
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
                                             width=c.Size.label_frame_width,
                                             height=80,
@@ -43,20 +38,20 @@ class ProjectPurposeScreen(tk.Frame):
         tk.Button(frame_project_docs,
                   text='1.1 Project Goals',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_project_goals)]).grid(row=0, column=0,
+                  command=lambda: [webbrowser.open(c.PdfFiles.project_goals)]).grid(row=0, column=0,
                                                                                        padx=(10, 0), pady=5,
                                                                                        sticky='w')
 
         tk.Button(frame_project_docs,
                   text='1.2 Goal Model',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_goal_model)]).grid(row=0, column=1,
+                  command=lambda: [webbrowser.open(c.PdfFiles.goal_model)]).grid(row=0, column=1,
                                                                                     padx=(10, 0), pady=5,
                                                                                     sticky='w')
         tk.Button(frame_project_docs,
                   text='1.3 Method Fragments',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_method_frag)]).grid(row=0, column=2,
+                  command=lambda: [webbrowser.open(c.PdfFiles.method_fragments)]).grid(row=0, column=2,
                                                                                      padx=(10, 0), pady=5,
                                                                                      sticky='w')
 
@@ -397,9 +392,6 @@ class DataCollectionScreen(tk.Frame):
 
         self.sampling_selected = False
 
-        dirname = os.getcwd()
-        filename_docs_sampling_strategy = os.path.join(dirname, 'docs', 'sampling_strategy.pdf')
-
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
                                             width=c.Size.label_frame_width,
                                             height=80,
@@ -413,14 +405,14 @@ class DataCollectionScreen(tk.Frame):
         tk.Button(frame_project_docs,
                   text='2.1 Sampling Strategy',
                   width=20, height=c.Size.button_height,
-                  command=lambda: [webbrowser.open(filename_docs_sampling_strategy)]).grid(row=0, column=0,
+                  command=lambda: [webbrowser.open(c.PdfFiles.sampling_strategy)]).grid(row=0, column=0,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
         tk.Button(frame_project_docs,
                   text='2.2 Data Collection',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=1,
+                  command=lambda: [webbrowser.open(c.PdfFiles.data_collection)]).grid(row=0, column=1,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
@@ -1951,14 +1943,14 @@ class DataAnalysisScreen(tk.Frame):
         tk.Button(frame_project_docs,
                   text='3.1 Loading in Data',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=0,
+                  command=lambda: [webbrowser.open(c.PdfFiles.loading_in_data)]).grid(row=0, column=0,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
         tk.Button(frame_project_docs,
                   text='3.2 Summary Data',
                   width=20, height=c.Size.button_height,
-                  command="").grid(row=0, column=1,
+                  command=lambda: [webbrowser.open(c.PdfFiles.summary_data)]).grid(row=0, column=1,
                                    padx=(10, 0), pady=5,
                                    sticky='w')
 
@@ -2539,16 +2531,20 @@ class EvaluationScreen(tk.Frame):
         frame_project_docs.pack(padx=(10, 0), pady = (10, 0),
                                       side="top", fill="both")
 
-        dirname = os.getcwd()
-        filename_docs_evaluation = os.path.join(dirname, 'docs', 'impact_evaluation_questions.pdf')
-
+        tk.Button(frame_project_docs,
+                  text='4.1 Metrics Results',
+                  width=20, height=c.Size.button_height,
+                  command = lambda: [webbrowser.open(c.PdfFiles.metric_results)]).pack(padx=(10, 0), pady=(5, 15),
+                                 side='left',
+                                 anchor='nw',
+                                 )
         tk.Button(frame_project_docs,
                   text='4.1 Evaluation',
                   width=20, height=c.Size.button_height,
-                  command = lambda: [webbrowser.open(filename_docs_evaluation)]).pack(padx=(10, 0), pady=(5, 15),
-                                 side='top',
-                                 anchor='nw',
-                                 )
+                  command=lambda: [webbrowser.open(c.PdfFiles.evaluation)]).pack(padx=(10, 0), pady=(5, 15),
+                                                                                 side='left',
+                                                                                 anchor='nw',
+                                                                                 )
 
         self.frame_main_evaluate= ttk.LabelFrame(self, text="4.1 Evaluate metric results, goals and targets",
                                              width=c.Size.label_frame_width, height=700)

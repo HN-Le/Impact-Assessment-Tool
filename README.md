@@ -1,6 +1,6 @@
 # Tool
 
-1) Install python 3.7 
+1) Install python 3.7.12 (https://www.python.org/downloads/) 
 2) Install pip package (more info https://pip.pypa.io/en/stable/installation/  download pip script: https://bootstrap.pypa.io/get-pip.py)
 3) Download and extract tool zip file
 4) Run the 'install_packages.bat' file (it closes automatically after completion)
