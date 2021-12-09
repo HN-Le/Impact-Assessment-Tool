@@ -2517,7 +2517,7 @@ class ImpactEvaluation(tk.Frame):
         else:
             return(None)
 
-    def calculate_target_reached(self, metric_id, target, increase):
+    def calculate_target_reached(self, metric_id, target, increase, amount):
 
         values_list = []
         value_list_scale = []
@@ -2565,6 +2565,11 @@ class ImpactEvaluation(tk.Frame):
                 values_list.append(item[5])
             else:
                 continue
+
+        # return the amount of responses of that metric
+        if amount:
+            return len(values_list)
+
 
         # if int or float type
         if data_int or data_float:
@@ -2706,12 +2711,15 @@ class ImpactEvaluation(tk.Frame):
                     metric_target =retrieve_sql_targets[0][2]
                     increase_decrease =retrieve_sql_targets[0][1]
 
+                    # amount of responses per metric
+                    number_of_rows = int(self.calculate_target_reached(metric_id, metric_target, True, True))
+
                     if increase_decrease:
-                        target_reached_number = int(self.calculate_target_reached(metric_id, metric_target, True))
-                        target_reached_percentage = (int(target_mean) / metric_target) * 100
+                        target_reached_number = int(self.calculate_target_reached(metric_id, metric_target, True, False))
+                        target_reached_percentage = (target_reached_number / number_of_rows) * 100
                     else:
-                        target_reached_number = int(self.calculate_target_reached(metric_id, metric_target, False))
-                        target_reached_percentage = (metric_target / int(target_mean)) * 100
+                        target_reached_number = int(self.calculate_target_reached(metric_id, metric_target, False, False))
+                        target_reached_percentage = (target_reached_number / number_of_rows) * 100
 
                     target_reached_percentage = round(target_reached_percentage, 1)
 
