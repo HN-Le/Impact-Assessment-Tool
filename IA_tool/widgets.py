@@ -536,6 +536,50 @@ class MethodFragmentSelection(tk.Frame):
             if question_type_input.get() == "Multiple_choice" or question_type_input.get() == "Scale":
                 if not answer_options_box.get():
                     self.status_message_add_metric.set("Please fill in the answer options!")
+                else:
+                    sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
+                    retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id,
+                                                                              ((method_frag_input.get()),))
+
+                    metric_name = metric_input.get()
+                    method_fragment_id = retrieve_method_frag_id[0][0]
+                    metric_definition = None
+                    metric_question = user_survey_question.get()
+                    metric_value_type = question_type_input.get()
+                    multiple_answers = None
+                    answer_options = None
+                    target_name = self.chose_target_list[combobox_target.get()]
+                    user_made = True
+                    data_type = remap_data_type(combobox_data_type.get())
+
+                    if question_type_input.get() == "Multiple_choice" or question_type_input.get() == "Scale":
+                        answer_options == (answer_options_box.get()).strip()
+
+                    metric = ((metric_name).strip(), method_fragment_id,
+                              metric_definition, (metric_question.strip()),
+                              metric_value_type, multiple_answers,
+                              answer_options, target_name, user_made, data_type)
+
+                    self.data_object.create_metric(metric)
+
+                    # reset input boxes
+                    method_frag_input.set('')
+                    question_type_input.set('')
+                    combobox_target.set('')
+
+                    metric_input.set('')
+                    user_survey_question.set('')
+                    combobox_data_type.set('')
+                    answer_options_box.set('')
+
+                    self.status_message_label.config(foreground='green')
+                    self.status_message_add_metric.set("Metric " + metric_name + ' added!')
+
+                    # update frame to show status message
+                    self.add_metrics_frame.update()
+
+                    # after 1 sec refresh screen
+                    self.status_message_label.after(1500, self.refresh_summary_window())
 
             else:
                 sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
@@ -628,6 +672,19 @@ class MethodFragmentSelection(tk.Frame):
 
                     except:
                         print('Metric target not found')
+
+                    try:
+                        # remove metric values
+                        sql_metric_value_check = "select metric_id from metric_value where metric_id = ?"
+
+                        self.data_object.query_with_par(sql_metric_value_check, ((frag_id_in_db),))
+
+                        sql_metric_value_delete = "delete from metric_value where metric_id = ?"
+
+                        self.data_object.delete_row_with_par(sql_metric_value_delete, frag_id_in_db)
+
+                    except:
+                        print('Metric values not found')
 
                     # if metric target is already gone/non existant, remove metric
                     self.data_object.delete_row_with_par(sql_delete_metric, frag_id_in_db)
@@ -1547,7 +1604,6 @@ class DataAnalysis(tk.Frame):
 
                                     if self.metric_data_type == 'int' :
 
-
                                         if isinstance(self.metric_value_data, str):
                                             self.metric_value_data = self.metric_value_data.replace(',', '')
 
@@ -1555,9 +1611,12 @@ class DataAnalysis(tk.Frame):
                                             reset_data('data_int')
                                             continue
                                         else:
+                                            try:
+                                                self.data_int = int(self.metric_value_data)
+                                                reset_data('data_int')
 
-                                            self.data_int = int(self.metric_value_data)
-                                            reset_data('data_int')
+                                            except:
+                                                print("metric question: ", self.metric_question)
 
                                     elif self.metric_data_type == 'bool' :
 
