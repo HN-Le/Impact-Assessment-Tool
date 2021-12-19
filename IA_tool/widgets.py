@@ -1546,8 +1546,18 @@ class DataAnalysis(tk.Frame):
                                     self.metric_data_type = metric_item[10]
 
                                     if self.metric_data_type == 'int' :
-                                        self.data_int = int(self.metric_value_data)
-                                        reset_data('data_int')
+
+
+                                        if isinstance(self.metric_value_data, str):
+                                            self.metric_value_data = self.metric_value_data.replace(',', '')
+
+                                        if self.metric_value_data == '' :
+                                            reset_data('data_int')
+                                            continue
+                                        else:
+
+                                            self.data_int = int(self.metric_value_data)
+                                            reset_data('data_int')
 
                                     elif self.metric_data_type == 'bool' :
 
@@ -1570,10 +1580,17 @@ class DataAnalysis(tk.Frame):
 
                                     elif self.metric_data_type == 'float' :
                                         if isinstance(self.metric_value_data, str):
-                                            self.metric_value_data = self.metric_value_data.replace(',', '')
+                                            if "," in self.metric_value_data:
+                                                self.metric_value_data = self.metric_value_data.replace(',', '')
+                                                self.metric_value_data.strip()
+                                                print(self.metric_value_data)
 
-                                        self.data_float = float(self.metric_value_data)
-                                        reset_data('data_float')
+                                        if self.metric_value_data == "":
+                                            continue
+                                            reset_data('data_float')
+                                        else:
+                                            self.data_float = float(self.metric_value_data)
+                                            reset_data('data_float')
 
                                     else:
                                         self.data_str = self.metric_value_data
@@ -2469,8 +2486,9 @@ class ImpactEvaluation(tk.Frame):
             data_int = True
         elif retrieve_values[0][7]:
             data_float = True
-        else:
+        elif retrieve_values[0][4]:
             data_bool = True
+
 
         # get question type
         question_type = (retrieve_type[0][0]).lower()
