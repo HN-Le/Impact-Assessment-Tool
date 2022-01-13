@@ -31,9 +31,25 @@ class ProjectPurposeScreen(tk.Frame):
                                             style="Doc.TLabelframe")
 
         frame_project_docs.grid_propagate(0)
-        frame_project_docs.grid(padx=(10, 0),
+        frame_project_docs.grid(row=0, column=0,
+                                padx=(10, 0),
                                 pady=(10, 0),
                                 sticky='nsew')
+
+        frame_steps_1 = ttk.LabelFrame(self, text="Phase 1 Checklist",
+                                            width=400,
+                                            height=200,
+                                            style="Doc.TLabelframe")
+
+        frame_steps_1.grid(row=0, column=1,
+                           rowspan=4,
+                            padx=(10, 0),
+                            pady=(10, 0),
+                            sticky='nsew')
+
+        for step in c.MethodSteps.phase_1:
+            tk.Label(frame_steps_1,
+                     text=step).grid(sticky='w', padx=10, pady=10)
 
         tk.Button(frame_project_docs,
                   text='1.1 Project Goals',
@@ -49,22 +65,30 @@ class ProjectPurposeScreen(tk.Frame):
                                                                                     padx=(10, 0), pady=5,
                                                                                     sticky='w')
         tk.Button(frame_project_docs,
-                  text='1.3 Method Fragments',
+                  text='1.3.1 Method Fragments',
                   width=20, height=c.Size.button_height,
                   command=lambda: [webbrowser.open(c.PdfFiles.method_fragments)]).grid(row=0, column=2,
                                                                                      padx=(10, 0), pady=5,
                                                                                      sticky='w')
 
+        tk.Button(frame_project_docs,
+                  text='1.3.2 Metrics',
+                  width=20, height=c.Size.button_height,
+                  command=lambda: [webbrowser.open(c.PdfFiles.metrics)]).grid(row=0, column=3,
+                                                                                       padx=(10, 0), pady=5,
+                                                                                       sticky='w')
+
     def create_project_goals_section(self):
         frame_project_goals = ttk.LabelFrame(self, text="1.1 Project Goals",
                                              width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_project_goals.grid_propagate(0)
-        frame_project_goals.grid(padx=(10, 0),
+        frame_project_goals.grid(row=1, column=0,
+                                 padx=(10, 0),
                                  pady=(10, 0),
                                  sticky='nsew')
 
         label_project_goals = tk.Label(frame_project_goals,
-                                       text='Identify project goals')
+                                       text='Define project goals & link the file here')
 
         label_project_goals.grid(row=0, column=0,
                                  padx=(10, 0), columnspan=2,
@@ -138,12 +162,13 @@ class ProjectPurposeScreen(tk.Frame):
         frame_goal_model = ttk.LabelFrame(self, text="1.2 Goal Model",
                                           width=c.Size.label_frame_width, height=c.Size.label_frame_height)
         frame_goal_model.grid_propagate(0)
-        frame_goal_model.grid(padx=(10, 0),
+        frame_goal_model.grid(row=2, column=0,
+                              padx=(10, 0),
                               pady=(10, 0),
                               sticky='nsew')
 
         label_project_goals = tk.Label(frame_goal_model,
-                                       text='Create goal model')
+                                       text='Create goal model & link the file here')
 
         label_project_goals.grid(row=0, column=0,
                                  padx=(10, 0),
@@ -212,7 +237,8 @@ class ProjectPurposeScreen(tk.Frame):
         frame_select_method_fragments = ttk.LabelFrame(self, text="1.3 Method Fragments",
                                                        width=c.Size.label_frame_width, height=250)
         frame_select_method_fragments.grid_propagate(0)
-        frame_select_method_fragments.grid(padx=(10, 0),
+        frame_select_method_fragments.grid(row=3, column=0,
+                                           padx=(10, 0),
                                            pady=(10, 0),
                                            sticky='nsew')
 
@@ -398,9 +424,25 @@ class DataCollectionScreen(tk.Frame):
                                             style="Doc.TLabelframe")
 
         frame_project_docs.grid_propagate(0)
-        frame_project_docs.grid(padx=(10, 0),
+        frame_project_docs.grid(row=0, column=0,
+                                padx=(10, 0),
                                 pady=(10, 0),
                                 sticky='nsew')
+
+        frame_steps_2 = ttk.LabelFrame(self, text="Phase 2 Checklist",
+                                       width=400,
+                                       height=200,
+                                       style="Doc.TLabelframe")
+
+        frame_steps_2.grid(row=0, column=1,
+                           rowspan=3,
+                           padx=(10, 0),
+                           pady=(10, 0),
+                           sticky='nsew')
+
+        for step in c.MethodSteps.phase_2:
+            tk.Label(frame_steps_2,
+                     text=step).grid(sticky='w', padx=10, pady=10)
 
         tk.Button(frame_project_docs,
                   text='2.1 Sampling Strategy',
@@ -418,9 +460,10 @@ class DataCollectionScreen(tk.Frame):
 
         # --------- 2.1 Sampling strategy frame
         frame_sampling = ttk.LabelFrame(self, text="2.1 Sampling strategy",
-                                                       width=1200, height=150)
+                                                       width=c.Size.label_frame_width, height=150)
         frame_sampling.grid_propagate(0)
-        frame_sampling.grid(padx=(10, 0),
+        frame_sampling.grid(row=1, column=0,
+                            padx=(10, 0),
                             pady=(10, 0),
                             sticky='nsew')
 
@@ -511,9 +554,10 @@ class DataCollectionScreen(tk.Frame):
 
         # --------- 2.2 Data collection frame
         frame_data_collection = ttk.LabelFrame(self, text="2.2 Data collection",
-                                        width=1200, height=400)
+                                        width=c.Size.label_frame_width, height=400)
         frame_data_collection.grid_propagate(0)
-        frame_data_collection.grid(padx=(10, 0),
+        frame_data_collection.grid(row=2, column=0,
+                                   padx=(10, 0),
                                    pady=(10, 0),
                             sticky='nsew')
 
@@ -1936,9 +1980,25 @@ class DataAnalysisScreen(tk.Frame):
                                             style="Doc.TLabelframe")
 
         frame_project_docs.grid_propagate(0)
-        frame_project_docs.grid(padx=(10, 0),
+        frame_project_docs.grid(row=0, column=0,
+                                padx=(10, 0),
                                 pady=(10, 0),
                                 sticky='nsew')
+
+        frame_steps_3 = ttk.LabelFrame(self, text="Phase 3 Checklist",
+                                       width=400,
+                                       height=200,
+                                       style="Doc.TLabelframe")
+
+        frame_steps_3.grid(row=0, column=1,
+                           rowspan=4,
+                           padx=(10, 0),
+                           pady=(10, 0),
+                           sticky='nsew')
+
+        for step in c.MethodSteps.phase_3:
+            tk.Label(frame_steps_3,
+                     text=step).grid(sticky='w', padx=10, pady=10)
 
         tk.Button(frame_project_docs,
                   text='3.1 Loading in Data',
@@ -1957,7 +2017,7 @@ class DataAnalysisScreen(tk.Frame):
         # ------------------------- Data Analysis: Load all data files
 
         frame_load_data = ttk.LabelFrame(self, text="3.1 Load All Data",
-                                            width=1200, height=150)
+                                            width=c.Size.label_frame_width, height=150)
         frame_load_data.grid_propagate(0)
         frame_load_data.grid(padx=(10, 0),
                                 pady=(10, 0),
@@ -1966,8 +2026,8 @@ class DataAnalysisScreen(tk.Frame):
         # status message
         tk.Label(frame_load_data,
                  text='Load all data for data analysis').grid(row=1, column=0,
-                                            padx=(10,0), pady=5,
-                                            sticky='w')
+                                                              padx=(10,0), pady=5,
+                                                              sticky='w')
 
         # delete window and reset state every time load in data button is clicked
         def adjusted_state_window():
@@ -1983,9 +2043,10 @@ class DataAnalysisScreen(tk.Frame):
         # ------------------------- Data Analysis: 3.1 Summary Data Frame
 
         frame_summary_data = ttk.LabelFrame(self, text="3.2 Summary Data",
-                                           width=1200, height=150)
+                                           width=c.Size.label_frame_width, height=150)
         frame_summary_data.grid_propagate(0)
-        frame_summary_data.grid(padx=(10, 0),
+        frame_summary_data.grid(row=2, column=0,
+                                padx=(10, 0),
                                pady=(10, 0),
                                sticky='nsew')
 
@@ -2531,15 +2592,29 @@ class EvaluationScreen(tk.Frame):
         frame_project_docs.pack(padx=(10, 0), pady = (10, 0),
                                       side="top", fill="both")
 
+        frame_steps_4 = ttk.LabelFrame(self, text="Phase 4 Checklist",
+                                            width=600,
+                                            height=200,
+                                            style="Doc.TLabelframe")
+
+        frame_steps_4.pack(padx=(10, 0), pady=(10, 0),
+                                side="right", fill="both")
+
+        for step in c.MethodSteps.phase_4:
+            tk.Label(frame_steps_4,
+                     text=step).grid(sticky='w', padx=10, pady=10)
+
+
+
         tk.Button(frame_project_docs,
-                  text='4.1 Metrics Results',
+                  text='4.1.1 Metrics Results',
                   width=20, height=c.Size.button_height,
                   command = lambda: [webbrowser.open(c.PdfFiles.metric_results)]).pack(padx=(10, 0), pady=(5, 15),
                                  side='left',
                                  anchor='nw',
                                  )
         tk.Button(frame_project_docs,
-                  text='4.1 Evaluation',
+                  text='4.1.2 Evaluation',
                   width=20, height=c.Size.button_height,
                   command=lambda: [webbrowser.open(c.PdfFiles.evaluation)]).pack(padx=(10, 0), pady=(5, 15),
                                                                                  side='left',

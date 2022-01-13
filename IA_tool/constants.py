@@ -15,7 +15,8 @@ class PdfFiles:
 
     project_goals = os.path.join(dirname, 'docs', '1.1 - Project Goals.pdf')
     goal_model = os.path.join(dirname, 'docs', '1.2 - Goal Model.pdf')
-    method_fragments = os.path.join(dirname, 'docs', '1.3 - Method Fragments.pdf')
+    method_fragments = os.path.join(dirname, 'docs', '1.3.1 - Method Fragments.pdf')
+    metrics = os.path.join(dirname, 'docs', '1.3.2 - Metrics.pdf')
 
     sampling_strategy = os.path.join(dirname, 'docs', '2.1 - Sampling Strategy.pdf')
     data_collection = os.path.join(dirname, 'docs', '2.2 - Data Collection.pdf')
@@ -23,14 +24,14 @@ class PdfFiles:
     loading_in_data = os.path.join(dirname, 'docs', '3.1 - Loading in Data.pdf')
     summary_data = os.path.join(dirname, 'docs', '3.2 - Summary data.pdf')
 
-    metric_results = os.path.join(dirname, 'docs', '4.1 - Metric results.pdf')
-    evaluation = os.path.join(dirname, 'docs', '4.2 - Evaluation.pdf')
+    metric_results = os.path.join(dirname, 'docs', '4.1.1 - Metric results.pdf')
+    evaluation = os.path.join(dirname, 'docs', '4.1.2 - Evaluation.pdf')
 
     about = os.path.join(dirname, 'docs', '5 - About.pdf')
     all_documentation = os.path.join(dirname, 'docs', '0 - All Documentation.pdf')
 
 class Size:
-    label_frame_width = 800
+    label_frame_width = 720
     label_frame_height = 150
 
     button_width = 9
@@ -44,7 +45,7 @@ class Size:
     hd_frame_height = 720
 
     # textbox frame sizes
-    txt_box_width = 100
+    txt_box_width = 80
     txt_box_height = 10
 
 class DataTypes:
@@ -105,6 +106,52 @@ class DataTypes:
     mWater_formats = {'int' : 'Whole number',
                       'float' : 'Decimal number',
                       'string': 'Single line of text'}
+
+class MethodSteps:
+
+    phase_1 = ["1. Define project goal (see document 1.1)",
+               "2. Create goal model (see document 1.2)",
+               "3. Select relevant method fragments (see document 1.3.1)",
+               "4. Provide metric definitions (see document 1.3.2)",
+               "5. Add additional metrics (see document 1.3.2)",
+               "6. Define targets for each metric (see document 1.3.2)",
+               "7. Determine demographics of interests (see document 1.3.2)"]
+
+    phase_2 = ["1. Determine sampling strategy (see document 2.1)",
+               "2. Collect context data (project provider data, see document 2.2)",
+               "3. Perform survey with community/school leader (see document 2.2)",
+               "4. Perform survey with teacher(s) (see document 2.2)",
+               "5. Perform survey with students (see document 2.2)",
+               "6. Process data in collective dataset (done by uploading survey data at step 2.2)"]
+
+    phase_3 = ["1. Perform data analysis in results (see document 3.1)",
+               "2. Create general data visualizations (see document 3.2)",
+               "3. Visualize specific demographic data (see document 3.2)",
+               "4. Insert data in spreadsheet (automatically done by tool)"]
+
+    phase_4 = ["1. Evaluate in metric results (see document 4.1.1)",
+               "2. Evaluate on project goals and targets (see document 4.1.2)",
+               "3. Evaluate with evaluation questions (see document 4.1.2)",
+               "4. Write impact assessment report (based on tool results)",
+               "5. Create or change project plans"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
