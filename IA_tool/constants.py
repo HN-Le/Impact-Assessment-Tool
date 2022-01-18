@@ -109,31 +109,92 @@ class DataTypes:
 
 class MethodSteps:
 
-    phase_1 = ["1. Define project goal (see document 1.1)",
-               "2. Create goal model (see document 1.2)",
-               "3. Select relevant method fragments (see document 1.3.1)",
-               "4. Provide metric definitions (see document 1.3.2)",
-               "5. Add additional metrics (see document 1.3.2)",
-               "6. Define targets for each metric (see document 1.3.2)",
-               "7. Determine demographics of interests (see document 1.3.2)"]
+    phase_1 = ["1. Define project goal",
+                    " - Create project goal document",
+                    "   (Externally, not in tool. See document 1.1 Project Goals)",
+                    " - Link project goal document in tool at 1.1 Project Goals",
 
-    phase_2 = ["1. Determine sampling strategy (see document 2.1)",
-               "2. Collect context data (project provider data, see document 2.2)",
-               "3. Perform survey with community/school leader (see document 2.2)",
-               "4. Perform survey with teacher(s) (see document 2.2)",
-               "5. Perform survey with students (see document 2.2)",
+               "2. Create goal model",
+                    " - Create goal model document",
+                    "   (Externally, not in tool. See document 1.2 Goal Model)",
+                    " - Link goal model document in tool at 1.2 Goal Model",
+
+               "3. Select relevant method fragments (see document 1.3.1 Method Fragments)",
+
+               "4. Provide metric definitions (see document 1.3.2 Metrics)",
+
+               "5. Add additional metrics (see document 1.3.2 Metrics)",
+
+               "6. Define targets for each metric (see document 1.3.2 Metrics)",
+
+               "7. Determine demographics of interests (see document 1.3.2 Metrics)"]
+
+    phase_2 = ["1. Determine sampling strategy",
+                   " - Create sampling strategy document ",
+                   "   (Externally, not in tool. See document 2.1 Sampling Strategy)",
+                   " - Link project goal document in tool at 2.1 Sampling Strategy",
+
+               "2. Collect context data (project provider data, see document 2.2 Data Collection)",
+                   " - Create project provider survey in mWater",
+                   " - Perform project provider survey",
+                   " - Export project provider survey data from mWater",
+                   " - Upload project provider survey data in tool at 2.2 Data collection",
+
+               "3. Perform survey with community/school leader (see document 2.2 Data Collection)",
+                   " - Create community/school leader survey in mWater",
+                   " - Perform community/school leader survey",
+                   " - Export community/school leader survey data from mWater",
+                   " - Upload community/school leader data in tool at 2.2 Data collection",
+
+               "4. Perform survey with teacher(s) (see document 2.2 Data Collection)",
+                   " - Create teacher survey in mWater",
+                   " - Perform teacher survey",
+                   " - Export teacher survey data from mWater",
+                   " - Upload teacher data in tool at 2.2 Data collection",
+
+               "5. Perform survey with students (see document 2.2 Data Collection)",
+                   " - Create student in mWater",
+                   " - Perform student survey",
+                   " - Export student survey data from mWater",
+                   " - Upload student data in tool at 2.2 Data collection",
+
                "6. Process data in collective dataset (done by uploading survey data at step 2.2)"]
 
     phase_3 = ["1. Perform data analysis in results (see document 3.1)",
+                   " - Press on the \"Load in data\" button in tool at 3.1 ",
+                   " - Press \"Show tables\" button to view the tables",
+                   " - Press \"Show visualizations\" button to view the visualizations",
+
                "2. Create general data visualizations (see document 3.2)",
+                   " - Press on the \"Load in data\" button in tool at 3.1 ",
+                   " - Press \"Show visualizations\" button to view the visualizations",
+
                "3. Visualize specific demographic data (see document 3.2)",
+                    " - Currently not yet supported by tool",
+
                "4. Insert data in spreadsheet (automatically done by tool)"]
 
-    phase_4 = ["1. Evaluate in metric results (see document 4.1.1)",
+    phase_4 = ["1. Evaluate in metric results (see document 4.1.1 & document 4.1.2)",
+                   " - Press on the \"Show metric results\" button in tool at 4.1 to view the results",
+                   " - Evaluate the metrics results",
+                   "   Comments can be written in the textbox below the header \"Metric evalution\"",
+
                "2. Evaluate on project goals and targets (see document 4.1.2)",
+                   " - Evaluate on the project goals and targets",
+                   "   Use the metric results and the created goal model from 1.2 for the evaluation",
+                   "   Comments can be written in the textbox below the header \"Target and goal evalution\"",
+
                "3. Evaluate with evaluation questions (see document 4.1.2)",
-               "4. Write impact assessment report (based on tool results)",
-               "5. Create or change project plans"]
+                   " - Evaluate the project by answering the 7 questions under the header",
+                   "  \"Evaluation questions\"",
+
+               "4. Write impact assessment report",
+                   " -  Combine all conclusions and results and write an impact assessment report ",
+                   "    (Externally, not in tool)",
+
+               "5. Create or change project plans",
+                   " - Based on the impact assessment report, decide to continue or change project plans",
+               ]
 
 
 

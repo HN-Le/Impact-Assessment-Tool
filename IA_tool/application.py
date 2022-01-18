@@ -21,6 +21,8 @@ class Application(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
 
+        self.warning_for_command_prompt()
+
         self.init_screen = False
 
         # apply style for whole app
@@ -33,6 +35,7 @@ class Application(tk.Tk):
         self.select_project_screen()
 
         w.Window.focus_window(self, self)
+
 
 
 # --------------- main screen setup
@@ -363,6 +366,20 @@ class Application(tk.Tk):
         self.impact_assessment_screen.save_data()
 
         self.save_file_object.save_to_file(self.database, self.path_model)
+
+# --------------- warning for in command prompt
+
+    def warning_for_command_prompt(self):
+        print("")
+
+        print("===================================================================")
+        print("")
+
+        print("   --- DO NOT CLOSE THIS COMMAND PROMPT WHILE TOOL IS RUNNING ---")
+
+        print("")
+        print("===================================================================")
+        print("")
 
 
 

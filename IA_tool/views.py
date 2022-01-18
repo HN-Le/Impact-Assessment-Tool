@@ -48,8 +48,15 @@ class ProjectPurposeScreen(tk.Frame):
                             sticky='nsew')
 
         for step in c.MethodSteps.phase_1:
-            tk.Label(frame_steps_1,
-                     text=step).grid(sticky='w', padx=10, pady=10)
+            if step.startswith(('1', '2', '3', '4', '5', '6', '7')):
+                tk.Label(frame_steps_1,
+                         text=step).grid(sticky='w', padx=5, pady=(10,0))
+            else:
+                tk.Label(frame_steps_1,
+                         text=step).grid(sticky='w', padx=(20,10), pady=0)
+
+        tk.Label(frame_steps_1,
+                 text=" " * 150).grid(sticky='w', padx=(20, 10), pady=0)
 
         tk.Button(frame_project_docs,
                   text='1.1 Project Goals',
@@ -441,8 +448,15 @@ class DataCollectionScreen(tk.Frame):
                            sticky='nsew')
 
         for step in c.MethodSteps.phase_2:
-            tk.Label(frame_steps_2,
-                     text=step).grid(sticky='w', padx=10, pady=10)
+            if step.startswith(('1', '2', '3', '4', '5', '6')):
+                tk.Label(frame_steps_2,
+                         text=step).grid(sticky='w', padx=5, pady=(10, 0))
+            else:
+                tk.Label(frame_steps_2,
+                         text=step).grid(sticky='w', padx=(20, 10), pady=0)
+
+        tk.Label(frame_steps_2,
+                 text=" " * 150).grid(sticky='w', padx=(20, 10), pady=0)
 
         tk.Button(frame_project_docs,
                   text='2.1 Sampling Strategy',
@@ -1997,8 +2011,15 @@ class DataAnalysisScreen(tk.Frame):
                            sticky='nsew')
 
         for step in c.MethodSteps.phase_3:
-            tk.Label(frame_steps_3,
-                     text=step).grid(sticky='w', padx=10, pady=10)
+            if step.startswith(('1', '2', '3', '4')):
+                tk.Label(frame_steps_3,
+                         text=step).grid(sticky='w', padx=5, pady=(10, 0))
+            else:
+                tk.Label(frame_steps_3,
+                         text=step).grid(sticky='w', padx=(20, 10), pady=0)
+
+        tk.Label(frame_steps_3,
+                 text=" " * 150).grid(sticky='w', padx=(20, 10), pady=0)
 
         tk.Button(frame_project_docs,
                   text='3.1 Loading in Data',
@@ -2019,14 +2040,14 @@ class DataAnalysisScreen(tk.Frame):
         frame_load_data = ttk.LabelFrame(self, text="3.1 Load All Data",
                                             width=c.Size.label_frame_width, height=150)
         frame_load_data.grid_propagate(0)
-        frame_load_data.grid(padx=(10, 0),
+        frame_load_data.grid(row=1, column=0,
+                             padx=(10, 0),
                                 pady=(10, 0),
                                 sticky='nsew')
 
         # status message
         tk.Label(frame_load_data,
-                 text='Load all data for data analysis').grid(row=1, column=0,
-                                                              padx=(10,0), pady=5,
+                 text='Load all data for data analysis').grid(padx=(10,0), pady=5,
                                                               sticky='w')
 
         # delete window and reset state every time load in data button is clicked
@@ -2077,7 +2098,7 @@ class DataAnalysisScreen(tk.Frame):
                                                                   padx=(10,0), pady=(10,5),
                                                                   sticky='w')
 
-        tk.Button(frame_summary_data, text='Show visualisations',
+        tk.Button(frame_summary_data, text='Show visualizations',
                   width=18, height=1,
                   command=lambda: [data_files_selected(1)]).grid(row=2, column=0,
                                                                  padx=(10, 0),
@@ -2580,31 +2601,32 @@ class EvaluationScreen(tk.Frame):
         global popup_window_metrics
         self.popup_window_metrics = None
 
+        frame_steps_4 = ttk.LabelFrame(self, text="Phase 4 Checklist",
+                                       width=600,
+                                       height=200,
+                                       style="Doc.TLabelframe")
+
+        frame_steps_4.pack(padx=(10, 0), pady=10,
+                           side="right", fill="both", expand=True)
+
+        for step in c.MethodSteps.phase_4:
+            if step.startswith(('1', '2', '3', '4', '5')):
+                tk.Label(frame_steps_4,
+                         text=step).grid(sticky='w', padx=5, pady=(10, 0))
+            else:
+                tk.Label(frame_steps_4,
+                         text=step, justify="left").grid(sticky='w', padx=(20, 10), pady=0)
 
         # make object
         self.impact_evaluation = w.ImpactEvaluation(self)
 
         frame_project_docs = ttk.LabelFrame(self, text="View help documentation",
-                                            width=c.Size.label_frame_width,
-                                            height=80,
+                                            width=700,
+                                            height=100,
                                             style="Doc.TLabelframe")
 
         frame_project_docs.pack(padx=(10, 0), pady = (10, 0),
-                                      side="top", fill="both")
-
-        frame_steps_4 = ttk.LabelFrame(self, text="Phase 4 Checklist",
-                                            width=600,
-                                            height=200,
-                                            style="Doc.TLabelframe")
-
-        frame_steps_4.pack(padx=(10, 0), pady=(10, 0),
-                                side="right", fill="both")
-
-        for step in c.MethodSteps.phase_4:
-            tk.Label(frame_steps_4,
-                     text=step).grid(sticky='w', padx=10, pady=10)
-
-
+                                      side="top", anchor='w')
 
         tk.Button(frame_project_docs,
                   text='4.1.1 Metrics Results',
@@ -2620,12 +2642,17 @@ class EvaluationScreen(tk.Frame):
                                                                                  side='left',
                                                                                  anchor='nw',
                                                                                  )
+        tk.Label(frame_project_docs,
+                 text=" " * 130).pack()
 
         self.frame_main_evaluate= ttk.LabelFrame(self, text="4.1 Evaluate metric results, goals and targets",
-                                             width=c.Size.label_frame_width, height=700)
+                                             width=720, height=720)
 
         self.frame_main_evaluate.pack(padx=(10, 0), pady = (10, 0),
-                                      side="top", fill="both", expand=True)
+                                      side="top", fill= "both", expand=True)
+
+        tk.Label(self.frame_main_evaluate,
+                 text=" " * 237).pack()
 
         self.scrollable_labelframe = w.ScrollableFrame(self.frame_main_evaluate)
 

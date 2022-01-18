@@ -1056,7 +1056,7 @@ class MethodFragmentSelection(tk.Frame):
         self.add_metric_window = tk.Toplevel()
         self.add_metric_window.wm_title('Add metric definitions')
 
-        width = 650
+        width = 800
         height = 720
         position_left = 150
         position_right = 150
@@ -1065,7 +1065,7 @@ class MethodFragmentSelection(tk.Frame):
 
 
         # set size window fixed
-        self.add_metric_window.resizable(0, 0)
+        # self.add_metric_window.resizable(0, 0)
 
         # make frame scrollable
         self.scrollable_add_metric_frame = ScrollableFrame(self.add_metric_window)
@@ -1181,7 +1181,7 @@ class MethodFragmentSelection(tk.Frame):
                 user_metric_definition = ttk.Entry(metric_frame,
                                                    width=15,
                                                    textvariable=user_metric_definition_input).pack(fill='both',
-                                                                                                   padx=(40, 0),
+                                                                                                   padx=(40),
                                                                                                    pady=(0, 5))
                 if metric[3] is not None:
                     user_metric_definition_input.set(str(metric[3]))
@@ -1192,7 +1192,7 @@ class MethodFragmentSelection(tk.Frame):
                                          height=1,
                                          command=partial(self.reset_user_def, counter))
 
-                button_reset.pack(pady=(0), anchor="e", padx=(20, 0))
+                button_reset.pack(pady=(0), anchor="e", padx=0)
 
                 self.metric_id_holder[counter] = tk.BooleanVar()
                 self.checkbox_demographic.append(self.metric_id_holder[counter])
@@ -1301,7 +1301,7 @@ class MethodFragmentSelection(tk.Frame):
                                                                                           padx=(20, 0))
 
                 separator = ttk.Separator(metric_frame, orient='horizontal')
-                separator.pack(fill='x', padx=(30, 0), pady=(20, 0))
+                separator.pack(fill='x', padx=30, pady=(20, 0))
 
                 # --------------------------------
 
