@@ -312,9 +312,6 @@ class MethodFragmentSelection(tk.Frame):
 
     def add_metric(self):
 
-        # todo add input validation to the metric entry field and combo boxes
-        # todo add input validation to the remove metric for enter frag id and enter metric id and combo boxes
-
         self.add_metrics_frame = ttk.LabelFrame(self.tab_metrics, text="Add metric",
                                                 width=600, height=300)
 
@@ -505,10 +502,6 @@ class MethodFragmentSelection(tk.Frame):
     def add_button(self, method_frag_input, question_type_input, metric_input,
                    user_survey_question, combobox_target, combobox_data_type, answer_options_box):
 
-        # todo link user added metric to metrics list
-        # todo add validation for input boxes
-        # todo show text for confirmation that metric is added
-
         method_frag_input.current()
         question_type_input.current()
         combobox_target.current()
@@ -631,10 +624,6 @@ class MethodFragmentSelection(tk.Frame):
 
     def remove_button(self, frag_id):
 
-        # todo link user added metric to metrics list
-        # todo add validation for input boxes
-        # todo show text for confirmation that metric is added
-
         if frag_id.get():
 
             try:
@@ -730,7 +719,6 @@ class MethodFragmentSelection(tk.Frame):
 
     def create_list(self, target_key):
 
-        # todo rewrite to link with db
         self.dataframe = m.surveyModel()
 
         label_survey_questions_community = tk.Label(self.frame_survey_questions,
@@ -796,7 +784,6 @@ class MethodFragmentSelection(tk.Frame):
         # Listbox with all the survey questions per target group
         for index, value in enumerate(self.checkbox_list):
 
-            # todo add demographic of interest and scope
             # retrieve method fragment id from checked methods fragments
             sql_retrieve_method_frag_id = "select method_fragment_id from method_fragment where method_fragment_name=?"
             retrieve_method_frag_id = self.data_object.query_with_par(sql_retrieve_method_frag_id, ((value),))
@@ -806,10 +793,6 @@ class MethodFragmentSelection(tk.Frame):
             retrieve_metrics = self.data_object.query_with_par(sql_retrieve_metrics, (retrieve_method_frag_id[0][0], target_key))
 
             metric_counter = metric_counter + len(retrieve_metrics)
-
-            # TODO sort based on question type (likert/num/bool)
-
-
 
             for metric_index, metric in enumerate(retrieve_metrics):
 
@@ -2073,8 +2056,6 @@ class DataAnalysis(tk.Frame):
         for index, time in enumerate(point):
             if time:
                 time_list.append(index + 1)
-
-        # TODO select the graph type based on the metric
 
         cleaned_target = self.remap_target(target_group)
 

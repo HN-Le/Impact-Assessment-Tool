@@ -274,7 +274,6 @@ class ProjectPurposeScreen(tk.Frame):
         status_message_show_method_frags = ''
         status_message_add_metric_def = ''
 
-        # todo turn status messages into a function
         def if_clicked(section):
             self.method_fragment.send_status_message(show_status_message, show_status_message_metric_def)
 
@@ -785,9 +784,6 @@ class DataCollectionScreen(tk.Frame):
         self.student_status_message_label_yap.set('')
 
     def show_project_start(self):
-        # TODO split into multiple functions (sop, hop, eop, yap)
-        # TODO adjust buttons accordingly to function
-        # TODO figure out where to place notebook
 
         self.data_file_status_list = []
 
@@ -903,7 +899,6 @@ class DataCollectionScreen(tk.Frame):
                                                                columnspan=150)
 
             # check if valid link
-            # TODO change validation file paths first tab
             def validate_path(file_name_label, status_message_label, file_opener_object, index, status_list):
 
                 self.start_project_window.attributes("-topmost", False)
@@ -2291,7 +2286,6 @@ class DataAnalysisScreen(tk.Frame):
                     self.status_message_tables.set('Select a target!')
 
                 else:
-                    # TODO fix for later
                     input_key = remap_timeframe(self.select_time_frame.get()) + '_' + remap_target(self.select_target.get())
                     value = self.dict_paths.dc_file_paths[input_key]
 

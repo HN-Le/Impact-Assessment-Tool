@@ -1,10 +1,11 @@
 # Tool
 
-1) Install python 3.7.12 by running the 'python-3.7.12.exe' file
-2) Download and extract tool zip file
-3) Run the 'install_packages.bat' file (it closes automatically after completion)
-   (If a pip error occurs, Install pip package (more info https://pip.pypa.io/en/stable/installation/  download pip script: https://bootstrap.pypa.io/get-pip.py))
-4) Run the 'run.bat' file
+1) Download and extract tool zip file
+2) Install python 3.7.12 by running the 'python-3.7.12.exe' file taken from (https://github.com/adang1345/PythonWindows)
+3) Run the 'install_packages.bat' file (it closes automatically after completion) 
+    (If a pip error occurs, Install pip package (more info https://pip.pypa.io/en/stable/installation/  download pip script: https://bootstrap.pypa.io/get-pip.py))
+4) Run the 'run.bat' file to start the tool
+
 
 IMPORTANT
 1) Do not close the command prompt window when the tool is running!
@@ -12,4 +13,3 @@ IMPORTANT
 3) Make sure the survey questions from the mWater exports are exactly the same as generated from the tool otherwise it will not be processed
 
 
-DO NOT OVERWRITE OLD PROJECT IF ITS IN THE CLOUD
